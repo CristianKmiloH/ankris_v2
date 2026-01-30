@@ -202,7 +202,7 @@ const Study: React.FC = () => {
                                                         if (domNode.type === 'tag' && domNode.name === 'img') {
                                                             const src = domNode.attribs.src;
                                                             if (src && !src.startsWith('http') && !src.startsWith('data:')) {
-                                                                domNode.attribs.src = `http://localhost:3000/media/${src}`;
+                                                                domNode.attribs.src = `${MEDIA_BASE_URL}/${src}`;
                                                                 domNode.attribs.style = "max-width: 100%; border-radius: 12px; margin-top: 10px;";
                                                             }
                                                         }
@@ -358,7 +358,7 @@ const AudioButton: React.FC<{ filename: string }> = ({ filename }) => {
 
         if (isPlaying) return; // Prevent double play
 
-        const audio = new Audio(`http://localhost:3000/media/${filename}`);
+        const audio = new Audio(`${MEDIA_BASE_URL}/${filename}`);
 
         setIsPlaying(true);
         audio.play().catch(err => {
