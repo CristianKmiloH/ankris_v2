@@ -774,6 +774,7 @@ const DeckList: React.FC = () => {
                                 flexDirection: 'column',
                                 gap: '16px',
                                 padding: '24px',
+                                borderRadius: '28px', // More rounded card look
                                 boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
                                 border: '1px solid rgba(255, 255, 255, 0.1)',
                                 transform: 'translateY(10px)',
