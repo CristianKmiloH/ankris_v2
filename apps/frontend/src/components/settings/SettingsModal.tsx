@@ -99,15 +99,15 @@ const styles: { [key: string]: React.CSSProperties } = {
     modal: {
         backgroundColor: 'var(--bg-card)',
         width: '100%',
-        maxWidth: 'min(90%, 450px)', // Wider but responsive
-        maxHeight: '90vh', // Prevent overflow on landscape
-        overflowY: 'auto', // Scrollable if needed
+        maxWidth: 'min(90%, 450px)',
+        maxHeight: '85vh', // Slightly reduced to ensure it fits with nav bars
         borderRadius: '24px',
         border: '1px solid var(--bg-card-elevated)',
         boxShadow: 'var(--shadow-card)',
         color: 'var(--text-primary)',
         display: 'flex',
         flexDirection: 'column',
+        position: 'relative', // Ensure containment
     },
     header: {
         padding: '20px 24px',
@@ -115,6 +115,7 @@ const styles: { [key: string]: React.CSSProperties } = {
         justifyContent: 'space-between',
         alignItems: 'center',
         borderBottom: '1px solid var(--bg-card-elevated)',
+        flexShrink: 0, // Header shouldn't shrink
     },
     title: {
         margin: 0,
@@ -137,6 +138,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     },
     content: {
         padding: '24px',
+        overflowY: 'auto', // Scroll content only
+        flex: 1, // Take remaining space
+        minHeight: 0, // Allow flex shrinking
     },
     section: {
         marginBottom: '24px',
