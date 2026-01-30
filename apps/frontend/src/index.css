@@ -222,8 +222,17 @@ button:focus-visible {
 button.btn-easy,
 button.btn-normal,
 button.btn-hard {
-  /* Specific borders can be kept or rely on shared. Keeping specific base style if needed, but removing typography to match shared */
-  /* If we put them in shared block, they get the shared props. */
+  min-width: 0 !important;
+  /* Allow shrinking to fit grid */
+  width: 100%;
+  /* Fill grid cell */
+  padding: 16px 4px !important;
+  /* Reduced padding for mobile */
+  font-size: 0.9rem;
+  /* Prevent text overflow */
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 /* 1. REALISTIC LIGHT REFLECTION (Top Bounce) */
