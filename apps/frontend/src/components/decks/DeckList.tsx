@@ -499,14 +499,52 @@ const DeckList: React.FC = () => {
                 {/* Scrollable Content */}
                 <div style={styles.scrollableContent}>
 
-                    {/* Active Filter Indicator */}
+                    {/* Active Filter Indicator - Floating Action Style */}
                     {activeFilterId && (
-                        <div style={styles.filterContainer}>
-                            <div style={styles.filterChip}>
-                                <span>🔍 {decks.find(d => d.id === activeFilterId)?.name}</span>
+                        <div style={{
+                            position: 'relative',
+                            width: '100%',
+                            marginBottom: '16px',
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                            animation: 'fadeIn 0.3s ease'
+                        }}>
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                                background: 'rgba(0, 242, 255, 0.1)',
+                                padding: '6px 6px 6px 16px',
+                                borderRadius: '99px',
+                                border: '1px solid rgba(0, 242, 255, 0.3)'
+                            }}>
+                                <span style={{
+                                    color: 'var(--accent-cyan)',
+                                    fontSize: '0.9rem',
+                                    fontWeight: '600',
+                                    maxWidth: '150px',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis'
+                                }}>
+                                    {decks.find(d => d.id === activeFilterId)?.name}
+                                </span>
                                 <button
                                     onClick={() => setActiveFilterId(null)}
-                                    style={styles.clearFilterButton}
+                                    className="btn-icon-round"
+                                    style={{
+                                        width: '28px',
+                                        height: '28px',
+                                        minWidth: '28px',
+                                        background: 'rgba(0, 0, 0, 0.2)',
+                                        color: '#fff',
+                                        border: 'none',
+                                        fontSize: '0.8rem',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        cursor: 'pointer'
+                                    }}
                                     title="Clear Filter"
                                 >
                                     ✕
@@ -777,30 +815,43 @@ const DeckList: React.FC = () => {
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     style={{
                                         width: '100%',
-                                        padding: '16px 20px',
-                                        paddingLeft: '50px',
-                                        borderRadius: '16px',
-                                        background: 'rgba(0, 0, 0, 0.2)',
+                                        padding: '18px 24px',
+                                        paddingLeft: '56px',
+                                        borderRadius: '24px',
+                                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%)',
                                         border: '1px solid rgba(255, 255, 255, 0.1)',
                                         color: 'white',
-                                        fontSize: '1.1rem',
-                                        outline: 'none'
+                                        fontSize: '1.2rem',
+                                        outline: 'none',
+                                        boxShadow: 'inset 0 4px 10px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.05)',
+                                        transition: 'all 0.3s ease'
+                                    }}
+                                    onFocus={(e) => {
+                                        e.target.style.background = 'linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.06) 100%)';
+                                        e.target.style.borderColor = 'var(--accent-cyan)';
+                                        e.target.style.boxShadow = '0 0 20px rgba(0, 242, 255, 0.2), inset 0 2px 5px rgba(0,0,0,0.2)';
+                                    }}
+                                    onBlur={(e) => {
+                                        e.target.style.background = 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%)';
+                                        e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                                        e.target.style.boxShadow = 'inset 0 4px 10px rgba(0,0,0,0.2)';
                                     }}
                                 />
                                 <svg
-                                    width="20"
-                                    height="20"
+                                    width="24"
+                                    height="24"
                                     viewBox="0 0 24 24"
                                     fill="none"
                                     stroke="currentColor"
-                                    strokeWidth="2"
+                                    strokeWidth="2.5"
                                     style={{
                                         position: 'absolute',
-                                        left: '16px',
+                                        left: '20px',
                                         top: '50%',
                                         transform: 'translateY(-50%)',
-                                        color: 'rgba(255,255,255,0.4)',
-                                        pointerEvents: 'none'
+                                        color: 'var(--accent-cyan)', // Highlight icon
+                                        pointerEvents: 'none',
+                                        filter: 'drop-shadow(0 0 5px rgba(0, 242, 255, 0.5))'
                                     }}
                                 >
                                     <circle cx="11" cy="11" r="8"></circle>
