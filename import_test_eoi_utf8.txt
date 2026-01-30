@@ -1,0 +1,89 @@
+﻿--- Starting Debug Import ---
+1. Downloading deck: github:jssan/EOI
+[AnkiWeb Service] Downloading from: https://api.github.com/repos/jssan/EOI/zipball
+   Downloaded to: C:\Users\crist\OneDrive\Documents\IA\Antigravity\Ankris_V2\.tmp\anki_import_1769731248345.apkg
+2. Importing deck...
+[Import] Starting import for user: debug-user-id, file: C:\Users\crist\OneDrive\Documents\IA\Antigravity\Ankris_V2\.tmp\anki_import_1769731248345.apkg
+[Import] Unzipping file...
+[Import] Opening SQLite DB...
+[Import] Processing media files...
+[Import] Processed 78 media files.
+[Import] Reading decks from DB...
+[Import] Found decks in map: 2
+[Import] Creating deck: Predeterminado
+[Import] Creating deck: EOI_Modul_1
+[Import] Reading notes...
+[Import] Found 256 notes
+[Import] Cleaning up empty decks...
+[Import] Deleting empty deck: x13p6 (Anki ID: 1)
+[SERVICE] Attempting DELETE deckId: x13p6 for userId: debug-user-id
+[SERVICE] Found index: 27
+[Import] Cleanup complete.
+[Import] Stats: 1 decks, 256 cards
+node.exe : Cleanup 
+failed Error: EPERM, 
+Permission denied: \\
+?\C:\Users\crist\OneD
+rive\Documents\IA\Ant
+igravity\Ankris_V2\.t
+mp\extracted_17697312
+50385 '\\?\C:\Users\c
+rist\OneDrive\Documen
+ts\IA\Antigravity\Ank
+ris_V2\.tmp\extracted
+_1769731250385'
+En línea: 1 
+Carácter: 1
++ & "C:\Program Files
+\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo 
+...
++ ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (Cleanup   
+  failed ..._1769    
+731250385':Strin    
+g) [], RemoteExc    
+eption
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+    at Object.rmSync 
+(node:fs:1235:18)
+    at C:\Users\crist
+\OneDrive\Documents\I
+A\Antigravity\Ankris_
+V2\apps\backend\src\m
+odules\import\import.
+service.ts:283:20
+    at 
+Generator.next 
+(<anonymous>)
+    at fulfilled (C:\
+Users\crist\OneDrive\
+Documents\IA\Antigrav
+ity\Ankris_V2\apps\ba
+ckend\src\modules\imp
+ort\import.service.ts
+:38:58)
+    at processTicksAn
+dRejections (node:int
+ernal/process/task_qu
+eues:103:5) {
+  errno: 1,
+  code: 'EPERM',
+  path: '\\\\?\\C:\\U
+sers\\crist\\OneDrive
+\\Documents\\IA\\Anti
+gravity\\Ankris_V2\\.
+tmp\\extracted_176973
+1250385',
+  syscall: 'rm'
+}
+--- Import Successful ---

@@ -1,0 +1,16 @@
+{
+  "name": "ankris-v2",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev --workspace=apps/backend",
+    "dev:frontend": "npm run dev --workspace=apps/frontend",
+    "build": "npm run build --workspaces"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1"
+  }
+}

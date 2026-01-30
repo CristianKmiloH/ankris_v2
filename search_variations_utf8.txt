@@ -1,0 +1,16 @@
+﻿
+--- Testing: "aleman anki" ---
+Total Count: 1
+First item: jssan/EOI (Stars: 1)
+Desc: Mazos de Anki para el primer curso de alem├ín de nivel b├ísico de la EOI de Torrevieja
+
+--- Testing: "aleman topic:anki" ---
+Total Count: 0
+
+--- Testing: "anki aleman" ---
+Total Count: 1
+First item: jssan/EOI (Stars: 1)
+Desc: Mazos de Anki para el primer curso de alem├ín de nivel b├ísico de la EOI de Torrevieja
+
+--- Testing: "aleman extension:apkg" ---
+Total Count: 0

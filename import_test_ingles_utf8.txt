@@ -1,0 +1,138 @@
+﻿--- Starting Debug Import ---
+1. Downloading deck: github:FelipeMasil/anki-ingles
+[AnkiWeb Service] Downloading from: https://api.github.com/repos/FelipeMasil/anki-ingles/zipball
+   Downloaded to: C:\Users\crist\OneDrive\Documents\IA\Antigravity\Ankris_V2\.tmp\anki_import_1769731660313.apkg
+2. Importing deck...
+[Import] Starting import for user: debug-user-id, file: C:\Users\crist\OneDrive\Documents\IA\Antigravity\Ankris_V2\.tmp\anki_import_1769731660313.apkg
+[Import] Unzipping file...
+node.exe : Import 
+Error: Error: 
+INVALID_DECK
+En línea: 1 
+Carácter: 1
++ & "C:\Program Files
+\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo 
+...
++ ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (Import    
+ Error: Error: IN    
+VALID_DECK:Strin    
+g) [], RemoteExc    
+eption
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+    at C:\Users\crist
+\OneDrive\Documents\I
+A\Antigravity\Ankris_
+V2\apps\backend\src\m
+odules\import\import.
+service.ts:120:27
+    at 
+Generator.next 
+(<anonymous>)
+    at C:\Users\crist
+\OneDrive\Documents\I
+A\Antigravity\Ankris_
+V2\apps\backend\src\m
+odules\import\import.
+service.ts:41:71
+    at new Promise 
+(<anonymous>)
+    at __awaiter (C:\
+Users\crist\OneDrive\
+Documents\IA\Antigrav
+ity\Ankris_V2\apps\ba
+ckend\src\modules\imp
+ort\import.service.ts
+:37:12)
+    at 
+importAnkiDeck (C:\Us
+ers\crist\OneDrive\Do
+cuments\IA\Antigravit
+y\Ankris_V2\apps\back
+end\src\modules\impor
+t\import.service.ts:3
+3:74)
+    at C:\Users\crist
+\OneDrive\Documents\I
+A\Antigravity\Ankris_
+V2\apps\backend\scrip
+ts\debug-import.ts:29
+:29
+    at 
+Generator.next 
+(<anonymous>)
+    at fulfilled (C:\
+Users\crist\OneDrive\
+Documents\IA\Antigrav
+ity\Ankris_V2\apps\ba
+ckend\scripts\debug-i
+mport.ts:5:58)
+    at processTicksAn
+dRejections (node:int
+ernal/process/task_qu
+eues:103:5)
+--- Import FAILED ---
+Error: INVALID_DECK
+    at C:\Users\crist
+\OneDrive\Documents\I
+A\Antigravity\Ankris_
+V2\apps\backend\src\m
+odules\import\import.
+service.ts:120:27
+    at 
+Generator.next 
+(<anonymous>)
+    at C:\Users\crist
+\OneDrive\Documents\I
+A\Antigravity\Ankris_
+V2\apps\backend\src\m
+odules\import\import.
+service.ts:41:71
+    at new Promise 
+(<anonymous>)
+    at __awaiter (C:\
+Users\crist\OneDrive\
+Documents\IA\Antigrav
+ity\Ankris_V2\apps\ba
+ckend\src\modules\imp
+ort\import.service.ts
+:37:12)
+    at 
+importAnkiDeck (C:\Us
+ers\crist\OneDrive\Do
+cuments\IA\Antigravit
+y\Ankris_V2\apps\back
+end\src\modules\impor
+t\import.service.ts:3
+3:74)
+    at C:\Users\crist
+\OneDrive\Documents\I
+A\Antigravity\Ankris_
+V2\apps\backend\scrip
+ts\debug-import.ts:29
+:29
+    at 
+Generator.next 
+(<anonymous>)
+    at fulfilled (C:\
+Users\crist\OneDrive\
+Documents\IA\Antigrav
+ity\Ankris_V2\apps\ba
+ckend\scripts\debug-i
+mport.ts:5:58)
+    at processTicksAn
+dRejections (node:int
+ernal/process/task_qu
+eues:103:5)
+
+Check log file at: C:\Users\crist\OneDrive\Documents\IA\Antigravity\Ankris_V2\.tmp\import_debug_v2.log

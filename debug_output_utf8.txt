@@ -1,0 +1,117 @@
+﻿--- Starting Debug Import ---
+1. Downloading deck: github:EricFrota-Dev/memo
+[AnkiWeb Service] Downloading from: https://api.github.com/repos/EricFrota-Dev/memo/zipball
+   Downloaded to: C:\Users\crist\OneDrive\Documents\IA\Antigravity\Ankris_V2\.tmp\anki_import_1769730175104.apkg
+2. Importing deck...
+[Import] Starting import for user: debug-user-id, file: C:\Users\crist\OneDrive\Documents\IA\Antigravity\Ankris_V2\.tmp\anki_import_1769730175104.apkg
+[Import] Unzipping file...
+node.exe : Import Error: 
+Error: Invalid .apkg: 
+collection.anki2 not found
+En línea: 1 Carácter: 1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo        
+      : NotSpe    cified: 
+(Import     Error: 
+E...anki2     not 
+found:Strin    g) [], 
+RemoteExc    eption
+    + FullyQualified    
+ErrorId : Native    
+CommandError
+ 
+    at C:\Users\crist\OneD
+rive\Documents\IA\Antigrav
+ity\Ankris_V2\apps\backend
+\src\modules\import\import
+.service.ts:120:27
+    at Generator.next 
+(<anonymous>)
+    at C:\Users\crist\OneD
+rive\Documents\IA\Antigrav
+ity\Ankris_V2\apps\backend
+\src\modules\import\import
+.service.ts:41:71
+    at new Promise 
+(<anonymous>)
+    at __awaiter (C:\Users
+\crist\OneDrive\Documents\
+IA\Antigravity\Ankris_V2\a
+pps\backend\src\modules\im
+port\import.service.ts:37:
+12)
+    at importAnkiDeck (C:\
+Users\crist\OneDrive\Docum
+ents\IA\Antigravity\Ankris
+_V2\apps\backend\src\modul
+es\import\import.service.t
+s:33:74)
+    at C:\Users\crist\OneD
+rive\Documents\IA\Antigrav
+ity\Ankris_V2\apps\backend
+\scripts\debug-import.ts:3
+0:29
+    at Generator.next 
+(<anonymous>)
+    at fulfilled (C:\Users
+\crist\OneDrive\Documents\
+IA\Antigravity\Ankris_V2\a
+pps\backend\scripts\debug-
+import.ts:5:58)
+    at 
+processTicksAndRejections 
+(node:internal/process/tas
+k_queues:103:5)
+--- Import FAILED ---
+Error: Invalid .apkg: 
+collection.anki2 not found
+    at C:\Users\crist\OneD
+rive\Documents\IA\Antigrav
+ity\Ankris_V2\apps\backend
+\src\modules\import\import
+.service.ts:120:27
+    at Generator.next 
+(<anonymous>)
+    at C:\Users\crist\OneD
+rive\Documents\IA\Antigrav
+ity\Ankris_V2\apps\backend
+\src\modules\import\import
+.service.ts:41:71
+    at new Promise 
+(<anonymous>)
+    at __awaiter (C:\Users
+\crist\OneDrive\Documents\
+IA\Antigravity\Ankris_V2\a
+pps\backend\src\modules\im
+port\import.service.ts:37:
+12)
+    at importAnkiDeck (C:\
+Users\crist\OneDrive\Docum
+ents\IA\Antigravity\Ankris
+_V2\apps\backend\src\modul
+es\import\import.service.t
+s:33:74)
+    at C:\Users\crist\OneD
+rive\Documents\IA\Antigrav
+ity\Ankris_V2\apps\backend
+\scripts\debug-import.ts:3
+0:29
+    at Generator.next 
+(<anonymous>)
+    at fulfilled (C:\Users
+\crist\OneDrive\Documents\
+IA\Antigravity\Ankris_V2\a
+pps\backend\scripts\debug-
+import.ts:5:58)
+    at 
+processTicksAndRejections 
+(node:internal/process/tas
+k_queues:103:5)
+
+Check log file at: C:\Users\crist\OneDrive\Documents\IA\Antigravity\Ankris_V2\.tmp\import_debug_v2.log

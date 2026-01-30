@@ -1,0 +1,1242 @@
+﻿import React, { useEffect, useState } from 'react';
+import { useTranslation } from '../../i18n/useTranslation';
+import { getDecks, createDeck, deleteDeck, importDeck, type Deck } from '../../services/deckService';
+import GeneratorModal from '../ai/GeneratorModal';
+import Layout from '../layout/Layout';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { API_BASE_URL } from '../../config';
+
+interface AnkiWebResult {
+    id: string;
+    title: string;
+    noteCount: number;
+    repo?: string;
+    stars?: number;
+}
+
+// Import Modal
+import ErrorModal from '../common/ErrorModal';
+
+const DeckList: React.FC = () => {
+    const [decks, setDecks] = useState<Deck[]>([]);
+    const [newDeckName, setNewDeckName] = useState('');
+    const [isImporting, setIsImporting] = useState(false);
+    const [ankiWebResults, setAnkiWebResults] = useState<AnkiWebResult[]>([]);
+    const [isSearchingAnkiWeb, setIsSearchingAnkiWeb] = useState(false);
+    const [ankiWebQuery, setAnkiWebQuery] = useState('');
+    const [hasSearched, setHasSearched] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [activeFilterId, setActiveFilterId] = useState<string | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+    const [isImportHovered, setIsImportHovered] = useState(false);
+    const [hoveredDeckId, setHoveredDeckId] = useState<string | null>(null); // Track hovered study button
+    const searchInputRef = React.useRef<HTMLInputElement>(null);
+
+
+    // Error Modal State
+    const [errorModalOpen, setErrorModalOpen] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [errorTitle, setErrorTitle] = useState('Error');
+
+    const navigate = useNavigate();
+    const { t } = useTranslation();
+
+    useEffect(() => {
+        loadDecks();
+    }, []);
+
+    const loadDecks = async () => {
+        try {
+            const data = await getDecks();
+            setDecks(data);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleCreate = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newDeckName) return; // Fallback, native validation should catch this
+        try {
+            await createDeck(newDeckName);
+            setNewDeckName('');
+            loadDecks();
+        } catch (err) {
+            alert('Failed to create deck');
+        }
+    };
+
+    const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null);
+    const [showAiModal, setShowAiModal] = useState(false);
+
+    const handleAiSuccess = () => {
+        loadDecks();
+    };
+
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deckToDelete, setDeckToDelete] = useState<string | null>(null);
+
+    const openDeleteModal = (id: string, e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation(); // Ensure we stop here
+        console.log('Delete clicked for:', id);
+        setDeckToDelete(id);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDelete = async () => {
+        if (deckToDelete) {
+            try {
+                await deleteDeck(deckToDelete);
+                loadDecks();
+                setShowDeleteModal(false);
+                setDeckToDelete(null);
+            } catch (error) {
+                console.error("Failed to delete", error);
+                alert("Failed to delete deck");
+            }
+        }
+    };
+
+    // --- Edit Functionality ---
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [deckToEdit, setDeckToEdit] = useState<Deck | null>(null);
+    const [editName, setEditName] = useState('');
+
+    const openEditModal = (deck: Deck, e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDeckToEdit(deck);
+        setEditName(deck.name);
+        setShowEditModal(true);
+    };
+
+    const handleUpdateDeck = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!deckToEdit || !editName.trim()) return;
+
+        try {
+            // Check if updateDeck works (requires importing updateDeck from service, verify imports first)
+            // Assuming updateDeck is exported from service as per plan
+            await import('../../services/deckService').then(mod => mod.updateDeck(deckToEdit.id, editName));
+            loadDecks();
+            setShowEditModal(false);
+            setDeckToEdit(null);
+        } catch (error) {
+            console.error("Failed to update", error);
+            alert("Failed to update deck");
+        }
+    };
+
+    // Import functionality
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+    // Open the new Modal instead of direct click
+    const handleImportClick = () => {
+        setIsImportModalOpen(true);
+    };
+
+    // Helper to trigger the hidden input from within the modal
+    // AnkiWeb Search Handler
+    // Validation for search
+    const handleAnkiWebSearch = async () => {
+        if (!ankiWebQuery.trim()) {
+            if (searchInputRef.current) {
+                searchInputRef.current.setCustomValidity('Completa este campo');
+                searchInputRef.current.reportValidity();
+            }
+            return;
+        }
+
+        setIsSearchingAnkiWeb(true);
+        setHasSearched(true);
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.get(`${API_BASE_URL}/api/ankiweb/search?q=${encodeURIComponent(ankiWebQuery)}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setAnkiWebResults(res.data);
+        } catch (error) {
+            console.error('Online search failed:', error);
+            setAnkiWebResults([]);
+        } finally {
+            setIsSearchingAnkiWeb(false);
+            setHasSearched(true);
+        }
+    };
+
+    const handleClearSearch = () => {
+        setAnkiWebQuery('');
+        setAnkiWebResults([]);
+        setIsSearchingAnkiWeb(false);
+        setHasSearched(false);
+    };
+
+    const handleAnkiWebDownload = async (deckId: string) => {
+        setIsImporting(true); // Re-use the importing loading screen
+        try {
+            const token = localStorage.getItem('token');
+            await axios.post(`${API_BASE_URL}/api/ankiweb/download`, { deckId }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            // Refresh decks
+            loadDecks();
+            setIsImportModalOpen(false); // Close the modal
+            setIsImporting(false);
+            // Maybe show success toast
+        } catch (error: any) {
+            console.error(error);
+            setIsImporting(false);
+
+            const status = error.response?.status;
+            const errCode = error.response?.data?.error;
+
+            if (status === 422 && errCode === 'REPOSITORY_NOT_A_DECK') {
+                setErrorTitle('⚠️ Archivo Incompatible');
+                setErrorMessage('Este repositorio no es un mazo válido.\n\nEl archivo descargado no contiene "collection.anki2" ni archivos .apkg.\n\nAsegúrate de que el enlace de GitHub contenga un mazo de Anki exportado correctamente.');
+                setErrorModalOpen(true);
+            } else {
+                setErrorTitle('Error de Descarga');
+                setErrorMessage('No se pudo descargar el mazo.\nPor favor verifica tu conexión o intenta con otro enlace.');
+                setErrorModalOpen(true);
+            }
+        }
+    };
+
+    const triggerFileInput = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        try {
+            setIsImportModalOpen(false); // Close selection modal immediately
+            setIsImporting(true); // Show loading modal
+
+            // Basic UI feedback - could be improved with a spinner state
+            const btn = document.querySelector('.anim-header-import') as HTMLButtonElement;
+            if (btn) btn.disabled = true;
+
+            await importDeck(file);
+            // alert(t('success') || 'Success!'); // Remove alert that blocks UI
+            await loadDecks();
+        } catch (error: any) {
+            alert(error.message || 'Import failed');
+        } finally {
+            setIsImporting(false);
+            const btn = document.querySelector('.anim-header-import') as HTMLButtonElement;
+            if (btn) btn.disabled = false;
+            event.target.value = ''; // Reset input to allow same file selection again
+        }
+    };
+
+    const HeaderButtons = () => (
+        <div style={styles.headerButtons}>
+            <button
+                onClick={handleImportClick}
+                className="btn-icon-round anim-header-import"
+                title={t('importModalTitle') || "Import / Download"}
+            >
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ overflow: 'visible' }}>
+                    {/* Arrow Group (Physics) */}
+                    <g className="arrow-group">
+                        <path className="arrow-shaft" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v10" />
+                        <path className="arrow-head" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12l-4 4 -4-4" />
+                    </g>
+                    {/* Tray (Static Base) */}
+                    <path className="icon-tray" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1" />
+                </svg>
+            </button>
+            <button
+                onClick={() => setIsSearchOpen(true)}
+                className="btn-icon-round anim-header-search"
+                title={t('searchDecks') || "Search Decks"}
+                style={{
+                    background: 'radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(0, 0, 0, 0.5) 100%)', // Orb gradient
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    boxShadow: '0 8px 16px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.3)', // Deep shadow + inner light
+                    color: 'var(--accent-cyan)', // Tint the icon
+                }}
+            >
+                <svg className="glass-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </button>
+            <button
+                onClick={() => navigate('/stats')}
+                className="btn-icon-round anim-header-stats"
+                title={t('statistics')}
+            >
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ overflow: 'visible' }}>
+                    {/* Bar 1 (Small) */}
+                    <path className="bar-1" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2z" />
+                    {/* Bar 2 (Medium) */}
+                    <path className="bar-2" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19V9a2 2 0 00-2-2h-2a2 2 0 00-2 2v10a2 2 0 002 2h2a2 2 0 002-2z" />
+                    {/* Bar 3 (Large) */}
+                    <path className="bar-3" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 19V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14a2 2 0 002 2h2a2 2 0 002-2z" />
+                </svg>
+            </button>
+        </div>
+    );
+
+    return (
+        <Layout
+            activeTab="home"
+            title={t('myDecks')}
+            subtitle={t('startJourney')}
+            headerAction={<HeaderButtons />}
+        >
+            <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                accept=".apkg"
+                style={{ display: 'none' }}
+            />
+            <div style={styles.container}>
+                {/* AI Generator Modal */}
+                {showAiModal && selectedDeckId && (
+                    <div style={styles.modalOverlay}>
+                        <React.Suspense fallback={<div className="loading">Loading...</div>}>
+                            <GeneratorModal
+                                deckId={selectedDeckId}
+                                onClose={() => setShowAiModal(false)}
+                                onSuccess={handleAiSuccess}
+                            />
+                        </React.Suspense>
+                    </div>
+                )}
+
+                {/* Initial Loading Modal */}
+                {isLoading && (
+                    <div style={styles.modalOverlay}>
+                        <div style={styles.loadingBox}>
+                            <span className="loading" style={{ fontSize: '3rem' }}>⏳</span>
+                            <p style={styles.loadingText}>{t('loadingDecks') || 'Cargando biblioteca...'}</p>
+                        </div>
+                    </div>
+                )}
+
+                {/* Import Loading Modal */}
+                {/* Import Loading Modal MOVED TO BOTTOM */}
+
+                {/* IMPORT & DOWNLOAD MODAL */}
+                {isImportModalOpen && (
+                    <div style={styles.modalOverlay} onClick={() => setIsImportModalOpen(false)}>
+                        <div style={styles.importModalContent} onClick={(e) => e.stopPropagation()}>
+                            <div style={styles.modalHeader}>
+                                <h2 style={styles.modalTitle}>
+                                    {t('importModalTitle') || 'Import / Download'}
+                                </h2>
+                            </div>
+
+                            <div style={styles.importSectionsContainer}>
+                                {/* Section 1: Local Import */}
+                                {/* Section 1: Local Import */}
+                                <div style={styles.importSection}>
+                                    <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', textAlign: 'center', marginBottom: '15px', padding: '0 20px' }}>
+                                        {t('importInstruction').split('https://ankiweb.net/shared/decks').map((part, index, array) => (
+                                            <React.Fragment key={index}>
+                                                {part}
+                                                {index < array.length - 1 && (
+                                                    <a href="https://ankiweb.net/shared/decks" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-cyan)', textDecoration: 'underline' }}>
+                                                        https://ankiweb.net/shared/decks
+                                                    </a>
+                                                )}
+                                            </React.Fragment>
+                                        ))}
+                                    </p>
+                                    <button
+                                        onClick={triggerFileInput}
+                                        className="btn-primary"
+                                        onMouseEnter={() => setIsImportHovered(true)}
+                                        onMouseLeave={() => setIsImportHovered(false)}
+                                        style={{
+                                            ...styles.importDeviceButton,
+                                            background: 'linear-gradient(135deg, var(--accent-cyan), #00b8e6)', // Force distinct gradient
+                                            border: '1px solid rgba(255,255,255,0.3)', // Visible border
+                                            color: '#000000', // Black text for maximum visibility
+                                            fontWeight: 'bold',
+                                            textShadow: '0 1px 0 rgba(255,255,255,0.4)',
+                                            boxShadow: isImportHovered
+                                                ? '0 0 25px rgba(0, 217, 255, 0.6)' // Strong neon glow on hover
+                                                : '0 10px 20px -5px rgba(0, 217, 255, 0.15)', // Reduced intensity base
+                                            transition: 'all 0.3s ease', // Smooth transition
+                                            transform: isImportHovered ? 'scale(1.02)' : 'scale(1)',
+                                        }}
+                                    >
+                                        <span style={{ fontSize: '1.4rem', marginRight: '10px' }}>📂</span>
+                                        {t('importApkg')}
+                                    </button>
+                                </div>
+
+                                <div style={styles.divider}></div>
+
+                                {/* Section 2: Online Search */}
+                                <div style={styles.importSectionSpread}>
+                                    <h3 style={styles.sectionTitle}>{t('searchOnline') || 'Search Online'}</h3>
+                                    <div style={styles.onlineSearchBox}>
+                                        <input
+                                            ref={searchInputRef}
+                                            type="text"
+                                            style={styles.onlineSearchInput}
+                                            placeholder={t('searchPlaceholderOnline') || 'Search for decks...'}
+                                            value={ankiWebQuery}
+                                            onChange={(e) => {
+                                                e.target.setCustomValidity(''); // Clear custom error immediately
+                                                setAnkiWebQuery(e.target.value);
+                                                setHasSearched(false); // Reset to "typing" state
+                                            }}
+                                            onKeyDown={(e) => e.key === 'Enter' && handleAnkiWebSearch()}
+                                            required
+                                        />
+                                        {ankiWebQuery && (
+                                            <button
+                                                style={styles.clearButton}
+                                                className="btn-orb-clear"
+                                                onClick={handleClearSearch}
+                                                title={t('clearSearch') || "Clear"}
+                                            >
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                                </svg>
+                                            </button>
+                                        )}
+                                        <button
+                                            style={{
+                                                ...styles.onlineSearchButton,
+                                                background: 'radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(0, 0, 0, 0.6) 100%)', // Brighter highlight
+                                                border: '1px solid rgba(255, 255, 255, 0.15)',
+                                                boxShadow: '0 10px 20px rgba(0,0,0,0.5), inset 0 3px 6px rgba(255,255,255,0.4), inset 0 -3px 6px rgba(0,0,0,0.3)', // Enhanced 3D depth
+                                                color: 'var(--accent-cyan)',
+                                            }}
+                                            className="btn-orb-exact"
+                                            onClick={handleAnkiWebSearch}
+                                        >
+                                            {/* Exact Reference Icon: Simple Circle + Stick */}
+                                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                                <circle cx="11" cy="11" r="8"></circle>
+                                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div style={styles.searchResultsContainer}>
+                                        {isSearchingAnkiWeb ? (
+                                            <div style={{ color: 'var(--text-primary)', textAlign: 'center', padding: '20px' }}>Loading...</div>
+                                        ) : hasSearched && ankiWebResults.length === 0 ? (
+                                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', opacity: 0.7, color: 'var(--text-secondary)', textAlign: 'center', padding: '20px' }}>
+                                                <p>{t('noResults') || 'No decks found'}</p>
+                                                <a
+                                                    href="https://ankiweb.net/shared/decks"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    style={{ color: 'var(--accent-cyan)', textDecoration: 'underline', fontSize: '0.9rem', marginTop: '8px' }}
+                                                >
+                                                    https://ankiweb.net/shared/decks
+                                                </a>
+                                            </div>
+                                        ) : hasSearched && ankiWebResults.length > 0 ? (
+                                            ankiWebResults.map(deck => (
+                                                <div key={deck.id} style={styles.resultItem}>
+                                                    <div style={styles.resultInfo}>
+                                                        <div style={styles.resultTitle} title={deck.title}>{deck.title}</div>
+                                                        <div style={styles.resultMeta}>
+                                                            {deck.repo && `📦 ${deck.repo}`}
+                                                            {deck.stars !== undefined && deck.stars > 0 && ` • ⭐ ${deck.stars}`}
+                                                            {deck.noteCount > 0 && ` • ${deck.noteCount} cards`}
+                                                        </div>
+                                                    </div>
+                                                    <button
+                                                        style={styles.downloadButton}
+                                                        onClick={() => handleAnkiWebDownload(deck.id)}
+                                                    >
+                                                        DOWNLOAD
+                                                    </button>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', opacity: 0.6, color: 'var(--text-secondary)', textAlign: 'center', padding: '20px' }}>
+                                                <span style={{ fontSize: '2rem', marginBottom: '10px' }}>🔍</span>
+                                                <p>{t('searchPrompt') || 'Type above to search AnkiWeb shared decks'}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {/* Cancel Button - Outside the card */}
+                        <button onClick={() => setIsImportModalOpen(false)} style={styles.cancelButtonOutside}>
+                            {t('cancel')}
+                        </button>
+                    </div >
+                )}
+
+                {/* Fixed Create Section */}
+                <div style={styles.fixedHeader}>
+                    <form onSubmit={handleCreate} style={styles.createForm}>
+                        <input
+                            type="text"
+                            value={newDeckName}
+                            onChange={(e) => setNewDeckName(e.target.value)}
+                            placeholder={t('deckName')}
+                            style={styles.input}
+                            required
+                        />
+                        <button type="submit" className="btn-primary" style={styles.createButton}>
+                            {t('createDeck')}
+                        </button>
+                    </form>
+                </div>
+
+                {/* Scrollable Content */}
+                <div style={styles.scrollableContent}>
+
+                    {/* Active Filter Indicator */}
+                    {activeFilterId && (
+                        <div style={styles.filterContainer}>
+                            <div style={styles.filterChip}>
+                                <span>🔍 {decks.find(d => d.id === activeFilterId)?.name}</span>
+                                <button
+                                    onClick={() => setActiveFilterId(null)}
+                                    style={styles.clearFilterButton}
+                                    title="Clear Filter"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    <div style={styles.deckGrid}>
+                        {(activeFilterId ? decks.filter(d => d.id === activeFilterId) : decks).map((deck) => (
+                            <div key={deck.id} style={styles.deckCard} className="card-large">
+                                <div style={styles.deckHeader}>
+                                    <div>
+                                        <h2 style={styles.deckTitle}>{deck.name}</h2>
+                                        <p style={styles.deckCount}>
+                                            {deck._count?.cards || 0} {deck._count?.cards === 1 ? t('cardCount') : t('cardsCount')}
+                                        </p>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                        <button
+                                            onClick={(e) => openEditModal(deck, e)}
+                                            className="anim-edit-blue btn-icon-round"
+                                            title={t('editDeck') || 'Editar'}
+                                            style={{
+                                                ...styles.editButton,
+                                                borderColor: 'var(--accent-cyan)', // Ensure strict match
+                                                color: 'var(--accent-cyan)',
+                                                backgroundColor: 'rgba(0, 217, 255, 0.05)', // base subtle state
+                                                zIndex: 100,
+                                                position: 'relative',
+                                                pointerEvents: 'auto',
+                                            }}
+                                        >
+                                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20" style={{ overflow: 'visible' }}>
+                                                {/* Pencil Icon */}
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                            </svg>
+                                        </button>
+                                        <button
+                                            onClick={(e) => openDeleteModal(deck.id, e)}
+                                            className="anim-trash btn-icon-round"
+                                            title={t('deleteDeck')}
+                                            style={{
+                                                ...styles.deleteButton,
+                                                zIndex: 100, // Boosted Z-Index
+                                                position: 'relative',
+                                                pointerEvents: 'auto', // Force clickable
+                                            }}
+                                        >
+                                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20" className="trash-icon" style={{ overflow: 'visible', pointerEvents: 'none' }}>
+                                                <defs>
+                                                    <radialGradient id="trashLight" cx="0.5" cy="0.5" r="0.5" fx="0.5" fy="0.5">
+                                                        <stop offset="0%" stopColor="#FFF" stopOpacity="0.9" /> {/* Hot Core */}
+                                                        <stop offset="40%" stopColor="var(--accent-red)" stopOpacity="0.8" /> {/* Main Glow */}
+                                                        <stop offset="100%" stopColor="var(--accent-red)" stopOpacity="0" /> {/* Fade out */}
+                                                    </radialGradient>
+                                                </defs>
+
+                                                {/* Neon Glow (Bottom Layer - "Bulb" inside) */}
+                                                <ellipse className="trash-glow" cx="12" cy="10" rx="4" ry="2" fill="url(#trashLight)" opacity="0" />
+
+                                                {/* Can (Middle Layer - Solid) */}
+                                                <path className="trash-can" fill="var(--bg-card)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7M10 11v6M14 11v6" />
+
+                                                {/* Lid (Top Layer - Solid) */}
+                                                <path className="trash-lid" fill="var(--bg-card)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7h16M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div style={styles.deckActions}>
+                                    <button
+                                        onClick={() => navigate(`/decks/${deck.id}/study`)}
+                                        className="btn-easy"
+                                        onMouseEnter={() => setHoveredDeckId(deck.id)}
+                                        onMouseLeave={() => setHoveredDeckId(null)}
+                                        style={{
+                                            ...styles.studyButton,
+                                            transition: 'all 0.3s ease',
+                                            transform: hoveredDeckId === deck.id ? 'scale(1.05)' : 'scale(1)',
+                                            boxShadow: hoveredDeckId === deck.id
+                                                ? '0 0 20px rgba(45, 138, 62, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.2)' // Green neon glow
+                                                : styles.studyButton.boxShadow || 'none'
+                                        }}
+                                    >
+                                        {t('study')}
+                                    </button>
+
+                                    <button
+                                        onClick={() => { setSelectedDeckId(deck.id); setShowAiModal(true); }}
+                                        style={styles.magicButton}
+                                        className="magic-button" // Hook for CSS animation
+                                        title={t('generateWithAI')}
+                                    >
+                                        <svg className="magic-icon" fill="currentColor" viewBox="0 0 24 24" width="24" height="24">
+                                            {/* Star 1 (Big) */}
+                                            <path className="star-1" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" />
+                                            {/* Star 2 (Medium - Top Right) */}
+                                            <path className="star-2" d="M18 2L19 6L23 7L19 8L18 12L17 8L13 7L17 6L18 2Z" />
+                                            {/* Star 3 (Small - Bottom Left) */}
+                                            <path className="star-3" d="M6 16L7 19L10 20L7 21L6 24L5 21L2 20L5 19L6 16Z" />
+                                        </svg>
+                                    </button>
+
+                                    <button
+                                        onClick={() => navigate(`/decks/${deck.id}/add`)}
+                                        className="btn-glass"
+                                        style={styles.addButton}
+                                        title={t('addCards')}
+                                    >
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ color: 'var(--text-primary)' }}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+
+                        {decks.length === 0 && (
+                            <div style={styles.emptyState}>
+                                <p style={styles.emptyText}>{t('noDecksYet')}</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div >
+
+            {/* Import Loading Modal (Placed here to be on top of others) */}
+            {
+                isImporting && (
+                    <div style={styles.modalOverlay}>
+                        <div style={styles.loadingBox}>
+                            <span className="loading" style={{ fontSize: '3rem' }}>⏳</span>
+                            <p style={styles.loadingText}>{t('importing') || 'Importing Deck...'}</p>
+                        </div>
+                    </div>
+                )
+            }
+
+            {/* Delete Confirmation Modal */}
+            {
+                showDeleteModal && (
+                    <div style={styles.modalOverlay}>
+                        <div style={styles.deleteModal}>
+                            <h3 style={styles.deleteTitle}>{t('deleteDeck')}?</h3>
+                            <p style={styles.deleteMessage}>{t('deleteConfirm') || "¿Estás seguro de eliminar este mazo?"}</p>
+                            <div style={styles.deleteActions}>
+                                <button onClick={() => setShowDeleteModal(false)} style={styles.cancelButton}>
+                                    {t('cancel')}
+                                </button>
+                                <button onClick={confirmDelete} style={styles.confirmButton}>
+                                    {t('delete')}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+            {/* Edit Deck Modal */}
+            {
+                showEditModal && (
+                    <div style={styles.modalOverlay} onClick={() => setShowEditModal(false)}>
+                        <div style={styles.searchModalContent} onClick={(e) => e.stopPropagation()}>
+                            <div style={styles.searchHeader}>
+                                <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>
+                                    {t('editDeck') || 'Editar Mazo'}
+                                </h2>
+                                <button onClick={() => setShowEditModal(false)} style={styles.closeSearch}>✕</button>
+                            </div>
+
+                            <form onSubmit={handleUpdateDeck} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <label style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{t('deckName') || 'Nombre del Mazo'}</label>
+                                    <input
+                                        autoFocus
+                                        type="text"
+                                        value={editName}
+                                        onChange={(e) => setEditName(e.target.value)}
+                                        style={styles.searchInput} // Reuse input style
+                                        placeholder="Nombre del mazo"
+                                    />
+                                </div>
+
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                                    <button type="button" onClick={() => setShowEditModal(false)} style={styles.cancelButton}>
+                                        {t('cancel')}
+                                    </button>
+                                    <button type="submit" className="btn-primary" style={{ ...styles.createButton, height: '40px', minWidth: '100px' }}>
+                                        {t('save') || 'Guardar'}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )
+            }
+
+            {/* Search Modal - MOVED INSIDE LAYOUT */}
+            {
+                isSearchOpen && (
+                    <div style={styles.modalOverlay} onClick={() => setIsSearchOpen(false)}>
+                        <div style={styles.searchModalContent} onClick={(e) => e.stopPropagation()}>
+                            <div style={styles.searchHeader}>
+                                <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', background: 'linear-gradient(to right, #00f2ff, #00c3ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                                    {t('searchDecks') || 'Buscar Mazos'}
+                                </h2>
+                                <button onClick={() => setIsSearchOpen(false)} style={styles.closeSearch}>✕</button>
+                            </div>
+
+                            <input
+                                autoFocus
+                                type="text"
+                                placeholder={t('searchPlaceholder') || "Escribe para buscar..."}
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                style={styles.searchInput}
+                            />
+
+                            <div style={styles.searchResults}>
+                                {decks.filter(d => d.name.toLowerCase().includes(searchQuery.toLowerCase())).length > 0 ? (
+                                    decks
+                                        .filter(d => d.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                                        .map(deck => (
+                                            <div
+                                                key={deck.id}
+                                                onClick={() => {
+                                                    setActiveFilterId(deck.id);
+                                                    setIsSearchOpen(false);
+                                                    setSearchQuery('');
+                                                }}
+                                                style={styles.searchResultItem}
+                                                className="search-item"
+                                            >
+                                                <span style={{ fontWeight: '600' }}>{deck.name}</span>
+                                                <span style={{ fontSize: '0.8rem', opacity: 0.6 }}>{deck._count?.cards || 0} {t('cards')}</span>
+                                            </div>
+                                        ))
+                                ) : (
+                                    <div style={{ padding: '20px', textAlign: 'center', opacity: 0.5 }}>
+                                        No se encontraron mazos
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+
+            {/* Error Modal */}
+            <ErrorModal
+                isOpen={errorModalOpen}
+                title={errorTitle}
+                message={errorMessage}
+                onClose={() => setErrorModalOpen(false)}
+            />
+
+        </Layout >
+    );
+};
+
+const styles: { [key: string]: React.CSSProperties } = {
+    container: {
+        height: 'auto', // FIXED: Was '100%' forcing full height expansion
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+    },
+    fixedHeader: {
+        flexShrink: 0,
+        paddingBottom: '0px', // Zero spacing
+    },
+    scrollableContent: {
+        flex: '0 1 auto', // Only take needed space, don't force expansion
+        overflowY: 'auto',
+        paddingBottom: '8px',
+        // Hide scrollbar but keep functionality
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none',
+    },
+    headerButtons: {
+        display: 'flex',
+        gap: '12px',
+    },
+    createForm: {
+        display: 'flex',
+        flexWrap: 'wrap', // Allow wrapping on small screens
+        gap: '8px',
+        marginBottom: '16px', // Added vertical spacing
+        backgroundColor: 'var(--bg-card)',
+        padding: '6px',
+        borderRadius: '20px',
+        border: '1px solid rgba(255, 255, 255, 0.05)',
+        width: '100%', // Ensure it takes available width
+    },
+    input: {
+        flex: '1 1 200px', // Allow shrink/grow but set base basis
+        minWidth: '200px', // Force wrap if less than this
+        padding: '12px 20px',
+        borderRadius: '14px',
+        border: 'none',
+        backgroundColor: 'transparent',
+        color: 'var(--text-primary)',
+        fontSize: '1rem',
+        outline: 'none',
+    },
+    deckGrid: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', // Use auto-fit to expand single cards
+        gap: '12px', // Comfortable gap
+        paddingBottom: '20px',
+        width: '100%',
+    },
+    deckCard: {
+        transition: 'transform 0.2s',
+        margin: 0,
+        padding: '20px', // Increased padding to prevent text touching edges
+        width: '100%',
+        boxSizing: 'border-box',
+    },
+    deckHeader: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start', // Align top for multiline titles
+        marginBottom: '12px', // More breathing room
+        minHeight: '42px',
+    },
+    deckTitle: {
+        fontSize: '1.2rem', // Restored size
+        fontWeight: 'bold',
+        marginBottom: '4px',
+        color: 'var(--text-primary)',
+        lineHeight: '1.3',
+        wordBreak: 'break-word', // prevent overflow
+        paddingRight: '12px', // Space from trash icon
+    },
+    // Search Modal Styles
+    importModalContent: {
+        background: 'var(--bg-card)',
+        padding: '20px', // Reduced from 24px
+        borderRadius: '24px',
+        width: '95%',
+        maxWidth: '550px',
+        flex: 1,
+        height: 'auto',
+        maxHeight: '85vh', // Slightly increased max-height allowance
+        marginBottom: '4px',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        border: '1px solid var(--border-color)',
+        boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+    },
+    importSectionsContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px', // Reduced from 20px
+        marginTop: '5px', // Reduced from 10px
+        flex: 1,
+        minHeight: 0,
+        marginBottom: '10px', // Reduced from 15px
+    },
+    importSectionAuto: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
+        flex: '0 0 auto', // Don't grow
+    },
+    importSectionSpread: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
+        flex: 1, // Grow to fill space
+        minHeight: 0,
+        marginBottom: '10px', // Space above cancel button
+    },
+    divider: {
+        height: '1px', // ensure horizontal divider
+        width: '100%',
+        background: 'var(--border-color)',
+        flexShrink: 0,
+    },
+    importDeviceButton: {
+        width: '100%',
+        height: '56px', // Match Cancel Button Height
+        flex: '0 0 auto',
+        borderRadius: '28px', // Match Cancel Button Radius
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        background: 'rgba(20, 20, 20, 0.95)', // Match Cancel Button Background
+        backdropFilter: 'blur(10px)',
+        color: 'var(--text-primary)',
+        cursor: 'pointer',
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '0', // Gap handled by margin in icon
+        padding: '0 20px',
+        transition: 'all 0.3s ease',
+        fontSize: '1rem',
+        fontWeight: 'bold',
+        textTransform: 'uppercase',
+        letterSpacing: '1px',
+        boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+        boxSizing: 'border-box',
+    },
+    onlineSearchBox: {
+        display: 'flex',
+        gap: '10px',
+        flexShrink: 0,
+    },
+    onlineSearchInput: {
+        flex: 1,
+        // Match Orb Height (60px) for perfect alignment
+        height: '60px',
+        padding: '0 24px',
+        borderRadius: '30px', /* Half of 60px */
+        background: 'var(--bg-input-custom)', // Adaptive background
+        border: '1px solid var(--border-glass)',
+        color: 'var(--text-primary)',
+        fontSize: '1rem',
+        outline: 'none',
+        minWidth: 0,
+        boxSizing: 'border-box',
+        boxShadow: 'inset 0 2px 5px rgba(0,0,0,0.1)', /* Softer inner depth */
+    },
+    onlineSearchButton: {
+        // Layout props only - visual props via class
+        width: '60px',
+        height: '60px',
+        minWidth: '60px', /* FORCE override of global min-width: 200px */
+        maxWidth: '60px',
+        flex: '0 0 60px',
+        marginLeft: '12px',
+        padding: 0,
+        border: 'none',
+        background: 'transparent', // Let CSS class handle it
+    },
+    clearButton: {
+        width: '60px',
+        height: '60px',
+        minWidth: '60px', /* FORCE override of global min-width: 200px */
+        maxWidth: '60px',
+        flex: '0 0 60px',
+        marginLeft: '12px',
+        padding: 0,
+        border: 'none',
+        background: 'transparent',
+    },
+    searchResultsContainer: {
+        flex: 1, // Fill remaining vertical space
+        width: '100%', // FORCE strict width
+        boxSizing: 'border-box', // Include padding in width
+        overflowX: 'hidden', // Prevent horizontal scroll
+        overflowY: 'auto',
+        backgroundColor: 'var(--bg-result-container)',
+        borderRadius: '12px',
+        padding: '10px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px',
+
+        /* Custom Scrollbar for results */
+        scrollbarWidth: 'thin',
+        scrollbarColor: 'var(--accent-cyan) var(--bg-dark)',
+    },
+    modalHeader: {
+        marginBottom: '10px',
+        textAlign: 'center',
+    },
+    modalTitle: {
+        margin: 0,
+        fontSize: '1.5rem',
+        background: 'linear-gradient(to right, #00f2ff, #00c3ff)',
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+    },
+    sectionTitle: {
+        fontSize: '1.1rem',
+        color: 'var(--text-secondary)',
+        margin: 0,
+    },
+    resultItem: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '12px',
+        backgroundColor: 'var(--bg-result-item)',
+        borderRadius: '12px',
+        gap: '10px',
+        border: '1px solid var(--border-glass)',
+        color: 'var(--text-primary)',
+    },
+    resultInfo: {
+        flex: 1, // Take available space
+        minWidth: 0, // Enable truncation
+        display: 'flex',
+        flexDirection: 'column' as const,
+        gap: '4px',
+    },
+    resultTitle: {
+        color: 'var(--text-primary)',
+        fontSize: '0.95rem',
+        fontWeight: '600',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+    },
+    resultMeta: {
+        color: 'var(--text-secondary)',
+        fontSize: '0.8rem',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+    },
+    downloadButton: {
+        padding: '8px 16px',
+        borderRadius: '12px', // Slight rounding for smaller buttons
+        background: 'rgba(0, 195, 255, 0.1)',
+        border: '1px solid rgba(0, 195, 255, 0.3)',
+        color: '#00f2ff',
+        cursor: 'pointer',
+        fontSize: '0.75rem',
+        fontWeight: '700',
+        letterSpacing: '0.05em',
+        textTransform: 'uppercase',
+    },
+
+    deckCount: {
+        color: 'var(--text-secondary)',
+        fontSize: '0.85rem',
+        fontWeight: '500',
+    },
+    createButton: {
+        height: '50px',
+        padding: '0 24px',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minWidth: '120px',
+        flex: '0 0 auto',
+        border: 'none', // Reset default
+    },
+    deckActions: {
+        display: 'flex',
+        gap: '10px',
+        width: '100%',
+        marginTop: 'auto', // Push to bottom if height varies
+    },
+    studyButton: {
+        flex: 2,
+        minWidth: '120px',
+        height: '50px',
+        padding: '0',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    addButton: {
+        flex: 1,
+        minWidth: '50px',
+        height: '50px',
+        padding: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: 'pointer',
+        gridColumn: 'unset',
+        border: 'none',
+        color: 'var(--text-primary)', // Ensure icon is visible
+    },
+
+    magicButton: {
+        flex: 1,
+        minWidth: '50px',
+        height: '50px',
+        padding: 0,
+        border: 'none',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: 'var(--text-inverse)', // Icon should be white on the gradient
+        gridColumn: 'unset',
+    },
+
+    magicIcon: {
+        fontSize: '1.1rem',
+    },
+    emptyState: {
+        gridColumn: '1 / -1',
+        padding: '30px 20px', // Reduced from 48px to prevent overflow
+        textAlign: 'center',
+        backgroundColor: 'var(--bg-card)',
+        borderRadius: '24px',
+        border: '1px dashed rgba(255, 255, 255, 0.1)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    emptyText: {
+        color: 'var(--text-secondary)',
+        fontSize: '1.125rem',
+    },
+    modalOverlay: {
+        position: 'fixed' as const,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.85)',
+        backdropFilter: 'blur(12px)',
+        zIndex: 9999,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center', // Center vertically
+        padding: '16px', // Standard padding
+        paddingBottom: '24px', // Minimal bottom padding, effectively covering the nav area
+        gap: '12px',
+    },
+    loadingBox: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '20px',
+        padding: '40px',
+        backgroundColor: 'var(--bg-card)',
+        borderRadius: '24px',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)',
+    },
+    loadingText: {
+        fontSize: '1.2rem',
+        color: 'var(--text-primary)',
+        fontWeight: 'bold',
+    },
+    editButton: {
+        width: '42px',
+        height: '42px',
+        minWidth: 'unset',
+        padding: 0,
+        borderRadius: '21px', // Circle
+        border: '1px solid rgba(0, 217, 255, 0.3)', // Cyan border using correct RGB
+        backgroundColor: 'rgba(0, 217, 255, 0.05)',
+        color: 'var(--accent-cyan)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: 'pointer',
+        transition: 'all 0.2s',
+    },
+    deleteButton: {
+        width: '42px',
+        height: '42px',
+        minWidth: 'unset', // Override global button min-width
+        padding: 0,
+        borderRadius: '21px', // Circle
+        border: '1px solid rgba(139, 46, 58, 0.3)', // Subtle red border
+        backgroundColor: 'rgba(139, 46, 58, 0.1)',
+        color: 'var(--accent-red)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: 'pointer',
+        transition: 'all 0.2s',
+        overflow: 'hidden', // Clip the neon glow to the circle
+    },
+    deleteModal: {
+        backgroundColor: 'var(--bg-card)',
+        padding: '24px',
+        borderRadius: '24px',
+        width: '90%',
+        maxWidth: 'min(90%, 480px)', // Increased width + responsive cap
+        textAlign: 'center',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
+    },
+    deleteTitle: {
+        margin: '0 0 12px 0',
+        color: 'var(--text-primary)',
+        fontSize: '1.25rem',
+    },
+    deleteMessage: {
+        margin: '0 0 24px 0',
+        color: 'var(--text-secondary)',
+        fontSize: '1rem',
+    },
+    deleteActions: {
+        display: 'flex',
+        gap: '12px',
+        justifyContent: 'center',
+        flexWrap: 'wrap', // Allow wrapping on small screens
+    },
+    cancelButtonOutside: {
+        width: '95%', // Match card width roughly
+        maxWidth: '550px',
+        height: '56px',
+        borderRadius: '28px',
+        border: '1px solid var(--border-glass)',
+        background: 'var(--bg-card-elevated)', // Adaptive background
+        backdropFilter: 'blur(10px)',
+        color: 'var(--text-primary)', // Adaptive text
+
+        cursor: 'pointer',
+        fontWeight: 'bold',
+        fontSize: '1rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+        textTransform: 'uppercase',
+        letterSpacing: '1px',
+        flexShrink: 0,
+        marginTop: '0', // Handled by gap
+        zIndex: 10000,
+    },
+    confirmButton: {
+        padding: '10px 20px',
+        borderRadius: '9999px',
+        border: 'none',
+        background: 'var(--accent-red)',
+        color: 'white',
+        cursor: 'pointer',
+        fontWeight: '600',
+    },
+
+
+};
+
+export default DeckList;

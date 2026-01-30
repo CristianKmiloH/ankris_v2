@@ -1,0 +1,14 @@
+﻿Testing search for: "aleman"
+[AnkiWeb Service] Searching GitHub: https://api.github.com/search/repositories?q=aleman%20anki&sort=stars&order=desc
+Found 1 results.
+[
+  {
+    "id": "github:jssan/EOI",
+    "title": "EOI",
+    "repo": "jssan/EOI",
+    "noteCount": 0,
+    "stars": 1,
+    "downloadUrl": "https://github.com/jssan/EOI",
+    "updatedAt": "2025-10-15T13:59:33Z"
+  }
+]

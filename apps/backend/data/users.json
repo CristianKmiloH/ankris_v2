@@ -1,0 +1,87 @@
+[
+  {
+    "id": "2noh9q",
+    "email": "agent@test.com",
+    "passwordHash": "password123"
+  },
+  {
+    "id": "vg66",
+    "email": "test@example.com",
+    "passwordHash": "password123"
+  },
+  {
+    "id": "9lcske",
+    "email": "test_restart_03@gmail.com",
+    "passwordHash": "password123"
+  },
+  {
+    "id": "zd0r57",
+    "email": "test@test.com",
+    "passwordHash": "password"
+  },
+  {
+    "id": "dczrkl",
+    "email": "user@check.com",
+    "passwordHash": "password"
+  },
+  {
+    "id": "i4w4f",
+    "email": "tester@ankris.com",
+    "passwordHash": "password123"
+  },
+  {
+    "id": "c6kxlc",
+    "email": "tester@example.com",
+    "passwordHash": "password123"
+  },
+  {
+    "id": "mbqaq",
+    "email": "test_user@example.com",
+    "passwordHash": "password123"
+  },
+  {
+    "id": "5rakg",
+    "email": "testuser3@example.com",
+    "passwordHash": "password123"
+  },
+  {
+    "id": "wu1198",
+    "email": "testagent@example.com",
+    "passwordHash": "Password123!"
+  },
+  {
+    "id": "hl2t3u",
+    "email": "user3@example.com",
+    "passwordHash": "password123"
+  },
+  {
+    "id": "ae07l",
+    "email": "testerfinal@example.com",
+    "passwordHash": "Password123!"
+  },
+  {
+    "id": "8n2ee9",
+    "email": "tester_new_99@test.com",
+    "passwordHash": "Password123!"
+  },
+  {
+    "id": "8tb4yw",
+    "email": "test@ankris.com",
+    "passwordHash": "Password123!"
+  },
+  {
+    "id": "g830h",
+    "email": "test3@test.com",
+    "passwordHash": "password123"
+  },
+  {
+    "id": "m7ss9",
+    "email": "testuser_animation@example.com",
+    "passwordHash": "Password123!"
+  },
+  {
+    "id": "igzx1",
+    "email": "cami@gmail.com",
+    "passwordHash": "Cris123"
+  }
+]
