@@ -237,7 +237,7 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
                 continue;
             }
 
-            const newCard = CardService.createCard(
+            const newCard = await CardService.createCard(
                 userId,
                 targetDeckId,
                 String(c.nid),

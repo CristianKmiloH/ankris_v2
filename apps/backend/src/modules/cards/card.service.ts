@@ -1,33 +1,8 @@
-import fs from 'fs';
-import path from 'path';
+import { prisma } from '../../db/prisma';
 import { FSRSScheduler } from '../fsrs/scheduler';
 
-// PERSISTENT STORE
-const BACKEND_ROOT = path.resolve(__dirname, '../../../');
-const DATA_DIR = path.join(BACKEND_ROOT, 'data');
-const CARDS_FILE = path.join(DATA_DIR, 'cards.json');
-
-const loadCards = (): Card[] => {
-    if (!fs.existsSync(CARDS_FILE)) return [];
-    try {
-        const data = JSON.parse(fs.readFileSync(CARDS_FILE, 'utf-8'));
-        // Restore Date objects
-        return data.map((c: any) => ({
-            ...c,
-            lastReview: c.lastReview ? new Date(c.lastReview) : undefined,
-            due: new Date(c.due)
-        }));
-    } catch { return []; }
-};
-
-const saveCards = (cards: Card[]) => {
-    try {
-        if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-        fs.writeFileSync(CARDS_FILE, JSON.stringify(cards, null, 2));
-    } catch (e) {
-        console.error("Failed to save cards", e);
-    }
-};
+// Interface matching Prisma Card model structure relative to what frontend expects
+// (Prisma returns Dates as Date objects, which matches our need)
 
 export interface Card {
     id: string;
@@ -37,7 +12,7 @@ export interface Card {
     ord: number; // Added for Anki template/card type identification
     front: string;
     back: string;
-    lastReview?: Date; // For accurate FSRS elapsed time
+    lastReview: Date | null; // Prisma can return null
     due: Date;
     state: number; // 0=New, 1=Learning, 2=Review, 3=Relearning
     stability: number;
@@ -48,60 +23,69 @@ export interface Card {
 
 const scheduler = new FSRSScheduler();
 
-export const createCard = (userId: string, deckId: string, noteId: string, front: string, back: string, ord: number = 0) => {
-    const cards = loadCards();
-    const newCard: Card = {
-        id: Math.random().toString(36).substring(7),
-        userId,
-        deckId,
-        noteId,
-        ord,
-        front,
-        back,
-        due: new Date(), // Due immediately
-        lastReview: undefined, // Explicitly undefined for new cards
-        state: 0,
-        stability: 0, // Initial stability
-        difficulty: 0, // Initial difficulty
-        elapsedDays: 0,
-        reps: 0
-    };
-    cards.push(newCard);
-    saveCards(cards);
-    return newCard;
+export const createCard = async (userId: string, deckId: string, noteId: string, front: string, back: string, ord: number = 0) => {
+    return await prisma.card.create({
+        data: {
+            userId,
+            deckId,
+            noteId,
+            ord,
+            front,
+            back,
+            due: new Date(), // Due immediately
+            lastReview: null, // Explicitly null for new cards
+            state: 0,
+            stability: 0, // Initial stability
+            difficulty: 0, // Initial difficulty
+            elapsedDays: 0,
+            reps: 0
+        }
+    });
 };
 
 export const getAllCards = async (userId: string) => {
-    const cards = loadCards();
-    return cards.filter(c => c.userId === userId);
+    return await prisma.card.findMany({
+        where: { userId }
+    });
 };
 
-export const countCardsByDeckId = (deckId: string) => {
-    const cards = loadCards();
-    return cards.filter(c => c.deckId === deckId).length;
+export const countCardsByDeckId = async (deckId: string) => {
+    return await prisma.card.count({
+        where: { deckId }
+    });
 };
 
 
 export const getDueCards = async (userId: string, deckId: string) => {
-    const cards = loadCards();
     const now = new Date();
-    return cards.filter(c => c.userId === userId && c.deckId === deckId && c.due <= now);
+    return await prisma.card.findMany({
+        where: {
+            userId,
+            deckId,
+            due: { lte: now }
+        }
+    });
 };
 
 export const getCardsForStudy = async (userId: string, deckId: string) => {
-    const cards = loadCards();
     // Return ALL cards for the deck, sorted by Due Date (Overdue first)
-    return cards
-        .filter(c => c.userId === userId && c.deckId === deckId)
-        .sort((a, b) => new Date(a.due).getTime() - new Date(b.due).getTime());
+    return await prisma.card.findMany({
+        where: {
+            userId,
+            deckId
+        },
+        orderBy: {
+            due: 'asc'
+        }
+    });
 };
 
 export const answerCard = async (userId: string, cardId: string, grade: number) => {
-    const cards = loadCards();
-    const cardIndex = cards.findIndex(c => c.id === cardId && c.userId === userId);
+    const card = await prisma.card.findFirst({
+        where: { id: cardId, userId }
+    });
 
-    if (cardIndex === -1) throw new Error('Card not found');
-    const card = cards[cardIndex];
+    if (!card) throw new Error('Card not found');
 
     const now = new Date();
     // Calculate actual elapsed days since last review
@@ -113,16 +97,15 @@ export const answerCard = async (userId: string, cardId: string, grade: number) 
     const result = scheduler.calculateNextState(card.difficulty, card.stability, grade, actualElapsedDays || 0.01);
 
     // Update Difficulty and Stability (always using FSRS logic)
-    card.difficulty = result.d;
-    card.stability = result.s;
+    // We modify local variables to calculate nextDue, then update DB
+    let newDifficulty = result.d;
+    let newStability = result.s;
     const fsrsInterval = result.interval;
-
-    // Update Last Review
-    card.lastReview = now;
 
     // determine next Due Date using LEARNING STEPS for young cards
     const nextDue = new Date();
     let computedInterval = fsrsInterval;
+    let newState = card.state;
 
     // Learning Phase Logic (State 0=New, 1=Learning)
     // If card is new/learning and not 'Easy', use short steps
@@ -131,12 +114,12 @@ export const answerCard = async (userId: string, cardId: string, grade: number) 
             // Again: 1 minute
             nextDue.setTime(nextDue.getTime() + 1 * 60 * 1000);
             computedInterval = 0;
-            card.state = 1; // Stay/Enter Learning
+            newState = 1; // Stay/Enter Learning
         } else if (grade === 2) {
             // Hard: 6 minutes
             nextDue.setTime(nextDue.getTime() + 6 * 60 * 1000);
             computedInterval = 0;
-            card.state = 1; // Stay in Learning
+            newState = 1; // Stay in Learning
         } else if (grade === 3) {
             // Good: 10 minutes (Learning Step)
             // If already in learning for a while, maybe graduate? keeping simple: 10m first step
@@ -144,11 +127,11 @@ export const answerCard = async (userId: string, cardId: string, grade: number) 
                 // Graduate to 1 day if it's the second 'Good'
                 nextDue.setDate(nextDue.getDate() + 1);
                 computedInterval = 1;
-                card.state = 2; // Review
+                newState = 2; // Review
             } else {
                 nextDue.setTime(nextDue.getTime() + 10 * 60 * 1000);
                 computedInterval = 0;
-                card.state = 1; // Stay in learning
+                newState = 1; // Stay in learning
             }
         }
     } else {
@@ -159,53 +142,66 @@ export const answerCard = async (userId: string, cardId: string, grade: number) 
         } else {
             nextDue.setDate(nextDue.getDate() + Math.round(fsrsInterval));
         }
-        card.state = 2; // Review
+        newState = 2; // Review
     }
 
-    // Fallback/Override based on FSRS interval if it was extremely short and we didn't catch it above
-    // (Logic handled above, but keeping robust structure)
-
-    card.due = nextDue;
-    card.reps += 1;
-    // card.state is now set within the learning/review logic above
-
-    // Save changes
-    cards[cardIndex] = card;
-    saveCards(cards);
+    // Update DB
+    const updatedCard = await prisma.card.update({
+        where: { id: cardId },
+        data: {
+            difficulty: newDifficulty,
+            stability: newStability,
+            lastReview: now,
+            due: nextDue,
+            reps: { increment: 1 },
+            state: newState,
+            updatedAt: new Date()
+        }
+    });
 
     // Log review (Mock)
-    console.log(`[FSRS] Card ${card.id} answered ${grade}. Next due: ${card.due}, Interval: ${computedInterval}`);
+    console.log(`[FSRS] Card ${card.id} answered ${grade}. Next due: ${updatedCard.due}, Interval: ${computedInterval}`);
 
-    return card;
-};
-
-export const updateCard = async (userId: string, cardId: string, updates: Partial<Card>) => {
-    const cards = loadCards();
-    const cardIndex = cards.findIndex(c => c.id === cardId && c.userId === userId);
-    if (cardIndex === -1) throw new Error('Card not found');
-
-    const updatedCard = { ...cards[cardIndex], ...updates };
-    cards[cardIndex] = updatedCard;
-    saveCards(cards);
     return updatedCard;
 };
 
-export const deleteCard = async (userId: string, cardId: string) => {
-    const cards = loadCards();
-    const cardIndex = cards.findIndex(c => c.id === cardId && c.userId === userId);
-    if (cardIndex === -1) throw new Error('Card not found');
+export const updateCard = async (userId: string, cardId: string, updates: Partial<Card>) => {
+    const card = await prisma.card.findFirst({
+        where: { id: cardId, userId }
+    });
 
-    cards.splice(cardIndex, 1);
-    saveCards(cards);
+    if (!card) throw new Error('Card not found');
+
+    // Remove immutable/undefined fields from updates if necessary
+    // Prisma will ignore properties not in valid update input usually, but good to be safe if 'updates' has extra stuff.
+    // For now, passing updates provided they match schema keys.
+    // Note: 'updates' comes from partial Card interface which might mismatch exact Prisma UpdateInput slightly (e.g. null vs undefined).
+
+    return await prisma.card.update({
+        where: { id: cardId },
+        data: {
+            ...updates,
+            updatedAt: new Date()
+        }
+    });
 };
 
+export const deleteCard = async (userId: string, cardId: string) => {
+    // Check ownership
+    const card = await prisma.card.findFirst({
+        where: { id: cardId, userId }
+    });
 
+    if (!card) throw new Error('Card not found');
 
-export const deleteCardsByDeckId = (deckId: string) => {
-    const cards = loadCards();
-    const filteredCards = cards.filter(c => c.deckId !== deckId);
-    if (cards.length !== filteredCards.length) {
-        saveCards(filteredCards);
-        console.log(`[SERVICE] Deleted ${cards.length - filteredCards.length} cards for deckId: ${deckId}`);
-    }
+    await prisma.card.delete({
+        where: { id: cardId }
+    });
+};
+
+export const deleteCardsByDeckId = async (deckId: string) => {
+    const { count } = await prisma.card.deleteMany({
+        where: { deckId }
+    });
+    console.log(`[SERVICE] Deleted ${count} cards for deckId: ${deckId}`);
 };
