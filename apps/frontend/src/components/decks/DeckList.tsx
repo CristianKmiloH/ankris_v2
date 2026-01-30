@@ -705,28 +705,117 @@ const DeckList: React.FC = () => {
                 )
             }
 
-            {/* Search Modal - MOVED INSIDE LAYOUT */}
+            {/* Search Modal - Premium Redesign */}
             {
                 isSearchOpen && (
-                    <div style={styles.modalOverlay} onClick={() => setIsSearchOpen(false)}>
-                        <div style={styles.searchModalContent} onClick={(e) => e.stopPropagation()}>
-                            <div style={styles.searchHeader}>
-                                <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', background: 'linear-gradient(to right, #00f2ff, #00c3ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                                    {t('searchDecks') || 'Buscar Mazos'}
+                    <div
+                        className="glass-overlay"
+                        style={{
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            zIndex: 9999,
+                            background: 'rgba(0,0,0,0.6)',
+                            backdropFilter: 'blur(8px)',
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            justifyContent: 'center',
+                            paddingTop: '100px', // Push down from top
+                            animation: 'fadeIn 0.2s ease-out'
+                        }}
+                        onClick={() => setIsSearchOpen(false)}
+                    >
+                        <div
+                            className="glass-panel"
+                            style={{
+                                width: '90%',
+                                maxWidth: '500px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '16px',
+                                padding: '24px',
+                                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                transform: 'translateY(10px)',
+                                animation: 'slideUp 0.3s ease-out'
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <h2 className="text-cyan" style={{ margin: 0, fontSize: '1.5rem', fontWeight: '800', letterSpacing: '0.5px' }}>
+                                    {t('searchDecks') || 'Search Decks'}
                                 </h2>
-                                <button onClick={() => setIsSearchOpen(false)} style={styles.closeSearch}>✕</button>
+                                <button
+                                    onClick={() => setIsSearchOpen(false)}
+                                    className="btn-icon-round"
+                                    style={{
+                                        width: '36px',
+                                        height: '36px',
+                                        minWidth: '36px', // Force circle
+                                        padding: 0,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        background: 'rgba(255,255,255,0.1)',
+                                        color: 'var(--text-primary)'
+                                    }}
+                                >
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                        <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                </button>
                             </div>
 
-                            <input
-                                autoFocus
-                                type="text"
-                                placeholder={t('searchPlaceholder') || "Escribe para buscar..."}
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                style={styles.searchInput}
-                            />
+                            <div style={{ position: 'relative', width: '100%' }}>
+                                <input
+                                    autoFocus
+                                    type="text"
+                                    placeholder={t('searchPlaceholder') || "Type to filter..."}
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    style={{
+                                        width: '100%',
+                                        padding: '16px 20px',
+                                        paddingLeft: '50px',
+                                        borderRadius: '16px',
+                                        background: 'rgba(0, 0, 0, 0.2)',
+                                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                                        color: 'white',
+                                        fontSize: '1.1rem',
+                                        outline: 'none'
+                                    }}
+                                />
+                                <svg
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    style={{
+                                        position: 'absolute',
+                                        left: '16px',
+                                        top: '50%',
+                                        transform: 'translateY(-50%)',
+                                        color: 'rgba(255,255,255,0.4)',
+                                        pointerEvents: 'none'
+                                    }}
+                                >
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                            </div>
 
-                            <div style={styles.searchResults}>
+                            <div style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '8px',
+                                maxHeight: '300px',
+                                overflowY: 'auto',
+                                paddingRight: '4px' // Space for scrollbar
+                            }}>
                                 {decks.filter(d => d.name.toLowerCase().includes(searchQuery.toLowerCase())).length > 0 ? (
                                     decks
                                         .filter(d => d.name.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -738,16 +827,40 @@ const DeckList: React.FC = () => {
                                                     setIsSearchOpen(false);
                                                     setSearchQuery('');
                                                 }}
-                                                style={styles.searchResultItem}
                                                 className="search-item"
+                                                style={{
+                                                    padding: '16px',
+                                                    borderRadius: '12px',
+                                                    background: 'rgba(255, 255, 255, 0.05)',
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center',
+                                                    border: '1px solid transparent',
+                                                    transition: 'all 0.2s ease'
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                                                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                                                    e.currentTarget.style.borderColor = 'transparent';
+                                                }}
                                             >
-                                                <span style={{ fontWeight: '600' }}>{deck.name}</span>
-                                                <span style={{ fontSize: '0.8rem', opacity: 0.6 }}>{deck._count?.cards || 0} {t('cards')}</span>
+                                                <span style={{ fontWeight: '600', fontSize: '1rem' }}>{deck.name}</span>
+                                                <span style={{
+                                                    fontSize: '0.8rem',
+                                                    background: 'rgba(255,255,255,0.1)',
+                                                    padding: '4px 10px',
+                                                    borderRadius: '99px',
+                                                    color: 'rgba(255,255,255,0.7)'
+                                                }}>{deck._count?.cards || 0}</span>
                                             </div>
                                         ))
                                 ) : (
-                                    <div style={{ padding: '20px', textAlign: 'center', opacity: 0.5 }}>
-                                        No se encontraron mazos
+                                    <div style={{ padding: '40px', textAlign: 'center', opacity: 0.5 }}>
+                                        No matching decks found
                                     </div>
                                 )}
                             </div>
