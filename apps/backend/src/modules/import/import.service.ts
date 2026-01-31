@@ -146,15 +146,27 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
                 console.log(`[Import] Processing media files...`);
                 let mediaCount = 0;
 
-                for (const [numericName, originalName] of Object.entries(mediaMap)) {
-                    const srcPath = path.join(workingDir, numericName);
-                    if (fs.existsSync(srcPath)) {
-                        const destPath = path.join(mediaDestDir, originalName as string);
-                        // Copy instead of rename to avoid permission issues across devices/partitions
-                        fs.copyFileSync(srcPath, destPath);
-                        mediaCount++;
-                    }
+                // Convert to array for batch processing
+                const mediaEntries = Object.entries(mediaMap);
+                const BATCH_SIZE = 50;
+
+                for (let i = 0; i < mediaEntries.length; i += BATCH_SIZE) {
+                    const batch = mediaEntries.slice(i, i + BATCH_SIZE);
+                    await Promise.all(batch.map(async ([numericName, originalName]) => {
+                        const srcPath = path.join(workingDir, numericName);
+                        // Async check and copy
+                        try {
+                            // Use promises to check access instead of existsSync
+                            await fs.promises.access(srcPath);
+                            const destPath = path.join(mediaDestDir, originalName as string);
+                            await fs.promises.copyFile(srcPath, destPath);
+                            mediaCount++;
+                        } catch (err) {
+                            // Ignore missing files to allow import to continue
+                        }
+                    }));
                 }
+
                 console.log(`[Import] Processed ${mediaCount} media files.`);
             } catch (mediaErr) {
                 console.error('[Import] Error processing media:', mediaErr);
@@ -234,12 +246,15 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
                 html = html.replace(/id=".*?"/g, "");
 
                 // 3. Format Cloze Deletions: {{c1::Answer::Hint}}
-                // Regex to capture multiline content and hints
-                // Replacement: Highlight the answer cleanly.
-                // We typically want to show the answer in brackets like [Answer]
+                // Robust Regex: Match {{c<digits>::<content optional hint>}}
+                // We use [\s\S]*? to match across newlines non-greedily.
                 html = html.replace(/\{\{c\d+::([\s\S]*?)(::[\s\S]*?)?\}\}/g, (match, content, hint) => {
+                    // If content has nested HTML, that's fine.
                     return `<span style="color: var(--accent-cyan); font-weight: bold;">[${content}]</span>`;
                 });
+
+                // Final cleanup of any lingering braces just in case validation fails
+                // html = html.replace(/\{\{c\d+::/g, "").replace(/\}\}/g, "");
 
                 return html.trim();
             };
@@ -247,16 +262,14 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
             let frontRaw = content.front;
             let backRaw = content.back;
 
-            // CLOZE DETECTION: If raw front has cloze syntax, we must ensure the "Answer" (full text) is on the back.
-            // Because Anki Cloze notes usually have the text in Front field (0), and Back field (1) is just "Extra".
+            // CLOZE DETECTION: Check for cloze pattern
             const isCloze = /\{\{c\d+::/.test(frontRaw);
 
             let front = cleanContent(frontRaw);
             let back = cleanContent(backRaw);
 
             if (isCloze) {
-                // If it's a cloze, the "Back" of the card should show the full context (which is essentially the Front text).
-                // We prepend the cleaned Front text to the Back.
+                // Prepend context to Back
                 back = `${front}<br><br><hr><br>${back}`;
             }
 
