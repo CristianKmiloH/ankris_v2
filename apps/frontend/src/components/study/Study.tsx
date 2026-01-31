@@ -152,11 +152,27 @@ const Study: React.FC = () => {
                                                             }
                                                         }
                                                         // Handle Images - Fix src relative path
-                                                        if (domNode.type === 'tag' && domNode.name === 'img') {
-                                                            const src = domNode.attribs.src;
-                                                            if (src && !src.startsWith('http') && !src.startsWith('data:')) {
-                                                                domNode.attribs.src = `${MEDIA_BASE_URL}/${src}`;
-                                                                domNode.attribs.style = "max-width: 100%; border-radius: 12px; margin-top: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);";
+                                                        if (domNode.type === 'tag') {
+                                                            if (domNode.name === 'img') {
+                                                                const src = domNode.attribs.src;
+                                                                if (src && !src.startsWith('http') && !src.startsWith('data:')) {
+                                                                    domNode.attribs.src = `${MEDIA_BASE_URL}/${src}`;
+                                                                    domNode.attribs.class = (domNode.attribs.class || '') + ' card-media';
+                                                                    // Only apply inline if class isn't enough, but class is better.
+                                                                    // Removing inline style to let CSS handle it via .card-media
+                                                                    delete domNode.attribs.style;
+                                                                }
+                                                            }
+                                                            if (domNode.name === 'video') {
+                                                                const src = domNode.attribs.src;
+                                                                // Some videos might be in <source> children, but Anki usually puts src on video or inside.
+                                                                // Simple check for main src
+                                                                if (src && !src.startsWith('http')) {
+                                                                    domNode.attribs.src = `${MEDIA_BASE_URL}/${src}`;
+                                                                }
+                                                                domNode.attribs.class = (domNode.attribs.class || '') + ' card-media';
+                                                                domNode.attribs.controls = "true"; // Ensure controls
+                                                                delete domNode.attribs.style; // Reset styles
                                                             }
                                                         }
                                                     }
@@ -184,26 +200,52 @@ const Study: React.FC = () => {
                                                     replace: (domNode) => {
                                                         if (domNode.type === 'text') {
                                                             const text = domNode.data;
-                                                            // Check for [sound:file.mp3] pattern
+                                                            // Check for [sound:file.ext] pattern
                                                             const soundMatch = text.match(/\[sound:(.*?)\]/);
                                                             if (soundMatch) {
                                                                 const filename = soundMatch[1];
                                                                 const cleanText = text.replace(/\[sound:.*?\]/g, '');
+                                                                const isVideo = /\.(mp4|webm|ogg|mov)$/i.test(filename);
 
-                                                                return (
-                                                                    <>
-                                                                        {cleanText}
-                                                                        <AudioButton filename={filename} />
-                                                                    </>
-                                                                );
+                                                                if (isVideo) {
+                                                                    return (
+                                                                        <>
+                                                                            {cleanText}
+                                                                            <video
+                                                                                src={`${MEDIA_BASE_URL}/${filename}`}
+                                                                                className="card-media"
+                                                                                controls
+                                                                            />
+                                                                        </>
+                                                                    );
+                                                                } else {
+                                                                    return (
+                                                                        <>
+                                                                            {cleanText}
+                                                                            <AudioButton filename={filename} />
+                                                                        </>
+                                                                    );
+                                                                }
                                                             }
                                                         }
-                                                        // Handle Images - Fix src relative path
-                                                        if (domNode.type === 'tag' && domNode.name === 'img') {
-                                                            const src = domNode.attribs.src;
-                                                            if (src && !src.startsWith('http') && !src.startsWith('data:')) {
-                                                                domNode.attribs.src = `${MEDIA_BASE_URL}/${src}`;
-                                                                domNode.attribs.style = "max-width: 100%; border-radius: 12px; margin-top: 10px;";
+                                                        // Handle Images & Videos (HTML tags)
+                                                        if (domNode.type === 'tag') {
+                                                            if (domNode.name === 'img') {
+                                                                const src = domNode.attribs.src;
+                                                                if (src && !src.startsWith('http') && !src.startsWith('data:')) {
+                                                                    domNode.attribs.src = `${MEDIA_BASE_URL}/${src}`;
+                                                                    domNode.attribs.class = (domNode.attribs.class || '') + ' card-media';
+                                                                    delete domNode.attribs.style;
+                                                                }
+                                                            }
+                                                            if (domNode.name === 'video') {
+                                                                const src = domNode.attribs.src;
+                                                                if (src && !src.startsWith('http')) {
+                                                                    domNode.attribs.src = `${MEDIA_BASE_URL}/${src}`;
+                                                                }
+                                                                domNode.attribs.class = (domNode.attribs.class || '') + ' card-media';
+                                                                domNode.attribs.controls = "true";
+                                                                delete domNode.attribs.style;
                                                             }
                                                         }
                                                     }
