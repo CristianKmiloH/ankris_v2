@@ -228,20 +228,39 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
                 if (!html) return "";
                 // 1. Remove style blocks
                 html = html.replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gim, "");
-                // 2. Remove specific Anki classes/ids that might cause style conflicts
+
+                // 2. Remove specific Anki classes/ids
                 html = html.replace(/class=".*?"/g, "");
                 html = html.replace(/id=".*?"/g, "");
-                // 3. Format Cloze Deletions: {{c1::Answer::Hint}} -> [Answer] (or just Answer for simplicity)
-                // For Front: usually we want to show the cloze... but field mapping is blind.
-                // Best effort: Remove the cloze wrappers to make it readable.
-                html = html.replace(/\{\{c\d::(.*?)(::.*?)?\}\}/g, "$1");
+
+                // 3. Format Cloze Deletions: {{c1::Answer::Hint}}
+                // Regex to capture multiline content and hints
+                // Replacement: Highlight the answer cleanly.
+                // We typically want to show the answer in brackets like [Answer]
+                html = html.replace(/\{\{c\d+::([\s\S]*?)(::[\s\S]*?)?\}\}/g, (match, content, hint) => {
+                    return `<span style="color: var(--accent-cyan); font-weight: bold;">[${content}]</span>`;
+                });
+
                 return html.trim();
             };
 
-            let front = cleanContent(content.front);
-            let back = cleanContent(content.back);
+            let frontRaw = content.front;
+            let backRaw = content.back;
 
-            // SPECIAL CHECK: If front is empty after cleaning (common in pure image cards where image was stripped?? No, we kept images), use Back
+            // CLOZE DETECTION: If raw front has cloze syntax, we must ensure the "Answer" (full text) is on the back.
+            // Because Anki Cloze notes usually have the text in Front field (0), and Back field (1) is just "Extra".
+            const isCloze = /\{\{c\d+::/.test(frontRaw);
+
+            let front = cleanContent(frontRaw);
+            let back = cleanContent(backRaw);
+
+            if (isCloze) {
+                // If it's a cloze, the "Back" of the card should show the full context (which is essentially the Front text).
+                // We prepend the cleaned Front text to the Back.
+                back = `${front}<br><br><hr><br>${back}`;
+            }
+
+            // SPECIAL CHECK: If front is empty after cleaning
             if (!front && back) {
                 front = back; // Fallback
                 back = "flipped";
