@@ -297,7 +297,6 @@ const DeckList: React.FC = () => {
                 type="file"
                 ref={fileInputRef}
                 onChange={handleFileChange}
-                accept=".apkg"
                 style={{ display: 'none' }}
             />
             <div style={styles.container}>

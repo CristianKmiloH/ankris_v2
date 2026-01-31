@@ -27,11 +27,10 @@ const upload = multer({
     storage: storage,
     limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
     fileFilter: (req, file, cb) => {
-        if (file.originalname.endsWith('.apkg') || file.originalname.endsWith('.zip')) {
-            cb(null, true);
-        } else {
-            cb(new Error('Only .apkg files are allowed'));
-        }
+        // Relaxed validation for Mobile/Capacitor compatibility
+        // Mobile file pickers often don't set the correct MIME type or extension
+        console.log(`[Multer] Incoming file: ${file.originalname}, MIME: ${file.mimetype}`);
+        cb(null, true);
     }
 });
 
