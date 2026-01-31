@@ -218,9 +218,29 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
                 continue;
             }
 
-            let front = content.front;
-            let back = content.back;
+            // CLEANUP CONTENT: Remove styles, fix clozes, etc.
+            const cleanContent = (html: string) => {
+                if (!html) return "";
+                // 1. Remove style blocks
+                html = html.replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gim, "");
+                // 2. Remove specific Anki classes/ids that might cause style conflicts
+                html = html.replace(/class=".*?"/g, "");
+                html = html.replace(/id=".*?"/g, "");
+                // 3. Format Cloze Deletions: {{c1::Answer::Hint}} -> [Answer] (or just Answer for simplicity)
+                // For Front: usually we want to show the cloze... but field mapping is blind.
+                // Best effort: Remove the cloze wrappers to make it readable.
+                html = html.replace(/\{\{c\d::(.*?)(::.*?)?\}\}/g, "$1");
+                return html.trim();
+            };
 
+            let front = cleanContent(content.front);
+            let back = cleanContent(content.back);
+
+            // SPECIAL CHECK: If front is empty after cleaning (common in pure image cards where image was stripped?? No, we kept images), use Back
+            if (!front && back) {
+                front = back; // Fallback
+                back = "flipped";
+            }
 
             // CHECK DUPLICATES: Check if a card with this Anki Note ID and Ordinal already exists in this deck
             // This relies on CardService having a way to check.
