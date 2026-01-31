@@ -55,8 +55,15 @@ export const importDeck = async (file: File): Promise<any> => {
     });
 
     if (!response.ok) {
-        const err = await response.json().catch(() => ({ error: 'Unknown error' }));
-        throw new Error(err.error || 'Failed to import deck');
+        let errorMessage = 'Failed to import deck';
+        try {
+            const err = await response.json();
+            errorMessage = err.error || errorMessage;
+        } catch (e) {
+            // If JSON parse fails, use status text (e.g. "Payload Too Large" or "Gateway Timeout")
+            errorMessage = `Server Error: ${response.status} ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
     }
     return response.json();
 };

@@ -204,9 +204,14 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
             const content = noteMap.get(c.nid);
             const targetDeckId = deckIdMap.get(c.did);
 
-            // If deck not mapped (maybe Default), try to map to first created or skip
-            // For MVP: Skip if deck not found
-            if (!content || !targetDeckId) continue;
+            // If deck not mapped, create it
+            if (!targetDeckId) {
+                const deckName = deckNameMap.get(c.did) || `Imported Deck ${new Date().toLocaleDateString()}`;
+                const newDeck = await DeckService.createDeck(userId, deckName, "Imported from Anki");
+                deckIdMap.set(c.did, newDeck.id);
+                targetDeckId = newDeck.id;
+                importStats.decks++;
+            }
 
 
 
