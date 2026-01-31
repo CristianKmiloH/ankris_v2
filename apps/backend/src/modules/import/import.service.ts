@@ -183,12 +183,14 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
 
         // Map Anki Deck ID to Ankris Deck ID
         const deckIdMap = new Map<number, string>();
+        const deckNameMap = new Map<number, string>();
 
         for (const key in ankiDecksMap) {
             const d = ankiDecksMap[key];
             if (d.id === 1 && d.name === 'Default') continue;
 
             console.log(`[Import] Creating deck: ${d.name}`);
+            deckNameMap.set(Number(d.id), d.name);
             const createdDeck = await DeckService.createDeck(userId, d.name, `Imported from Anki`);
             deckIdMap.set(Number(d.id), createdDeck.id);
             importStats.decks++;
@@ -214,13 +216,19 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
 
         for (const c of cards) {
             const content = noteMap.get(c.nid);
-            const targetDeckId = deckIdMap.get(c.did);
+            if (!content) {
+                console.warn(`[Import] Warning: Note ${c.nid} not found, skipping card`);
+                continue;
+            }
+
+            let targetDeckId = deckIdMap.get(c.did);
 
             // If deck not mapped, create it
             if (!targetDeckId) {
                 const deckName = deckNameMap.get(c.did) || `Imported Deck ${new Date().toLocaleDateString()}`;
                 const newDeck = await DeckService.createDeck(userId, deckName, "Imported from Anki");
                 deckIdMap.set(c.did, newDeck.id);
+                deckNameMap.set(c.did, deckName);
                 targetDeckId = newDeck.id;
                 importStats.decks++;
             }
@@ -282,7 +290,7 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
             // CHECK DUPLICATES: Check if a card with this Anki Note ID and Ordinal already exists in this deck
             // This relies on CardService having a way to check.
             const existingCards = await CardService.getAllCards(userId);
-            const isDuplicate = existingCards.some(ec =>
+            const isDuplicate = existingCards.some((ec: any) =>
                 ec.deckId === targetDeckId &&
                 ec.noteId === String(c.nid) &&
                 (ec.ord === c.ord || (ec.ord === undefined && ec.front === front)) // Fallback to front check if ord is missing in old cards
@@ -295,7 +303,7 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
 
             const newCard = await CardService.createCard(
                 userId,
-                targetDeckId,
+                targetDeckId!, // We ensure this is defined in the check above
                 String(c.nid),
                 front,
                 back,
@@ -305,7 +313,7 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
             // TODO: Map detailed SRS state if possible
             // c.type: 0=new, 1=learning, 2=review, 3=relearning
             importStats.cards++;
-            importStats.cardsByDeck[targetDeckId] = (importStats.cardsByDeck[targetDeckId] || 0) + 1;
+            importStats.cardsByDeck[targetDeckId!] = (importStats.cardsByDeck[targetDeckId!] || 0) + 1;
         }
 
         // 6. Cleanup: Delete any imported decks that ended up empty
