@@ -40,8 +40,7 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
     };
 
     const tempDir = path.join(path.dirname(filePath), 'extracted_' + Date.now());
-    const logFile = path.join(process.cwd(), '.tmp', 'import_debug_v2.log');
-    const log = (msg: string) => fs.appendFileSync(logFile, `[Import] ${new Date().toISOString()} ${msg}\n`);
+    const log = (msg: string) => console.log(`[Import Log] ${msg}`);
     let db: Database.Database | null = null;
 
     try {
