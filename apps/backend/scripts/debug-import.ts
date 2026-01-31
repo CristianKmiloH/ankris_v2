@@ -32,12 +32,6 @@ async function run() {
     } catch (e: any) {
         console.error('--- Import FAILED ---');
         console.error(e);
-        // If it failed, check the log file we created
-        const logPath = path.join(process.cwd(), '.tmp', 'import_debug_v2.log');
-        console.log(`\nCheck log file at: ${logPath}`);
-        // Read log file content?
-        // import fs from 'fs';
-        // if(fs.existsSync(logPath)) console.log(fs.readFileSync(logPath, 'utf8'));
     }
 }
 
