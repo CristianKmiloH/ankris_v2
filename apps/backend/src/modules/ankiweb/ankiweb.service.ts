@@ -103,8 +103,16 @@ export const downloadDeck = async (id: string): Promise<string> => {
         validateStatus: () => true // Handle errors manually
     });
 
-    const logFile = path.join(process.cwd(), '.tmp', 'import_debug.log');
-    const log = (msg: string) => fs.appendFileSync(logFile, `[AnkiWeb Service] ${new Date().toISOString()} ${msg}\n`);
+    // 4. Download file
+    const response = await axios({
+        url: downloadUrl,
+        method: 'GET',
+        responseType: 'stream',
+        headers: { 'User-Agent': 'Ankris-App' },
+        validateStatus: () => true // Handle errors manually
+    });
+
+    const log = (msg: string) => console.log(`[AnkiWeb Service] ${new Date().toISOString()} ${msg}`);
 
     log(`Downloading from: ${downloadUrl}`);
     log(`Response Status: ${response.status}`);
