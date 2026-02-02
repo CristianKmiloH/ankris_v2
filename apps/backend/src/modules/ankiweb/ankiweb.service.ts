@@ -95,14 +95,6 @@ export const downloadDeck = async (id: string): Promise<string> => {
     const fileName = `anki_import_${Date.now()}.apkg`;
     const filePath = path.join(tempDir, fileName);
 
-    const response = await axios({
-        url: downloadUrl,
-        method: 'GET',
-        responseType: 'stream',
-        headers: { 'User-Agent': 'Ankris-App' },
-        validateStatus: () => true // Handle errors manually
-    });
-
     // 4. Download file
     const response = await axios({
         url: downloadUrl,
