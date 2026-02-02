@@ -598,6 +598,74 @@ button.btn-secondary:hover {
   border-color: rgba(255, 255, 255, 0.4);
 }
 
+/* --- MOBILE CONTENT HARDENING (Imported Cards) --- */
+/* Tables: prevent overflow */
+table {
+  max-width: 100%;
+  border-collapse: collapse;
+  display: block;
+  /* Allows horizontal scroll */
+  overflow-x: auto;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+th,
+td {
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  text-align: left;
+  font-size: 0.9em;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+th {
+  background: rgba(255, 255, 255, 0.1);
+  font-weight: bold;
+}
+
+/* Code Blocks */
+pre,
+code {
+  font-family: 'Fira Code', monospace;
+  background: #1a1a1a;
+  border-radius: 6px;
+  color: #e2e8f0;
+}
+
+pre {
+  padding: 12px;
+  overflow-x: auto;
+  max-width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+code {
+  padding: 2px 5px;
+  font-size: 0.9em;
+}
+
+/* Blockquotes */
+blockquote {
+  border-left: 4px solid var(--accent-cyan);
+  margin: 10px 0;
+  padding-left: 15px;
+  color: rgba(255, 255, 255, 0.8);
+  font-style: italic;
+}
+
+/* Lists */
+ul,
+ol {
+  padding-left: 20px;
+  text-align: left;
+}
+
+li {
+  margin-bottom: 5px;
+}
+
 button.btn-secondary:active {
   transform: translateY(4px);
   box-shadow:
