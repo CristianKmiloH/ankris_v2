@@ -11,6 +11,10 @@
     "build": "npm run build --workspaces"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.24.1"
+    "@google/generative-ai": "^0.24.1",
+    "@prisma/client": "5.21.0"
+  },
+  "devDependencies": {
+    "prisma": "5.21.0"
   }
 }
