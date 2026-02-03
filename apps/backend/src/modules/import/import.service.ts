@@ -215,7 +215,18 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
         // 5. Get Cards
         const cards = db.prepare('SELECT id, nid, did, ord, type, queue, due, ivl, factor, reps, lapses FROM cards').all() as AnkiCard[];
 
+        // Track processed Note IDs to enforce "One Card Per Note" rule requested by user
+        const processedNoteIds = new Set<number>();
+
         for (const c of cards) {
+            // STRICT DUPLICATE PREVENTION:
+            // User requested "Solo debe generarse solo una carta" per note.
+            // If we have already processed a card for this Note ID in this batch, skip it.
+            // This prevents "Acteur" -> "Actor" AND "Acteur" -> "Actor (Image)" showing up as duplicates.
+            if (processedNoteIds.has(c.nid)) {
+                continue;
+            }
+
             const content = noteMap.get(c.nid);
             if (!content) {
                 console.warn(`[Import] Warning: Note ${c.nid} not found, skipping card`);
@@ -234,17 +245,15 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
                 importStats.decks++;
             }
 
-
-
-            // Handle Reversed Cards (Heuristic based on ord)
-            // USER FEEDBACK: "Solo debe generarse solo una carta".
-            // The user considers reversed cards (ord > 0) as unwanted duplicates.
-            // Strict fix: Skip any card that is not the primary card (ord 0).
-            // RELAXED: Allow all ordinals.
+            // RELAXED: Allow all ordinals but FILTER by uniqueness.
             // Previous restriction `if (c.ord !== 0)` prevented legitimate cards (like reversed ones) from importing.
+            // Now we simply take the FIRST card we see for this note (which is usually ord 0, but if deck only has ord 1, we take that).
             // if (c.ord !== 0) {
             //     continue;
             // }
+
+            // Mark this note as processed so we don't import sibling cards (e.g. reversed)
+            processedNoteIds.add(c.nid);
 
             // CLEANUP CONTENT: Remove styles, fix clozes, etc.
             const cleanContent = (html: string) => {
