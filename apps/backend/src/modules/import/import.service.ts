@@ -4,6 +4,7 @@ import AdmZip from 'adm-zip';
 import Database from 'better-sqlite3';
 import * as DeckService from '../decks/deck.service';
 import * as CardService from '../cards/card.service';
+import { prisma } from '../../db/prisma';
 
 interface AnkiDeck {
     id: number;
@@ -303,10 +304,37 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
                 continue;
             }
 
+            // CRITICAL FIX: Ensure Parent Note exists in Postgres before creating Card
+            // The constraint Card_noteId_fkey requires the Note to exist.
+            const noteIdStr = String(c.nid);
+
+            // We use upsert to create it if missing, or do nothing if it exists (e.g. created by sibling card)
+            // Ideally we'd optimize this with a Set cache, but upsert is safe and robust.
+            try {
+                await prisma.note.upsert({
+                    where: { id: noteIdStr },
+                    update: {}, // No-op if exists
+                    create: {
+                        id: noteIdStr,
+                        userId: userId,
+                        deckId: targetDeckId!,
+                        content: {
+                            front: front,
+                            back: back,
+                            original: content
+                        },
+                        tags: [] // Todo: Parse tags from Anki
+                    }
+                });
+            } catch (noteErr) {
+                console.warn(`[Import] Failed to upsert note ${noteIdStr}:`, noteErr);
+                // If note creation fails, card creation will likely fail too, but we let it try or continue.
+            }
+
             const newCard = await CardService.createCard(
                 userId,
                 targetDeckId!, // We ensure this is defined in the check above
-                String(c.nid),
+                noteIdStr,
                 front,
                 back,
                 c.ord
