@@ -59,6 +59,9 @@ model Card {
   noteId         String
   userId         String
   deckId         String
+  ord            Int         @default(0)
+  front          String      @default("")
+  back           String      @default("")
   due            DateTime    @default(now())
   stability      Float       @default(0)
   difficulty     Float       @default(0)
