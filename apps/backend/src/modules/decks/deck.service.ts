@@ -55,6 +55,12 @@ export const deleteDeck = async (userId: string, deckId: string) => {
     // Let's keep manual card deletion logic via service to be safe and consistent with logic.
     await deleteCardsByDeckId(deckId);
 
+    // FIXED: Manually delete related Notes to avoid Foreign Key Constraint Violation (Note -> Deck)
+    // Since schema doesn't have onDelete: Cascade for Notes yet, we must do it here.
+    await prisma.note.deleteMany({
+        where: { deckId }
+    });
+
     await prisma.deck.delete({
         where: { id: deckId }
     });
