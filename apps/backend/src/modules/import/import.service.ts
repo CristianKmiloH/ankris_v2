@@ -239,9 +239,11 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
             // USER FEEDBACK: "Solo debe generarse solo una carta".
             // The user considers reversed cards (ord > 0) as unwanted duplicates.
             // Strict fix: Skip any card that is not the primary card (ord 0).
-            if (c.ord !== 0) {
-                continue;
-            }
+            // RELAXED: Allow all ordinals.
+            // Previous restriction `if (c.ord !== 0)` prevented legitimate cards (like reversed ones) from importing.
+            // if (c.ord !== 0) {
+            //     continue;
+            // }
 
             // CLEANUP CONTENT: Remove styles, fix clozes, etc.
             const cleanContent = (html: string) => {
