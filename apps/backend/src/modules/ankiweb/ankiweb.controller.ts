@@ -27,7 +27,11 @@ export const download = async (req: Request, res: Response) => {
         // Check if user is attached to req (middleware)
         // Check if user is attached to req (middleware)
         // JWT payload uses 'userId', not 'id'
-        const userId = (req as any).user?.userId || 'default_user';
+        const userId = (req as any).user?.userId;
+
+        if (!userId) {
+            return res.status(401).json({ error: 'Unauthorized: User not identified' });
+        }
 
         if (!deckId) {
             return res.status(400).json({ error: 'Deck ID is required' });
@@ -62,6 +66,13 @@ export const download = async (req: Request, res: Response) => {
             return res.status(422).json({
                 error: 'REPOSITORY_NOT_A_DECK',
                 message: 'The selected GitHub repository does not contain a valid Anki deck (collection.anki2 or .apkg not found).'
+            });
+        }
+
+        // Handle Foreign Key Constraint Violation (likely User/Deck mismatch)
+        if (error.code === 'P2003') {
+            return res.status(401).json({
+                error: 'Session invalid. Please log out and log back in.'
             });
         }
 

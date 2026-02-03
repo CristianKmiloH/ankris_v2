@@ -53,6 +53,15 @@ router.post('/anki', upload.single('file'), async (req: any, res: Response) => {
 
     } catch (error: any) {
         console.error("Import failed:", error);
+
+        // Handle Foreign Key Constraint Violation (User ID in token not found in DB)
+        // Prisma error code P2003 refers to Foreign Key constraint failed
+        if (error.code === 'P2003' && error.meta?.field_name?.includes('userId')) {
+            return res.status(401).json({
+                error: 'Session invalid or user not found. Please log out and log back in.'
+            });
+        }
+
         res.status(500).json({ error: error.message });
     }
 });
