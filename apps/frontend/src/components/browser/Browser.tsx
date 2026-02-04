@@ -137,7 +137,7 @@ const Browser: React.FC = () => {
             let src = imgMatch[1];
             // Fix path if it's a filename (Anki media)
             if (!src.startsWith('http') && !src.startsWith('data:')) {
-                src = `${MEDIA_BASE_URL}/${src}`;
+                src = `${MEDIA_BASE_URL}/${encodeURIComponent(src)}`;
             }
             thumbnailSrc = src;
         }
@@ -155,7 +155,7 @@ const Browser: React.FC = () => {
             audioMatches.forEach(match => {
                 let src = match[1];
                 if (!src.startsWith('http') && !src.startsWith('data:')) {
-                    src = `${MEDIA_BASE_URL}/${src}`;
+                    src = `${MEDIA_BASE_URL}/${encodeURIComponent(src)}`;
                 }
                 audioSrcs.push(src);
             });
@@ -204,9 +204,12 @@ const Browser: React.FC = () => {
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     padding: '0',
-                                    width: '40px', // Fixed square size
+                                    width: '40px',
                                     height: '40px',
-                                    borderRadius: '50%', // Perfect circle
+                                    minWidth: '40px', // Prevent squashing
+                                    aspectRatio: '1 / 1', // Enforce square/circle
+                                    flexShrink: 0,
+                                    borderRadius: '50% !important', // Force circle
                                     backgroundColor: 'rgba(0, 255, 255, 0.1)',
                                     border: '1px solid var(--accent-cyan)',
                                     color: 'var(--accent-cyan)',
@@ -597,7 +600,8 @@ const styles: { [key: string]: React.CSSProperties } = {
         fontSize: '1.1rem',
         textAlign: 'center',
         lineHeight: '1.4',
-        height: '100%',
+        maxHeight: '100%',
+        minHeight: 0,
         overflowY: 'auto',
         wordBreak: 'break-word',
         scrollbarWidth: 'thin',
