@@ -4,6 +4,7 @@ import Layout from '../layout/Layout';
 import { getDecks, type Deck } from '../../services/deckService';
 import { getAllCards, type Card, updateCard, deleteCard } from '../../services/cardService';
 import { useTranslation } from '../../i18n/useTranslation';
+import { MEDIA_BASE_URL } from '../../config';
 
 const ContentEditable = ({ html, onChange, style }: any) => {
     const contentEditableRef = React.useRef<HTMLDivElement>(null);
@@ -123,6 +124,58 @@ const Browser: React.FC = () => {
 
     const getDeckName = (id: string) => decks.find(d => d.id === id)?.name || 'Unknown Deck';
 
+    const renderCardContent = (html: string) => {
+        if (!html) return null;
+
+        // 1. EXTRACT IMAGE: Simple regex to find src
+        // Supports: <img src="...">
+        const imgMatch = html.match(/<img[^>]+src="([^">]+)"/);
+        let thumbnailSrc = null;
+        let cleanText = html.replace(/<img[^>]*>/g, '').trim(); // Remove img tags for text preview
+
+        if (imgMatch) {
+            let src = imgMatch[1];
+            // Fix path if it's a filename (Anki media)
+            if (!src.startsWith('http') && !src.startsWith('data:')) {
+                src = `${MEDIA_BASE_URL}/${src}`;
+            }
+            thumbnailSrc = src;
+        }
+
+        // 2. TEXT ONLY (If cleanText is basically empty, show nothing or placeholder?)
+        // If content was ONLY image, text is empty.
+
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', width: '100%' }}>
+                {thumbnailSrc && (
+                    <div style={{
+                        width: '50px',
+                        height: '50px',
+                        borderRadius: '8px',
+                        overflow: 'hidden',
+                        border: '2px solid var(--accent-cyan)',
+                        backgroundColor: '#000',
+                        flexShrink: 0
+                    }}>
+                        <img
+                            src={thumbnailSrc}
+                            alt="thumbnail"
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = 'none';
+                            }}
+                        />
+                    </div>
+                )}
+                {/* Render Text Content (without images) */}
+                <div
+                    dangerouslySetInnerHTML={{ __html: cleanText || (thumbnailSrc ? '' : html) }} // If we stripped images and have text, show it. If no images, show original.
+                    style={{ width: '100%' }}
+                />
+            </div>
+        );
+    };
+
     return (
         <Layout
             activeTab="library"
@@ -226,8 +279,9 @@ const Browser: React.FC = () => {
                                                         <div style={{ width: '100%', height: '100%', overflowY: 'auto', paddingRight: '4px', display: 'flex', flexDirection: 'column' }}>
                                                             <div
                                                                 style={{ ...styles.cardText, height: 'auto', overflowY: 'visible', margin: 'auto 0' }}
-                                                                dangerouslySetInnerHTML={{ __html: card.front || '' }}
-                                                            />
+                                                            >
+                                                                {renderCardContent(card.front)}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     <div style={styles.cardFooter}>
@@ -276,8 +330,9 @@ const Browser: React.FC = () => {
                                                         <div style={{ width: '100%', height: '100%', overflowY: 'auto', paddingRight: '4px', display: 'flex', flexDirection: 'column' }}>
                                                             <div
                                                                 style={{ ...styles.cardText, fontWeight: '700', fontSize: '1.25rem', height: 'auto', overflowY: 'visible', margin: 'auto 0' }}
-                                                                dangerouslySetInnerHTML={{ __html: card.back || '' }}
-                                                            />
+                                                            >
+                                                                {renderCardContent(card.back)}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     <div style={styles.cardFooter}>
