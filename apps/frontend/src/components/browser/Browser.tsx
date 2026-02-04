@@ -171,12 +171,17 @@ const Browser: React.FC = () => {
                         width: '60px', // Slightly larger for better visibility 
                         height: '60px',
                         borderRadius: '12px',
-                        overflow: 'hidden',
-                        border: '2px solid var(--accent-cyan)',
-                        backgroundColor: '#000',
-                        flexShrink: 0,
-                        boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
-                    }}>
+                    < div style={{
+                            width: '60px',
+                            height: '60px',
+                            borderRadius: '12px',
+                            overflow: 'hidden',
+                            border: '2px solid var(--accent-cyan)',
+                            backgroundColor: '#000',
+                            flexShrink: 0,
+                            boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+                            marginBottom: '4px'
+                        }}>
                         <img
                             src={thumbnailSrc}
                             alt="thumbnail"
@@ -188,9 +193,9 @@ const Browser: React.FC = () => {
                     </div>
                 )}
 
-                {/* Audio Buttons */}
+                {/* Audio Buttons - Simplified */}
                 {audioSrcs.length > 0 && (
-                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '2px' }}>
                         {audioSrcs.map((src, idx) => (
                             <button
                                 key={idx}
@@ -202,36 +207,40 @@ const Browser: React.FC = () => {
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    padding: '8px 16px',
-                                    borderRadius: '20px',
+                                    padding: '6px',
+                                    width: '32px',
+                                    height: '32px',
+                                    borderRadius: '50%',
                                     backgroundColor: 'rgba(0, 255, 255, 0.15)',
                                     border: '1px solid var(--accent-cyan)',
                                     color: 'var(--accent-cyan)',
                                     cursor: 'pointer',
                                     transition: 'all 0.2s',
-                                    fontSize: '0.9rem',
-                                    fontWeight: '600',
                                     boxShadow: '0 2px 8px rgba(0, 255, 255, 0.2)'
                                 }}
                                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(0, 255, 255, 0.25)'}
                                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(0, 255, 255, 0.15)'}
+                                title={t('play')}
                             >
-                                <span style={{ marginRight: '6px' }}>🔊</span> {t('play') || 'Play'}
+                                <span style={{ fontSize: '1.1rem' }}>🔊</span>
                             </button>
                         ))}
                     </div>
                 )}
 
-                {/* Render Text Content (without images/audio tags) */}
+                {/* Render Text Content (without images/audio tags) - Compact */}
                 {cleanText && (
                     <div
+                        className="card-text-content"
                         dangerouslySetInnerHTML={{ __html: cleanText }}
                         style={{
                             width: '100%',
                             textAlign: 'center',
                             overflowY: 'auto',
                             maxHeight: '100%',
-                            padding: '0 8px'
+                            padding: '0 4px',
+                            fontSize: '0.95em',
+                            lineHeight: '1.3'
                         }}
                     />
                 )}
@@ -257,8 +266,8 @@ const Browser: React.FC = () => {
                     </div>
                 )}
 
-                {/* Fixed Filter Section */}
-                <div style={styles.fixedHeader}>
+                {/* Top Section: Search & Decks (Max 40%) */}
+                <div style={{ flex: '0 0 40%', display: 'flex', flexDirection: 'column', overflow: 'hidden', paddingBottom: '10px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
                     <div style={styles.searchBox}>
                         <input
                             type="text"
@@ -269,8 +278,7 @@ const Browser: React.FC = () => {
                         />
                     </div>
 
-                    <div style={styles.deckFilters}>
-                        {/* All Decks - Full Row */}
+                    <div style={{ flex: 1, overflowY: 'auto', paddingRight: '4px' }}>
                         <button
                             className={selectedDeck === 'all' ? 'btn-primary' : 'btn-glass'}
                             style={{
@@ -283,7 +291,6 @@ const Browser: React.FC = () => {
                             {t('allDecks')}
                         </button>
 
-                        {/* User Decks - Wrapping Grid */}
                         <div style={styles.deckButtons}>
                             {decks.map(deck => (
                                 <button
@@ -297,123 +304,125 @@ const Browser: React.FC = () => {
                             ))}
                         </div>
                     </div>
+                </div>
 
+                {/* Bottom Section: Cards (60% / Remaining) */}
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', paddingTop: '10px' }}>
                     <div style={styles.resultsHeader}>
                         <h2 style={styles.resultsTitle}>{t('cardsTitle')} ({filteredCards.length})</h2>
                         <span style={styles.hint}>💡 {t('clickToFlip')}</span>
                     </div>
-                </div>
 
-                {/* Scrollable Results */}
-                <div style={styles.scrollableContent}>
-                    {selectedDeck === null ? (
-                        <div style={styles.noSelectionState}>
-                            <span style={{ fontSize: '3rem' }}>👆</span>
-                            <p style={{ marginTop: '10px', color: 'var(--text-secondary)' }}>
-                                {t('pleaseSelectDeck') || "Por favor selecciona un mazo para ver sus tarjetas"}
-                            </p>
-                        </div>
-                    ) : (
-                        <div style={styles.cardsGrid}>
-                            {filteredCards.length > 0 ? (
-                                filteredCards.map(card => {
-                                    const isFlipped = flippedCardId === card.id;
-                                    return (
-                                        <div
-                                            key={card.id}
-                                            className={`browser-card-row ${isFlipped ? 'flipped' : ''}`}
-                                            onClick={() => setFlippedCardId(isFlipped ? null : card.id)}
-                                            style={{
-                                                ...styles.cardRow,
-                                                height: '150px', // Reduced Height (~Half)
-                                            }}
-                                        >
-                                            <div className="card-inner" style={{ position: 'relative', width: '100%', height: '100%', transformStyle: 'preserve-3d', transition: 'transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)', willChange: 'transform' }}>
+                    <div style={{ flex: 1, overflowY: 'auto', paddingRight: '4px', scrollbarWidth: 'thin' }}>
+                        {selectedDeck === null ? (
+                            <div style={styles.noSelectionState}>
+                                <span style={{ fontSize: '3rem' }}>👆</span>
+                                <p style={{ marginTop: '10px', color: 'var(--text-secondary)' }}>
+                                    {t('pleaseSelectDeck') || "Por favor selecciona un mazo para ver sus tarjetas"}
+                                </p>
+                            </div>
+                        ) : (
+                            <div style={styles.cardsGrid}>
+                                {filteredCards.length > 0 ? (
+                                    filteredCards.map(card => {
+                                        const isFlipped = flippedCardId === card.id;
+                                        return (
+                                            <div
+                                                key={card.id}
+                                                className={`browser-card-row ${isFlipped ? 'flipped' : ''}`}
+                                                onClick={() => setFlippedCardId(isFlipped ? null : card.id)}
+                                                style={{
+                                                    ...styles.cardRow,
+                                                    height: '150px', // Reduced Height
+                                                }}
+                                            >
+                                                <div className="card-inner" style={{ position: 'relative', width: '100%', height: '100%', transformStyle: 'preserve-3d', transition: 'transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)', willChange: 'transform' }}>
 
-                                                {/* FRONT FACE */}
-                                                <div className="card-front" style={{ position: 'absolute', width: '100%', height: '100%', backfaceVisibility: 'hidden', borderRadius: '24px', backgroundColor: 'var(--bg-card)', padding: '10px 14px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', border: '1px solid var(--border-glass)' }}>
-                                                    <div style={styles.cardHeader}>
-                                                        <span style={styles.badge}>{t('question')}</span>
-                                                        <svg className="card-flip-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ width: 20, height: 20, transition: 'transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}>
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                                        </svg>
-                                                    </div>
-                                                    <div style={{ ...styles.cardBody, minHeight: 0, overflow: 'hidden' }}>
-                                                        <div style={{ width: '100%', height: '100%', overflowY: 'auto', paddingRight: '4px', display: 'flex', flexDirection: 'column' }}>
-                                                            <div
-                                                                style={{ ...styles.cardText, height: 'auto', overflowY: 'visible', margin: 'auto 0' }}
-                                                            >
-                                                                {renderCardContent(card.front)}
+                                                    {/* FRONT FACE */}
+                                                    <div className="card-front" style={{ position: 'absolute', width: '100%', height: '100%', backfaceVisibility: 'hidden', borderRadius: '24px', backgroundColor: 'var(--bg-card)', padding: '10px 14px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', border: '1px solid var(--border-glass)' }}>
+                                                        <div style={styles.cardHeader}>
+                                                            <span style={styles.badge}>{t('question')}</span>
+                                                            <svg className="card-flip-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ width: 20, height: 20, transition: 'transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}>
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                                            </svg>
+                                                        </div>
+                                                        <div style={{ ...styles.cardBody, minHeight: 0, overflow: 'hidden' }}>
+                                                            <div style={{ width: '100%', height: '100%', overflowY: 'auto', paddingRight: '4px', display: 'flex', flexDirection: 'column' }}>
+                                                                <div
+                                                                    style={{ ...styles.cardText, height: 'auto', overflowY: 'visible', margin: 'auto 0' }}
+                                                                >
+                                                                    {renderCardContent(card.front)}
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                    <div style={styles.cardFooter}>
-                                                        <div style={{ display: 'flex' }}>
-                                                            <button
-                                                                style={styles.editButton}
-                                                                onClick={(e) => handleEditClick(card, e)}
-                                                                title={t('editCard') || 'Edit'}
-                                                            >
-                                                                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                                </svg>
-                                                            </button>
-                                                            <button
-                                                                style={styles.deleteButton}
-                                                                onClick={(e) => handleDeleteClick(card, e)}
-                                                                title={t('deleteCard') || 'Delete'}
-                                                            >
-                                                                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18" style={{ overflow: 'visible' }}>
-                                                                    <defs>
-                                                                        <radialGradient id={`trashLight-${card.id}`} cx="0.5" cy="0.5" r="0.5" fx="0.5" fy="0.5">
-                                                                            <stop offset="0%" stopColor="#FFF" stopOpacity="0.9" />
-                                                                            <stop offset="40%" stopColor="var(--accent-red)" stopOpacity="0.8" />
-                                                                            <stop offset="100%" stopColor="var(--accent-red)" stopOpacity="0" />
-                                                                        </radialGradient>
-                                                                    </defs>
-                                                                    <ellipse cx="12" cy="10" rx="4" ry="2" fill={`url(#trashLight-${card.id})`} opacity="0" />
-                                                                    <path fill="var(--bg-card)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7M10 11v6M14 11v6" />
-                                                                    <path fill="var(--bg-card)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7h16M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" />
-                                                                </svg>
-                                                            </button>
+                                                        <div style={styles.cardFooter}>
+                                                            <div style={{ display: 'flex' }}>
+                                                                <button
+                                                                    style={styles.editButton}
+                                                                    onClick={(e) => handleEditClick(card, e)}
+                                                                    title={t('editCard') || 'Edit'}
+                                                                >
+                                                                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                                    </svg>
+                                                                </button>
+                                                                <button
+                                                                    style={styles.deleteButton}
+                                                                    onClick={(e) => handleDeleteClick(card, e)}
+                                                                    title={t('deleteCard') || 'Delete'}
+                                                                >
+                                                                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18" style={{ overflow: 'visible' }}>
+                                                                        <defs>
+                                                                            <radialGradient id={`trashLight-${card.id}`} cx="0.5" cy="0.5" r="0.5" fx="0.5" fy="0.5">
+                                                                                <stop offset="0%" stopColor="#FFF" stopOpacity="0.9" />
+                                                                                <stop offset="40%" stopColor="var(--accent-red)" stopOpacity="0.8" />
+                                                                                <stop offset="100%" stopColor="var(--accent-red)" stopOpacity="0" />
+                                                                            </radialGradient>
+                                                                        </defs>
+                                                                        <ellipse cx="12" cy="10" rx="4" ry="2" fill={`url(#trashLight-${card.id})`} opacity="0" />
+                                                                        <path fill="var(--bg-card)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7M10 11v6M14 11v6" />
+                                                                        <path fill="var(--bg-card)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7h16M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" />
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
+                                                            <span style={styles.deckBadge}>{getDeckName(card.deckId)}</span>
                                                         </div>
-                                                        <span style={styles.deckBadge}>{getDeckName(card.deckId)}</span>
                                                     </div>
-                                                </div>
 
-                                                {/* BACK FACE */}
-                                                <div className="card-back" style={{ position: 'absolute', width: '100%', height: '100%', backfaceVisibility: 'hidden', borderRadius: '24px', backgroundColor: 'var(--bg-card-elevated)', padding: '10px 14px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transform: 'rotateY(180deg)', border: '1px solid var(--border-glass)' }}>
-                                                    <div style={styles.cardHeader}>
-                                                        <span style={{ ...styles.badge, backgroundColor: 'var(--accent-cyan)', color: '#000' }}>{t('answer')}</span>
-                                                        <svg className="card-flip-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ width: 20, height: 20, transform: 'rotate(180deg)', opacity: 1, transition: 'transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}>
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                                        </svg>
-                                                    </div>
-                                                    <div style={{ ...styles.cardBody, minHeight: 0, overflow: 'hidden' }}>
-                                                        <div style={{ width: '100%', height: '100%', overflowY: 'auto', paddingRight: '4px', display: 'flex', flexDirection: 'column' }}>
-                                                            <div
-                                                                style={{ ...styles.cardText, fontWeight: '700', fontSize: '1.25rem', height: 'auto', overflowY: 'visible', margin: 'auto 0' }}
-                                                            >
-                                                                {renderCardContent(card.back)}
+                                                    {/* BACK FACE */}
+                                                    <div className="card-back" style={{ position: 'absolute', width: '100%', height: '100%', backfaceVisibility: 'hidden', borderRadius: '24px', backgroundColor: 'var(--bg-card-elevated)', padding: '10px 14px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transform: 'rotateY(180deg)', border: '1px solid var(--border-glass)' }}>
+                                                        <div style={styles.cardHeader}>
+                                                            <span style={{ ...styles.badge, backgroundColor: 'var(--accent-cyan)', color: '#000' }}>{t('answer')}</span>
+                                                            <svg className="card-flip-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ width: 20, height: 20, transform: 'rotate(180deg)', opacity: 1, transition: 'transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}>
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                                            </svg>
+                                                        </div>
+                                                        <div style={{ ...styles.cardBody, minHeight: 0, overflow: 'hidden' }}>
+                                                            <div style={{ width: '100%', height: '100%', overflowY: 'auto', paddingRight: '4px', display: 'flex', flexDirection: 'column' }}>
+                                                                <div
+                                                                    style={{ ...styles.cardText, fontWeight: '700', fontSize: '1.25rem', height: 'auto', overflowY: 'visible', margin: 'auto 0' }}
+                                                                >
+                                                                    {renderCardContent(card.back)}
+                                                                </div>
                                                             </div>
                                                         </div>
+                                                        <div style={styles.cardFooter}>
+                                                            <span style={{ ...styles.deckBadge, backgroundColor: 'rgba(0,0,0,0.1)', color: 'rgba(0,0,0,0.5)' }}>{getDeckName(card.deckId)}</span>
+                                                        </div>
                                                     </div>
-                                                    <div style={styles.cardFooter}>
-                                                        <span style={{ ...styles.deckBadge, backgroundColor: 'rgba(0,0,0,0.1)', color: 'rgba(0,0,0,0.5)' }}>{getDeckName(card.deckId)}</span>
-                                                    </div>
-                                                </div>
 
+                                                </div>
                                             </div>
-                                        </div>
-                                    );
-                                })
-                            ) : (
-                                <div style={styles.emptyState}>
-                                    <p style={styles.emptyText}>{t('noCardsFound')}</p>
-                                </div>
-                            )}
-                        </div>
-                    )}
+                                        );
+                                    })
+                                ) : (
+                                    <div style={styles.emptyState}>
+                                        <p style={styles.emptyText}>{t('noCardsFound')}</p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 
