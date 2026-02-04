@@ -148,279 +148,278 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
                 throw new Error('INVALID_DECK');
             }
         }
-    }
 
         // 2. Open SQLite
         console.log('[Import] Opening SQLite DB...');
-    const db = new Database(dbPath, { readonly: true });
+        const db = new Database(dbPath, { readonly: true });
 
-    // MEDIA PROCESSING
-    // Anki stores media mapping in a 'media' file (JSON) where keys are numeric filenames in the zip
-    // and values are the original filenames used in card fields (e.g. "1": "myimage.jpg").
-    // MEDIA PROCESSING
-    // Use the directory where dbPath was found as the source for media
-    const workingDir = path.dirname(dbPath);
-    const mediaJsonPath = path.join(workingDir, 'media');
+        // MEDIA PROCESSING
+        // Anki stores media mapping in a 'media' file (JSON) where keys are numeric filenames in the zip
+        // and values are the original filenames used in card fields (e.g. "1": "myimage.jpg").
+        // MEDIA PROCESSING
+        // Use the directory where dbPath was found as the source for media
+        const workingDir = path.dirname(dbPath);
+        const mediaJsonPath = path.join(workingDir, 'media');
 
-    if (fs.existsSync(mediaJsonPath)) {
-        try {
-            const mediaMap = JSON.parse(fs.readFileSync(mediaJsonPath, 'utf-8'));
-            const mediaDestDir = path.join(__dirname, '../../../public/media');
+        if (fs.existsSync(mediaJsonPath)) {
+            try {
+                const mediaMap = JSON.parse(fs.readFileSync(mediaJsonPath, 'utf-8'));
+                const mediaDestDir = path.join(__dirname, '../../../public/media');
 
-            // Ensure media dir exists
-            if (!fs.existsSync(mediaDestDir)) {
-                fs.mkdirSync(mediaDestDir, { recursive: true });
+                // Ensure media dir exists
+                if (!fs.existsSync(mediaDestDir)) {
+                    fs.mkdirSync(mediaDestDir, { recursive: true });
+                }
+
+                console.log(`[Import] Processing media files...`);
+                let mediaCount = 0;
+
+                // Convert to array for batch processing
+                const mediaEntries = Object.entries(mediaMap);
+                const BATCH_SIZE = 50;
+
+                for (let i = 0; i < mediaEntries.length; i += BATCH_SIZE) {
+                    const batch = mediaEntries.slice(i, i + BATCH_SIZE);
+                    await Promise.all(batch.map(async ([numericName, originalName]) => {
+                        const srcPath = path.join(workingDir, numericName);
+                        // Async check and copy
+                        try {
+                            // Use promises to check access instead of existsSync
+                            await fs.promises.access(srcPath);
+                            const destPath = path.join(mediaDestDir, originalName as string);
+                            await fs.promises.copyFile(srcPath, destPath);
+                            mediaCount++;
+                        } catch (err) {
+                            // Ignore missing files to allow import to continue
+                        }
+                    }));
+                }
+
+                console.log(`[Import] Processed ${mediaCount} media files.`);
+            } catch (mediaErr) {
+                console.error('[Import] Error processing media:', mediaErr);
+                // Don't fail the hole import, just log it
             }
-
-            console.log(`[Import] Processing media files...`);
-            let mediaCount = 0;
-
-            // Convert to array for batch processing
-            const mediaEntries = Object.entries(mediaMap);
-            const BATCH_SIZE = 50;
-
-            for (let i = 0; i < mediaEntries.length; i += BATCH_SIZE) {
-                const batch = mediaEntries.slice(i, i + BATCH_SIZE);
-                await Promise.all(batch.map(async ([numericName, originalName]) => {
-                    const srcPath = path.join(workingDir, numericName);
-                    // Async check and copy
-                    try {
-                        // Use promises to check access instead of existsSync
-                        await fs.promises.access(srcPath);
-                        const destPath = path.join(mediaDestDir, originalName as string);
-                        await fs.promises.copyFile(srcPath, destPath);
-                        mediaCount++;
-                    } catch (err) {
-                        // Ignore missing files to allow import to continue
-                    }
-                }));
-            }
-
-            console.log(`[Import] Processed ${mediaCount} media files.`);
-        } catch (mediaErr) {
-            console.error('[Import] Error processing media:', mediaErr);
-            // Don't fail the hole import, just log it
-        }
-    }
-
-    // 3. Get Decks
-    console.log('[Import] Reading decks from DB...');
-    const col: any = db.prepare('SELECT decks FROM col').get();
-    const ankiDecksMap = JSON.parse(col.decks);
-
-    console.log('[Import] Found decks in map:', Object.keys(ankiDecksMap).length);
-
-    // Map Anki Deck ID to Ankris Deck ID
-    const deckIdMap = new Map<number, string>();
-    const deckNameMap = new Map<number, string>();
-
-    for (const key in ankiDecksMap) {
-        const d = ankiDecksMap[key];
-        if (d.id === 1 && d.name === 'Default') continue;
-
-        console.log(`[Import] Creating deck: ${d.name}`);
-        deckNameMap.set(Number(d.id), d.name);
-        const createdDeck = await DeckService.createDeck(userId, d.name, `Imported from Anki`);
-        deckIdMap.set(Number(d.id), createdDeck.id);
-        importStats.decks++;
-    }
-
-    // 4. Get Notes
-    console.log('[Import] Reading notes...');
-    const notes = db.prepare('SELECT id, mid, flds FROM notes').all() as AnkiNote[];
-    console.log(`[Import] Found ${notes.length} notes`);
-
-    // Map Note ID to Content
-    const noteMap = new Map<number, { front: string, back: string }>();
-
-    notes.forEach(n => {
-        const fields = n.flds.split('\x1f');
-        const front = fields[0] || "Empty Front";
-        const back = fields.slice(1).join('<br>') || "Empty Back";
-        noteMap.set(n.id, { front, back });
-    });
-
-    // 5. Get Cards
-    const cards = db.prepare('SELECT id, nid, did, ord, type, queue, due, ivl, factor, reps, lapses FROM cards').all() as AnkiCard[];
-
-    // Track processed Note IDs to enforce "One Card Per Note" rule requested by user
-    const processedNoteIds = new Set<number>();
-
-    for (const c of cards) {
-        // STRICT DUPLICATE PREVENTION:
-        // User requested "Solo debe generarse solo una carta" per note.
-        // If we have already processed a card for this Note ID in this batch, skip it.
-        // This prevents "Acteur" -> "Actor" AND "Acteur" -> "Actor (Image)" showing up as duplicates.
-        if (processedNoteIds.has(c.nid)) {
-            continue;
         }
 
-        const content = noteMap.get(c.nid);
-        if (!content) {
-            console.warn(`[Import] Warning: Note ${c.nid} not found, skipping card`);
-            continue;
-        }
+        // 3. Get Decks
+        console.log('[Import] Reading decks from DB...');
+        const col: any = db.prepare('SELECT decks FROM col').get();
+        const ankiDecksMap = JSON.parse(col.decks);
 
-        let targetDeckId = deckIdMap.get(c.did);
+        console.log('[Import] Found decks in map:', Object.keys(ankiDecksMap).length);
 
-        // If deck not mapped, create it
-        if (!targetDeckId) {
-            const deckName = deckNameMap.get(c.did) || `Imported Deck ${new Date().toLocaleDateString()}`;
-            const newDeck = await DeckService.createDeck(userId, deckName, "Imported from Anki");
-            deckIdMap.set(c.did, newDeck.id);
-            deckNameMap.set(c.did, deckName);
-            targetDeckId = newDeck.id;
+        // Map Anki Deck ID to Ankris Deck ID
+        const deckIdMap = new Map<number, string>();
+        const deckNameMap = new Map<number, string>();
+
+        for (const key in ankiDecksMap) {
+            const d = ankiDecksMap[key];
+            if (d.id === 1 && d.name === 'Default') continue;
+
+            console.log(`[Import] Creating deck: ${d.name}`);
+            deckNameMap.set(Number(d.id), d.name);
+            const createdDeck = await DeckService.createDeck(userId, d.name, `Imported from Anki`);
+            deckIdMap.set(Number(d.id), createdDeck.id);
             importStats.decks++;
         }
 
-        // RELAXED: Allow all ordinals but FILTER by uniqueness.
-        // Previous restriction `if (c.ord !== 0)` prevented legitimate cards (like reversed ones) from importing.
-        // Now we simply take the FIRST card we see for this note (which is usually ord 0, but if deck only has ord 1, we take that).
-        // if (c.ord !== 0) {
-        //     continue;
-        // }
+        // 4. Get Notes
+        console.log('[Import] Reading notes...');
+        const notes = db.prepare('SELECT id, mid, flds FROM notes').all() as AnkiNote[];
+        console.log(`[Import] Found ${notes.length} notes`);
 
-        // Mark this note as processed so we don't import sibling cards (e.g. reversed)
-        processedNoteIds.add(c.nid);
+        // Map Note ID to Content
+        const noteMap = new Map<number, { front: string, back: string }>();
 
-        // CLEANUP CONTENT: Remove styles, fix clozes, etc.
-        const cleanContent = (html: string) => {
-            if (!html) return "";
-            // 1. Remove style blocks
-            html = html.replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gim, "");
+        notes.forEach(n => {
+            const fields = n.flds.split('\x1f');
+            const front = fields[0] || "Empty Front";
+            const back = fields.slice(1).join('<br>') || "Empty Back";
+            noteMap.set(n.id, { front, back });
+        });
 
-            // 2. Remove specific Anki classes/ids
-            html = html.replace(/class=".*?"/g, "");
-            html = html.replace(/id=".*?"/g, "");
+        // 5. Get Cards
+        const cards = db.prepare('SELECT id, nid, did, ord, type, queue, due, ivl, factor, reps, lapses FROM cards').all() as AnkiCard[];
 
-            // 3. Format Cloze Deletions: {{c1::Answer::Hint}}
-            // Robust Regex: Match {{c<digits>::<content optional hint>}}
-            // We use [\s\S]*? to match across newlines non-greedily.
-            html = html.replace(/\{\{c\d+::([\s\S]*?)(::[\s\S]*?)?\}\}/g, (match, content, hint) => {
-                // If content has nested HTML, that's fine.
-                return `<span style="color: var(--accent-cyan); font-weight: bold;">[${content}]</span>`;
-            });
+        // Track processed Note IDs to enforce "One Card Per Note" rule requested by user
+        const processedNoteIds = new Set<number>();
 
-            // Final cleanup of any lingering braces just in case validation fails
-            // html = html.replace(/\{\{c\d+::/g, "").replace(/\}\}/g, "");
+        for (const c of cards) {
+            // STRICT DUPLICATE PREVENTION:
+            // User requested "Solo debe generarse solo una carta" per note.
+            // If we have already processed a card for this Note ID in this batch, skip it.
+            // This prevents "Acteur" -> "Actor" AND "Acteur" -> "Actor (Image)" showing up as duplicates.
+            if (processedNoteIds.has(c.nid)) {
+                continue;
+            }
 
-            return html.trim();
-        };
+            const content = noteMap.get(c.nid);
+            if (!content) {
+                console.warn(`[Import] Warning: Note ${c.nid} not found, skipping card`);
+                continue;
+            }
 
-        let frontRaw = content.front;
-        let backRaw = content.back;
+            let targetDeckId = deckIdMap.get(c.did);
 
-        // CLOZE DETECTION: Check for cloze pattern
-        const isCloze = /\{\{c\d+::/.test(frontRaw);
+            // If deck not mapped, create it
+            if (!targetDeckId) {
+                const deckName = deckNameMap.get(c.did) || `Imported Deck ${new Date().toLocaleDateString()}`;
+                const newDeck = await DeckService.createDeck(userId, deckName, "Imported from Anki");
+                deckIdMap.set(c.did, newDeck.id);
+                deckNameMap.set(c.did, deckName);
+                targetDeckId = newDeck.id;
+                importStats.decks++;
+            }
 
-        let front = cleanContent(frontRaw);
-        let back = cleanContent(backRaw);
+            // RELAXED: Allow all ordinals but FILTER by uniqueness.
+            // Previous restriction `if (c.ord !== 0)` prevented legitimate cards (like reversed ones) from importing.
+            // Now we simply take the FIRST card we see for this note (which is usually ord 0, but if deck only has ord 1, we take that).
+            // if (c.ord !== 0) {
+            //     continue;
+            // }
 
-        if (isCloze) {
-            // Prepend context to Back
-            back = `${front}<br><br><hr><br>${back}`;
+            // Mark this note as processed so we don't import sibling cards (e.g. reversed)
+            processedNoteIds.add(c.nid);
+
+            // CLEANUP CONTENT: Remove styles, fix clozes, etc.
+            const cleanContent = (html: string) => {
+                if (!html) return "";
+                // 1. Remove style blocks
+                html = html.replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gim, "");
+
+                // 2. Remove specific Anki classes/ids
+                html = html.replace(/class=".*?"/g, "");
+                html = html.replace(/id=".*?"/g, "");
+
+                // 3. Format Cloze Deletions: {{c1::Answer::Hint}}
+                // Robust Regex: Match {{c<digits>::<content optional hint>}}
+                // We use [\s\S]*? to match across newlines non-greedily.
+                html = html.replace(/\{\{c\d+::([\s\S]*?)(::[\s\S]*?)?\}\}/g, (match, content, hint) => {
+                    // If content has nested HTML, that's fine.
+                    return `<span style="color: var(--accent-cyan); font-weight: bold;">[${content}]</span>`;
+                });
+
+                // Final cleanup of any lingering braces just in case validation fails
+                // html = html.replace(/\{\{c\d+::/g, "").replace(/\}\}/g, "");
+
+                return html.trim();
+            };
+
+            let frontRaw = content.front;
+            let backRaw = content.back;
+
+            // CLOZE DETECTION: Check for cloze pattern
+            const isCloze = /\{\{c\d+::/.test(frontRaw);
+
+            let front = cleanContent(frontRaw);
+            let back = cleanContent(backRaw);
+
+            if (isCloze) {
+                // Prepend context to Back
+                back = `${front}<br><br><hr><br>${back}`;
+            }
+
+            // SPECIAL CHECK: If front is empty after cleaning
+            if (!front && back) {
+                front = back; // Fallback
+                back = "flipped";
+            }
+
+            // CHECK DUPLICATES: Check if a card with this Anki Note ID and Ordinal already exists in this deck
+            // This relies on CardService having a way to check.
+            const existingCards = await CardService.getAllCards(userId);
+            const isDuplicate = existingCards.some((ec: any) =>
+                ec.deckId === targetDeckId &&
+                ec.noteId === String(c.nid) &&
+                (ec.ord === c.ord || (ec.ord === undefined && ec.front === front)) // Fallback to front check if ord is missing in old cards
+            );
+
+            if (isDuplicate) {
+                // Skip duplicate
+                continue;
+            }
+
+            // CRITICAL FIX: Ensure Parent Note exists in Postgres before creating Card
+            // The constraint Card_noteId_fkey requires the Note to exist.
+            const noteIdStr = String(c.nid);
+
+            // We use upsert to create it if missing, or do nothing if it exists (e.g. created by sibling card)
+            // Ideally we'd optimize this with a Set cache, but upsert is safe and robust.
+            try {
+                await prisma.note.upsert({
+                    where: { id: noteIdStr },
+                    update: {}, // No-op if exists
+                    create: {
+                        id: noteIdStr,
+                        userId: userId,
+                        deckId: targetDeckId!,
+                        content: {
+                            front: front,
+                            back: back,
+                            original: content
+                        },
+                        tags: [] // Todo: Parse tags from Anki
+                    }
+                });
+            } catch (noteErr) {
+                console.warn(`[Import] Failed to upsert note ${noteIdStr}:`, noteErr);
+                // If note creation fails, card creation will likely fail too, but we let it try or continue.
+            }
+
+            const newCard = await CardService.createCard(
+                userId,
+                targetDeckId!, // We ensure this is defined in the check above
+                noteIdStr,
+                front,
+                back,
+                c.ord
+            );
+
+            // TODO: Map detailed SRS state if possible
+            // c.type: 0=new, 1=learning, 2=review, 3=relearning
+            importStats.cards++;
+            importStats.cardsByDeck[targetDeckId!] = (importStats.cardsByDeck[targetDeckId!] || 0) + 1;
         }
 
-        // SPECIAL CHECK: If front is empty after cleaning
-        if (!front && back) {
-            front = back; // Fallback
-            back = "flipped";
+        // 6. Cleanup: Delete any imported decks that ended up empty
+        // This prevents the "Predeterminado" (Default) deck from appearing if it wasn't used
+        console.log('[Import] Cleaning up empty decks...');
+        for (const [ankiId, ankrisDeckId] of deckIdMap.entries()) {
+            const cardCount = importStats.cardsByDeck[ankrisDeckId] || 0;
+            if (cardCount === 0) {
+                console.log(`[Import] Deleting empty deck: ${ankrisDeckId} (Anki ID: ${ankiId})`);
+                await DeckService.deleteDeck(userId, ankrisDeckId);
+                importStats.decks--;
+            }
         }
 
-        // CHECK DUPLICATES: Check if a card with this Anki Note ID and Ordinal already exists in this deck
-        // This relies on CardService having a way to check.
-        const existingCards = await CardService.getAllCards(userId);
-        const isDuplicate = existingCards.some((ec: any) =>
-            ec.deckId === targetDeckId &&
-            ec.noteId === String(c.nid) &&
-            (ec.ord === c.ord || (ec.ord === undefined && ec.front === front)) // Fallback to front check if ord is missing in old cards
-        );
+        console.log('[Import] Cleanup complete.');
+        console.log(`[Import] Stats: ${importStats.decks} decks, ${importStats.cards} cards`);
 
-        if (isDuplicate) {
-            // Skip duplicate
-            continue;
-        }
+        return importStats;
 
-        // CRITICAL FIX: Ensure Parent Note exists in Postgres before creating Card
-        // The constraint Card_noteId_fkey requires the Note to exist.
-        const noteIdStr = String(c.nid);
-
-        // We use upsert to create it if missing, or do nothing if it exists (e.g. created by sibling card)
-        // Ideally we'd optimize this with a Set cache, but upsert is safe and robust.
+    } catch (e: any) {
+        importStats.errors.push(e.message);
+        console.error('Import Error:', e);
+        throw e;
+    } finally {
+        // Cleanup
         try {
-            await prisma.note.upsert({
-                where: { id: noteIdStr },
-                update: {}, // No-op if exists
-                create: {
-                    id: noteIdStr,
-                    userId: userId,
-                    deckId: targetDeckId!,
-                    content: {
-                        front: front,
-                        back: back,
-                        original: content
-                    },
-                    tags: [] // Todo: Parse tags from Anki
-                }
-            });
-        } catch (noteErr) {
-            console.warn(`[Import] Failed to upsert note ${noteIdStr}:`, noteErr);
-            // If note creation fails, card creation will likely fail too, but we let it try or continue.
-        }
-
-        const newCard = await CardService.createCard(
-            userId,
-            targetDeckId!, // We ensure this is defined in the check above
-            noteIdStr,
-            front,
-            back,
-            c.ord
-        );
-
-        // TODO: Map detailed SRS state if possible
-        // c.type: 0=new, 1=learning, 2=review, 3=relearning
-        importStats.cards++;
-        importStats.cardsByDeck[targetDeckId!] = (importStats.cardsByDeck[targetDeckId!] || 0) + 1;
-    }
-
-    // 6. Cleanup: Delete any imported decks that ended up empty
-    // This prevents the "Predeterminado" (Default) deck from appearing if it wasn't used
-    console.log('[Import] Cleaning up empty decks...');
-    for (const [ankiId, ankrisDeckId] of deckIdMap.entries()) {
-        const cardCount = importStats.cardsByDeck[ankrisDeckId] || 0;
-        if (cardCount === 0) {
-            console.log(`[Import] Deleting empty deck: ${ankrisDeckId} (Anki ID: ${ankiId})`);
-            await DeckService.deleteDeck(userId, ankrisDeckId);
-            importStats.decks--;
+            if (db) {
+                db.close();
+            }
+            if (fs.existsSync(tempDir)) {
+                fs.rmSync(tempDir, { recursive: true, force: true });
+            }
+            // Optional: delete uploaded .apkg
+            // fs.unlinkSync(filePath); 
+        } catch (cleanupErr) {
+            // EPERM is common on Windows if DB is still flushing. 
+            // We don't want to fail the request for this.
+            console.warn("Cleanup warning (non-fatal):", cleanupErr);
         }
     }
-
-    console.log('[Import] Cleanup complete.');
-    console.log(`[Import] Stats: ${importStats.decks} decks, ${importStats.cards} cards`);
-
-    return importStats;
-
-} catch (e: any) {
-    importStats.errors.push(e.message);
-    console.error('Import Error:', e);
-    throw e;
-} finally {
-    // Cleanup
-    try {
-        if (db) {
-            db.close();
-        }
-        if (fs.existsSync(tempDir)) {
-            fs.rmSync(tempDir, { recursive: true, force: true });
-        }
-        // Optional: delete uploaded .apkg
-        // fs.unlinkSync(filePath); 
-    } catch (cleanupErr) {
-        // EPERM is common on Windows if DB is still flushing. 
-        // We don't want to fail the request for this.
-        console.warn("Cleanup warning (non-fatal):", cleanupErr);
-    }
-}
 };
 
 export const importDemoDeck = async (userId: string, demoId: string) => {
