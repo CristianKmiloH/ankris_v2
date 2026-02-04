@@ -3,36 +3,192 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { createNote } from '../../services/noteService';
 import { useTranslation } from '../../i18n/useTranslation';
 import Layout from '../layout/Layout';
+import { MEDIA_BASE_URL } from '../../config';
+
+type NoteType = 'BASIC' | 'BASIC_REVERSED' | 'BASIC_OPTIONAL_REVERSED' | 'BASIC_TYPE_ANSWER' | 'CLOZE';
+
+interface MediaItem {
+    type: 'image' | 'audio' | 'video';
+    file: File;
+    preview: string;
+}
 
 const AddNote: React.FC = () => {
     const { deckId } = useParams();
     const navigate = useNavigate();
-    const [front, setFront] = useState('');
-    const [back, setBack] = useState('');
     const { t } = useTranslation();
 
+    const [noteType, setNoteType] = useState<NoteType>('BASIC');
+    const [front, setFront] = useState('');
+    const [back, setBack] = useState('');
+    const [addReverse, setAddReverse] = useState('');
+    const [clozeText, setClozeText] = useState('');
+    const [extra, setExtra] = useState('');
+
+    const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
     const [showSuccess, setShowSuccess] = useState(false);
+    const [selectedClozeText, setSelectedClozeText] = useState('');
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
             if (deckId) {
-                // Convert newlines to breaks for HTML compatibility
-                const processedFront = front.replace(/\n/g, '<br>');
-                const processedBack = back.replace(/\n/g, '<br>');
+                let processedFront = '';
+                let processedBack = '';
 
-                await createNote(deckId, processedFront, processedBack);
+                // Build content based on note type
+                if (noteType === 'CLOZE') {
+                    processedFront = clozeText.replace(/\n/g, '<br>');
+                    processedBack = extra.replace(/\n/g, '<br>');
+                } else {
+                    processedFront = front.replace(/\n/g, '<br>');
+                    processedBack = back.replace(/\n/g, '<br>');
+                }
+
+                // TODO: Upload media files to server
+                // For now, we'll just submit the text
+
+                await createNote(deckId, processedFront, processedBack, noteType);
 
                 setShowSuccess(true);
-
-                // Navigate back after delay
-                setTimeout(() => {
-                    navigate('/');
-                }, 1500);
+                setTimeout(() => navigate('/'), 1500);
             }
         } catch (err) {
             console.error(err);
-            // Optional: Add error state/toast here
+        }
+    };
+
+    const handleMediaUpload = (type: 'image' | 'audio' | 'video') => {
+        const input = document.createElement('input');
+        input.type = 'file';
+
+        if (type === 'image') input.accept = 'image/*';
+        if (type === 'audio') input.accept = 'audio/*';
+        if (type === 'video') input.accept = 'video/*';
+
+        input.onchange = (e: any) => {
+            const file = e.target?.files?.[0];
+            if (file) {
+                const preview = URL.createObjectURL(file);
+                setMediaItems([...mediaItems, { type, file, preview }]);
+            }
+        };
+        input.click();
+    };
+
+    const removeMedia = (index: number) => {
+        setMediaItems(mediaItems.filter((_, i) => i !== index));
+    };
+
+    const insertCloze = () => {
+        if (selectedClozeText) {
+            const newText = clozeText.replace(
+                selectedClozeText,
+                `{{c1::${selectedClozeText}}}`
+            );
+            setClozeText(newText);
+            setSelectedClozeText('');
+        }
+    };
+
+    const renderFieldsForType = () => {
+        switch (noteType) {
+            case 'CLOZE':
+                return (
+                    <>
+                        <div style={styles.fieldGroup}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <label style={styles.label}>{t('text') || 'Text'}</label>
+                                <button
+                                    type="button"
+                                    onClick={insertCloze}
+                                    style={styles.clozeButton}
+                                    title="Wrap selected text in cloze deletion"
+                                >
+                                    [...] Cloze
+                                </button>
+                            </div>
+                            <textarea
+                                style={styles.textArea}
+                                value={clozeText}
+                                onChange={e => {
+                                    setClozeText(e.target.value);
+                                    const selection = window.getSelection()?.toString();
+                                    if (selection) setSelectedClozeText(selection);
+                                }}
+                                placeholder="Type text here. Select text and click [...] to create gaps."
+                            />
+                            <p style={styles.hint}>💡 Select text and click [...] to hide it</p>
+                        </div>
+                        <div style={styles.fieldGroup}>
+                            <label style={styles.label}>{t('extra') || 'Extra (Optional)'}</label>
+                            <textarea
+                                style={{ ...styles.textArea, flex: 0.5 }}
+                                value={extra}
+                                onChange={e => setExtra(e.target.value)}
+                                placeholder="Additional info..."
+                            />
+                        </div>
+                    </>
+                );
+
+            case 'BASIC_OPTIONAL_REVERSED':
+                return (
+                    <>
+                        <div style={styles.fieldGroup}>
+                            <label style={styles.label}>{t('front')}</label>
+                            <textarea
+                                style={styles.textArea}
+                                value={front}
+                                onChange={e => setFront(e.target.value)}
+                                placeholder="Question..."
+                            />
+                        </div>
+                        <div style={styles.fieldGroup}>
+                            <label style={styles.label}>{t('back')}</label>
+                            <textarea
+                                style={styles.textArea}
+                                value={back}
+                                onChange={e => setBack(e.target.value)}
+                                placeholder="Answer..."
+                            />
+                        </div>
+                        <div style={styles.fieldGroup}>
+                            <label style={styles.label}>Add Reverse?</label>
+                            <input
+                                style={styles.input}
+                                value={addReverse}
+                                onChange={e => setAddReverse(e.target.value)}
+                                placeholder="Type anything to enable reverse card"
+                            />
+                            <p style={styles.hint}>💡 Leave empty for 1 card, fill for 2 cards</p>
+                        </div>
+                    </>
+                );
+
+            default:
+                return (
+                    <>
+                        <div style={styles.fieldGroup}>
+                            <label style={styles.label}>{t('front')}</label>
+                            <textarea
+                                style={styles.textArea}
+                                value={front}
+                                onChange={e => setFront(e.target.value)}
+                                placeholder="Question..."
+                            />
+                        </div>
+                        <div style={styles.fieldGroup}>
+                            <label style={styles.label}>{t('back')}</label>
+                            <textarea
+                                style={styles.textArea}
+                                value={back}
+                                onChange={e => setBack(e.target.value)}
+                                placeholder="Answer..."
+                            />
+                        </div>
+                    </>
+                );
         }
     };
 
@@ -60,26 +216,74 @@ const AddNote: React.FC = () => {
                 <div style={styles.scrollContainer}>
                     <div style={styles.cardWrapper}>
                         <form onSubmit={handleSubmit} style={styles.formCard}>
-                            {/* Front Field */}
+                            {/* Note Type Selector */}
                             <div style={styles.fieldGroup}>
-                                <label style={styles.label}>{t('front')}</label>
-                                <textarea
-                                    style={styles.textArea}
-                                    value={front}
-                                    onChange={e => setFront(e.target.value)}
-                                    placeholder="Type the question here..."
-                                />
+                                <label style={styles.label}>📝 Note Type</label>
+                                <select
+                                    style={styles.select}
+                                    value={noteType}
+                                    onChange={e => setNoteType(e.target.value as NoteType)}
+                                >
+                                    <option value="BASIC">Basic (Front → Back)</option>
+                                    <option value="BASIC_REVERSED">Basic + Reversed</option>
+                                    <option value="BASIC_OPTIONAL_REVERSED">Basic (Optional Reverse)</option>
+                                    <option value="BASIC_TYPE_ANSWER">Type Answer</option>
+                                    <option value="CLOZE">Cloze (Fill in the blank)</option>
+                                </select>
                             </div>
 
-                            {/* Back Field */}
-                            <div style={styles.fieldGroup}>
-                                <label style={styles.label}>{t('back')}</label>
-                                <textarea
-                                    style={styles.textArea}
-                                    value={back}
-                                    onChange={e => setBack(e.target.value)}
-                                    placeholder="Type the answer here..."
-                                />
+                            {/* Dynamic Fields */}
+                            {renderFieldsForType()}
+
+                            {/* Media Upload Buttons */}
+                            <div style={styles.mediaSection}>
+                                <label style={styles.label}>🎨 Add Media</label>
+                                <div style={styles.mediaButtons}>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleMediaUpload('image')}
+                                        style={styles.mediaBtn}
+                                        className="btn-glass"
+                                    >
+                                        🖼️ Image
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleMediaUpload('audio')}
+                                        style={styles.mediaBtn}
+                                        className="btn-glass"
+                                    >
+                                        🔊 Audio
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleMediaUpload('video')}
+                                        style={styles.mediaBtn}
+                                        className="btn-glass"
+                                    >
+                                        🎥 Video
+                                    </button>
+                                </div>
+
+                                {/* Media Preview */}
+                                {mediaItems.length > 0 && (
+                                    <div style={styles.mediaPreview}>
+                                        {mediaItems.map((item, i) => (
+                                            <div key={i} style={styles.mediaItem}>
+                                                {item.type === 'image' && <img src={item.preview} alt="preview" style={styles.previewImg} />}
+                                                {item.type === 'audio' && <audio src={item.preview} controls style={styles.previewAudio} />}
+                                                {item.type === 'video' && <video src={item.preview} controls style={styles.previewVideo} />}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeMedia(i)}
+                                                    style={styles.removeBtn}
+                                                >
+                                                    ×
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </form>
                     </div>
@@ -126,8 +330,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     container: {
         display: 'flex',
         flexDirection: 'column',
-        height: '100dvh', // Dynamic viewport height for modern browsers
-        overflow: 'hidden', // Prevent outer scroll
+        height: '100dvh',
+        overflow: 'hidden',
         position: 'relative',
     },
     header: {
@@ -172,15 +376,15 @@ const styles: { [key: string]: React.CSSProperties } = {
         marginTop: '6px',
     },
     scrollContainer: {
-        flex: 1, // Takes updated space between header and footer
-        overflow: 'hidden', // Disable layout scroll
+        flex: 1,
+        overflow: 'auto',
         display: 'flex',
         flexDirection: 'column',
         width: '100%',
         padding: '10px 24px',
     },
     cardWrapper: {
-        flex: 1, // Fill available vertical space
+        flex: 1,
         width: '100%',
         maxWidth: '600px',
         display: 'flex',
@@ -189,7 +393,6 @@ const styles: { [key: string]: React.CSSProperties } = {
         minHeight: 0,
     },
     formCard: {
-        flex: 1, // Fill wrapper
         width: '100%',
         backgroundColor: 'var(--bg-card)',
         padding: '24px',
@@ -198,46 +401,138 @@ const styles: { [key: string]: React.CSSProperties } = {
         boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
         display: 'flex',
         flexDirection: 'column',
-        gap: '24px',
-        overflow: 'hidden', // Key change: No scroll on card itself
+        gap: '20px',
     },
     fieldGroup: {
         display: 'flex',
         flexDirection: 'column',
         gap: '10px',
-        flex: 1, // Split space equally
-        minHeight: 0, // Allow shrinking
-        overflow: 'hidden', // Contain text area
     },
     label: {
         color: 'var(--text-secondary)',
         fontSize: '0.95rem',
         fontWeight: '600',
         marginLeft: '4px',
-        flexShrink: 0, // Keep label visible
+    },
+    select: {
+        width: '100%',
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        borderRadius: '12px',
+        padding: '14px 16px',
+        color: 'var(--text-primary)',
+        fontSize: '1rem',
+        outline: 'none',
+        transition: 'all 0.2s',
+        cursor: 'pointer',
+    },
+    input: {
+        width: '100%',
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        borderRadius: '12px',
+        padding: '14px 16px',
+        color: 'var(--text-primary)',
+        fontSize: '1rem',
+        outline: 'none',
+        transition: 'all 0.2s',
     },
     textArea: {
         width: '100%',
-        flex: 1, // Fill remaining height of fieldGroup
-        backgroundColor: 'var(--bg-input)',
-        border: '1px solid transparent',
+        minHeight: '120px',
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
         borderRadius: '16px',
         padding: '16px',
         color: 'var(--text-primary)',
         fontSize: '1rem',
         lineHeight: '1.5',
-        resize: 'none',
+        resize: 'vertical',
         outline: 'none',
         transition: 'all 0.2s',
-        boxSizing: 'border-box',
-        overflowY: 'auto', // Scroll internal to text area
+    },
+    hint: {
+        fontSize: '0.85rem',
+        color: 'var(--text-muted)',
+        marginTop: '-5px',
+        fontStyle: 'italic',
+    },
+    clozeButton: {
+        padding: '6px 12px',
+        backgroundColor: 'rgba(0, 217, 255, 0.1)',
+        border: '1px solid var(--accent-cyan)',
+        borderRadius: '8px',
+        color: 'var(--accent-cyan)',
+        fontSize: '0.85rem',
+        fontWeight: '600',
+        cursor: 'pointer',
+        transition: 'all 0.2s',
+    },
+    mediaSection: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
+    },
+    mediaButtons: {
+        display: 'flex',
+        gap: '12px',
+        flexWrap: 'wrap',
+    },
+    mediaBtn: {
+        flex: 1,
+        minWidth: '100px',
+        padding: '12px 16px',
+        fontSize: '0.9rem',
+        fontWeight: '600',
+    },
+    mediaPreview: {
+        display: 'flex',
+        gap: '12px',
+        flexWrap: 'wrap',
+        marginTop: '8px',
+    },
+    mediaItem: {
+        position: 'relative',
+        borderRadius: '12px',
+        overflow: 'hidden',
+        border: '2px solid var(--accent-cyan)',
+    },
+    previewImg: {
+        width: '100px',
+        height: '100px',
+        objectFit: 'cover',
+    },
+    previewAudio: {
+        width: '200px',
+    },
+    previewVideo: {
+        width: '200px',
+        height: '150px',
+    },
+    removeBtn: {
+        position: 'absolute',
+        top: '4px',
+        right: '4px',
+        width: '24px',
+        height: '24px',
+        borderRadius: '50%',
+        backgroundColor: 'rgba(255, 0, 0, 0.8)',
+        border: 'none',
+        color: 'white',
+        fontSize: '18px',
+        fontWeight: 'bold',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 0,
     },
     actionsFooter: {
         display: 'flex',
         justifyContent: 'center',
         gap: '16px',
         padding: '16px 24px',
-        paddingBottom: 'calc(16px + 72px)', // Clearance for 60px nav + 12px breathing room
+        paddingBottom: 'calc(16px + 72px)',
         flexShrink: 0,
         width: '100%',
         background: 'linear-gradient(to top, var(--bg-app) 90%, transparent)',

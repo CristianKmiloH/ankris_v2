@@ -14,7 +14,7 @@ export interface Card {
     due: string;
 }
 
-export const createNote = async (deckId: string, front: string, back: string) => {
+export const createNote = async (deckId: string, front: string, back: string, noteType: string = 'BASIC') => {
     const token = localStorage.getItem('token');
     const response = await fetch(`${API_BASE_URL}/api/notes`, {
         method: 'POST',
@@ -22,7 +22,7 @@ export const createNote = async (deckId: string, front: string, back: string) =>
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ deckId, front, back })
+        body: JSON.stringify({ deckId, front, back, noteType })
     });
     if (!response.ok) throw new Error('Failed to create note');
     return response.json();
