@@ -105,7 +105,7 @@ const Study: React.FC = () => {
     }, [isFlipped, loading, cards.length, handleAnswer]);
 
     return (
-        <Layout activeTab="study">
+        <Layout activeTab="study" disableScroll={true}>
             {loading ? (
                 <LoadingScreen />
             ) : cards.length === 0 ? (
@@ -129,7 +129,7 @@ const Study: React.FC = () => {
             ) : (
                 <div style={styles.container}>
                     {/* Progress Counter - Top Right */}
-                    <div className="progress-counter" style={{ position: 'relative', top: 0, right: 0, alignSelf: 'flex-end', marginBottom: '10px' }}>
+                    <div className="progress-counter" style={{ position: 'relative', top: 0, right: 0, alignSelf: 'flex-end', marginBottom: '10px', marginRight: '24px', marginTop: '10px' }}>
                         {currentCardIndex + 1} / {cards.length}
                     </div>
 
@@ -145,7 +145,7 @@ const Study: React.FC = () => {
                                         <h3 style={styles.deckName}>Ankris</h3>
                                     </div>
                                     <div style={styles.cardContent} ref={frontContentRef}>
-                                        <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%', paddingBottom: '20px', boxSizing: 'border-box' }}>
+                                        <div style={styles.scrollableInner}>
                                             <h1 style={styles.questionText}>
                                                 {parse(cards[currentCardIndex].front, {
                                                     replace: (domNode) => {
@@ -181,7 +181,7 @@ const Study: React.FC = () => {
                                                                 const src = domNode.attribs.src;
                                                                 // Some videos might be in <source> children, but Anki usually puts src on video or inside.
                                                                 // Simple check for main src
-                                                                if (src && !src.startsWith('http')) {
+                                                                if (src && !src.startsWith('http') && !src.startsWith('data:')) {
                                                                     domNode.attribs.src = `${MEDIA_BASE_URL}/${src}`;
                                                                 }
                                                                 domNode.attribs.class = (domNode.attribs.class || '') + ' card-media';
@@ -208,8 +208,8 @@ const Study: React.FC = () => {
                                         <span className="badge badge-accent">{t('answer')}</span>
                                     </div>
                                     <div style={styles.cardContent} ref={backContentRef}>
-                                        <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%', paddingBottom: '20px', boxSizing: 'border-box' }}>
-                                            <p style={styles.answerText}>
+                                        <div style={styles.scrollableInner}>
+                                            <div style={styles.answerText}>
                                                 {parse(cards[currentCardIndex].back, {
                                                     replace: (domNode) => {
                                                         if (domNode.type === 'text') {
@@ -254,7 +254,7 @@ const Study: React.FC = () => {
                                                             }
                                                             if (domNode.name === 'video') {
                                                                 const src = domNode.attribs.src;
-                                                                if (src && !src.startsWith('http')) {
+                                                                if (src && !src.startsWith('http') && !src.startsWith('data:')) {
                                                                     domNode.attribs.src = `${MEDIA_BASE_URL}/${src}`;
                                                                 }
                                                                 domNode.attribs.class = (domNode.attribs.class || '') + ' card-media';
@@ -264,7 +264,7 @@ const Study: React.FC = () => {
                                                         }
                                                     }
                                                 })}
-                                            </p>
+                                            </div>
                                         </div>
                                     </div>
                                     {/* Animated Corner Flip Icon - Back */}
@@ -306,10 +306,11 @@ const Study: React.FC = () => {
 
 const styles: { [key: string]: React.CSSProperties } = {
     container: {
-        height: '100%',
+        height: '100dvh', // Use dynamic viewport height
         width: '100%',
         display: 'flex',
         flexDirection: 'column',
+        overflow: 'hidden', // Contain all content
     },
     emptyContainer: {
         height: '100%',
@@ -317,13 +318,13 @@ const styles: { [key: string]: React.CSSProperties } = {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: '24px', // Tighter gap
+        gap: '24px',
         textAlign: 'center',
         flex: 1,
         padding: '20px',
     },
     emptyTitle: {
-        fontSize: '3rem', // Larger
+        fontSize: '3rem',
         fontWeight: '900',
         color: 'var(--text-primary)',
         marginBottom: '0px',
@@ -338,35 +339,44 @@ const styles: { [key: string]: React.CSSProperties } = {
         lineHeight: '1.5',
     },
     cardContainer: {
-        flex: 1,
+        flex: 1, // Fill available space between counter and actions
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         width: '100%',
-        margin: '0', // Removed margin completely
-        padding: '10px 10px', // Minimal padding
-        minHeight: '400px', // Enforce minimum height
+        margin: '0',
+        padding: '10px 16px', // Standard padding
+        minHeight: 0, // Allow shrinking!
         zIndex: 1,
+        overflow: 'hidden', // Ensure card doesn't overflow container
     },
     card: {
         width: '100%',
-        maxWidth: '600px', // Increased to allow growth
+        maxWidth: '600px',
         height: '100%',
-        maxHeight: '100%', // Fill available space
-        // aspectRatio removed to allow full vertical filling
+        maxHeight: '100%',
         display: 'flex',
         flexDirection: 'column',
     },
     cardHeader: {
-        marginBottom: '16px', // Compact header
+        marginBottom: '16px',
+        flexShrink: 0,
     },
     cardContent: {
         flex: 1,
-        // Layout handled by inner wrapper now
-        textAlign: 'center',
-        overflowY: 'auto',
-        padding: '0 20px', // Restore standard padding, spacing handled by wrapper/spacer
         width: '100%',
+        overflowY: 'auto', // Scroll internal content
+        padding: '0 20px',
+        minHeight: 0, // Critical for nested flex scrolling
+    },
+    scrollableInner: {
+        minHeight: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        width: '100%',
+        paddingBottom: '20px',
+        boxSizing: 'border-box',
     },
     deckName: {
         marginTop: '12px',
@@ -392,14 +402,18 @@ const styles: { [key: string]: React.CSSProperties } = {
         display: 'flex',
         justifyContent: 'center',
         width: '100%',
-        paddingTop: '5px',
-        paddingBottom: '5px', // Reduced from 15px to 5px
+        padding: '16px 24px',
+        // Padding bottom to clear Fixed BottomNav (approx 60px + 20px buffer)
+        paddingBottom: 'calc(16px + 80px)',
         marginBottom: '0px',
+        background: 'linear-gradient(to top, var(--bg-app) 80%, transparent)', // Fade background for buttons
+        zIndex: 10,
+        flexShrink: 0,
     },
     responseButtons: {
         display: 'grid',
         gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: '8px', // Tighter buttons
+        gap: '12px',
         width: '100%',
         maxWidth: '600px',
     },
