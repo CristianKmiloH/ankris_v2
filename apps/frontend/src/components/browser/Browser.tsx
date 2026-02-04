@@ -127,19 +127,22 @@ const Browser: React.FC = () => {
     const renderCardContent = (html: string) => {
         if (!html) return null;
 
-        // 1. EXTRACT IMAGE: Simple regex to find src
+        // 1. EXTRACT IMAGES: Regex to find all src
         // Supports: <img src="...">
-        const imgMatch = html.match(/<img[^>]+src="([^">]+)"/);
-        let thumbnailSrc = null;
+        const imgRegex = /<img[^>]+src="([^">]+)"/g;
+        let imageMatches = [...html.matchAll(imgRegex)];
+        let imageSrcs: string[] = [];
         let cleanText = html.replace(/<img[^>]*>/g, '').trim(); // Remove img tags for text preview
 
-        if (imgMatch) {
-            let src = imgMatch[1];
-            // Fix path if it's a filename (Anki media)
-            if (!src.startsWith('http') && !src.startsWith('data:')) {
-                src = `${MEDIA_BASE_URL}/${encodeURIComponent(src)}`;
-            }
-            thumbnailSrc = src;
+        if (imageMatches.length > 0) {
+            imageMatches.forEach(match => {
+                let src = match[1];
+                // Fix path if it's a filename (Anki media)
+                if (!src.startsWith('http') && !src.startsWith('data:')) {
+                    src = `${MEDIA_BASE_URL}/${encodeURIComponent(src)}`;
+                }
+                imageSrcs.push(src);
+            });
         }
 
         // 2. EXTRACT AUDIO: Regex to find [sound:...]
@@ -166,26 +169,35 @@ const Browser: React.FC = () => {
 
         return (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', minHeight: '100%' }}>
-                {thumbnailSrc && (
+                {imageSrcs.length > 0 && (
                     <div style={{
-                        width: '60px',
-                        height: '60px',
-                        borderRadius: '12px',
-                        overflow: 'hidden',
-                        border: '2px solid var(--accent-cyan)',
-                        backgroundColor: '#000',
-                        flexShrink: 0,
-                        boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        justifyContent: 'center',
+                        gap: '6px',
                         marginBottom: '6px'
                     }}>
-                        <img
-                            src={thumbnailSrc}
-                            alt="thumbnail"
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                            onError={(e) => {
-                                (e.target as HTMLImageElement).style.display = 'none';
-                            }}
-                        />
+                        {imageSrcs.map((src, idx) => (
+                            <div key={idx} style={{
+                                width: '60px',
+                                height: '60px',
+                                borderRadius: '12px',
+                                overflow: 'hidden',
+                                border: '2px solid var(--accent-cyan)',
+                                backgroundColor: '#000',
+                                flexShrink: 0,
+                                boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+                            }}>
+                                <img
+                                    src={src}
+                                    alt={`thumbnail-${idx}`}
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                    onError={(e) => {
+                                        (e.target as HTMLImageElement).style.display = 'none';
+                                    }}
+                                />
+                            </div>
+                        ))}
                     </div>
                 )}
 
