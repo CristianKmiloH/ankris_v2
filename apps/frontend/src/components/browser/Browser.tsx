@@ -168,20 +168,16 @@ const Browser: React.FC = () => {
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px', width: '100%', height: '100%' }}>
                 {thumbnailSrc && (
                     <div style={{
-                        width: '60px', // Slightly larger for better visibility 
+                        width: '60px',
                         height: '60px',
                         borderRadius: '12px',
-                    < div style={{
-                            width: '60px',
-                            height: '60px',
-                            borderRadius: '12px',
-                            overflow: 'hidden',
-                            border: '2px solid var(--accent-cyan)',
-                            backgroundColor: '#000',
-                            flexShrink: 0,
-                            boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
-                            marginBottom: '4px'
-                        }}>
+                        overflow: 'hidden',
+                        border: '2px solid var(--accent-cyan)',
+                        backgroundColor: '#000',
+                        flexShrink: 0,
+                        boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+                        marginBottom: '4px'
+                    }}>
                         <img
                             src={thumbnailSrc}
                             alt="thumbnail"
