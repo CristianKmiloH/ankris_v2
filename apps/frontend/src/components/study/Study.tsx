@@ -129,7 +129,7 @@ const Study: React.FC = () => {
             ) : (
                 <div style={styles.container}>
                     {/* Progress Counter - Top Right */}
-                    <div className="progress-counter" style={{ position: 'relative', top: 0, right: 0, alignSelf: 'flex-end', marginBottom: '10px', marginRight: '24px', marginTop: '10px' }}>
+                    <div className="progress-counter" style={styles.progressCounter}>
                         {currentCardIndex + 1} / {cards.length}
                     </div>
 
@@ -306,11 +306,11 @@ const Study: React.FC = () => {
 
 const styles: { [key: string]: React.CSSProperties } = {
     container: {
-        height: '100dvh', // Use dynamic viewport height
+        height: '100dvh',
         width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden', // Contain all content
+        position: 'relative',
+        overflow: 'hidden',
+        backgroundColor: 'var(--bg-app)',
     },
     emptyContainer: {
         height: '100%',
@@ -338,17 +338,29 @@ const styles: { [key: string]: React.CSSProperties } = {
         maxWidth: '400px',
         lineHeight: '1.5',
     },
+    // New Absolute Layout Strategy
+    progressCounter: {
+        position: 'absolute',
+        top: '16px',
+        right: '24px',
+        zIndex: 5,
+        fontWeight: '600',
+        color: 'var(--text-muted)',
+        fontSize: '0.9rem',
+    },
     cardContainer: {
-        flex: 1, // Fill available space between counter and actions
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: '100%',
-        margin: '0',
-        padding: '10px 16px', // Standard padding
-        minHeight: 0, // Allow shrinking!
+        position: 'absolute',
+        top: 0,
+        left: 0, // Ensure it spans full width
+        right: 0,
+        bottom: 0,
         zIndex: 1,
-        overflow: 'hidden', // Ensure card doesn't overflow container
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center', // Center vertically within the available space
+        padding: '40px 16px 140px 16px', // Top padding for counter, Bottom for buttons/nav
+        pointerEvents: 'none', // Let clicks pass through to background/buttons if needed, but inner card will catch them
     },
     card: {
         width: '100%',
@@ -357,6 +369,7 @@ const styles: { [key: string]: React.CSSProperties } = {
         maxHeight: '100%',
         display: 'flex',
         flexDirection: 'column',
+        pointerEvents: 'auto', // Re-enable pointer events for the card itself
     },
     cardHeader: {
         marginBottom: '16px',
@@ -365,9 +378,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     cardContent: {
         flex: 1,
         width: '100%',
-        overflowY: 'auto', // Scroll internal content
+        overflowY: 'auto',
         padding: '0 20px',
-        minHeight: 0, // Critical for nested flex scrolling
+        minHeight: 0,
     },
     scrollableInner: {
         minHeight: '100%',
@@ -399,16 +412,18 @@ const styles: { [key: string]: React.CSSProperties } = {
         wordBreak: 'break-word',
     },
     actionsContainer: {
+        position: 'absolute',
+        bottom: 'calc(60px + env(safe-area-inset-bottom))', // Pin exactly above BottomNav
+        left: 0,
+        right: 0,
         display: 'flex',
         justifyContent: 'center',
         width: '100%',
         padding: '16px 24px',
-        // Padding bottom to clear Fixed BottomNav (approx 60px + 20px buffer)
-        paddingBottom: 'calc(16px + 80px)',
-        marginBottom: '0px',
-        background: 'linear-gradient(to top, var(--bg-app) 80%, transparent)', // Fade background for buttons
         zIndex: 10,
-        flexShrink: 0,
+        // Gradient fade to smooth out text scrolling behind it
+        background: 'linear-gradient(to top, var(--bg-app) 20%, rgba(var(--bg-app-rgb), 0.8) 80%, transparent)',
+        pointerEvents: 'auto',
     },
     responseButtons: {
         display: 'grid',
