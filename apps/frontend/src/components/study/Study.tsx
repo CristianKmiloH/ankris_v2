@@ -16,6 +16,20 @@ const Study: React.FC = () => {
     const [isFlipped, setIsFlipped] = useState(false);
     const [loading, setLoading] = useState(true);
 
+    // Refs for scrolling containers
+    const frontContentRef = React.useRef<HTMLDivElement>(null);
+    const backContentRef = React.useRef<HTMLDivElement>(null);
+
+    // Reset scroll position on card change or flip
+    useEffect(() => {
+        if (frontContentRef.current) {
+            frontContentRef.current.scrollTop = 0;
+        }
+        if (backContentRef.current) {
+            backContentRef.current.scrollTop = 0;
+        }
+    }, [currentCardIndex, isFlipped]);
+
     useEffect(() => {
         // If we are at /study (no ID) but have a saved deck, redirect to it
         if (!deckId) {
@@ -130,7 +144,7 @@ const Study: React.FC = () => {
                                         {/* Deck name requires fetching decks, omitting for now */}
                                         <h3 style={styles.deckName}>Ankris</h3>
                                     </div>
-                                    <div style={styles.cardContent}>
+                                    <div style={styles.cardContent} ref={frontContentRef}>
                                         <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%', paddingBottom: '20px', boxSizing: 'border-box' }}>
                                             <h1 style={styles.questionText}>
                                                 {parse(cards[currentCardIndex].front, {
@@ -193,7 +207,7 @@ const Study: React.FC = () => {
                                     <div style={styles.cardHeader}>
                                         <span className="badge badge-accent">{t('answer')}</span>
                                     </div>
-                                    <div style={styles.cardContent}>
+                                    <div style={styles.cardContent} ref={backContentRef}>
                                         <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%', paddingBottom: '20px', boxSizing: 'border-box' }}>
                                             <p style={styles.answerText}>
                                                 {parse(cards[currentCardIndex].back, {
