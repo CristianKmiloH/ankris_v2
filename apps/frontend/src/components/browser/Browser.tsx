@@ -165,7 +165,7 @@ const Browser: React.FC = () => {
         // If content was ONLY image or audio, text might be empty.
 
         return (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', padding: '2px', overflow: 'hidden' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', minHeight: '100%' }}>
                 {thumbnailSrc && (
                     <div style={{
                         width: '60px',
@@ -227,7 +227,7 @@ const Browser: React.FC = () => {
                     </div>
                 )}
 
-                {/* Render Text Content (without images/audio tags) - Compact */}
+                {/* Render Text Content (without images/audio tags) - Content grows naturally */}
                 {cleanText && (
                     <div
                         className="card-text-content"
@@ -235,15 +235,9 @@ const Browser: React.FC = () => {
                         style={{
                             width: '100%',
                             textAlign: 'center',
-                            overflowY: 'auto', // Scroll only if necessary
-                            flex: 1, // Take remaining space but allow shrinking
-                            minHeight: 0, // Critical for Flexbox scrolling
                             padding: '0 4px',
                             fontSize: '0.95em',
                             lineHeight: '1.4',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'center', // Center vertically if short
                         }}
                     />
                 )}
@@ -580,18 +574,22 @@ const styles: { [key: string]: React.CSSProperties } = {
     cardBody: {
         flex: 1,
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         width: '100%',
-        marginBottom: '2px', // Minimal margin
+        minHeight: 0, // Critical for nested flex scrolling
+        overflow: 'hidden', // Contain the scrollable text
+        padding: '2px 0',
     },
     cardFooter: {
         width: '100%',
-        paddingTop: '2px', // Minimal spacing
-        textAlign: 'right', // Default alignment
+        paddingTop: '4px',
+        textAlign: 'right',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
+        flexShrink: 0, // Don't shrink footer
     },
     cardRow: {
         // Base styles for the flippable container if not handled by CSS class
@@ -600,10 +598,13 @@ const styles: { [key: string]: React.CSSProperties } = {
         fontSize: '1.1rem',
         textAlign: 'center',
         lineHeight: '1.4',
-        maxHeight: '100%',
-        minHeight: 0,
-        overflowY: 'auto',
-        wordBreak: 'break-word',
+        width: '100%',
+        height: '100%', // Fill the body
+        overflowY: 'auto', // Scroll ONLY here
+        padding: '0 4px',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center', // Center content if short
         scrollbarWidth: 'thin',
         width: '100%',
         display: 'flex',

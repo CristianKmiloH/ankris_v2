@@ -164,7 +164,8 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
         if (fs.existsSync(mediaJsonPath)) {
             try {
                 const mediaMap = JSON.parse(fs.readFileSync(mediaJsonPath, 'utf-8'));
-                const mediaDestDir = path.join(__dirname, '../../../public/media');
+                // Use process.cwd() to target the project root 'public' folder reliably
+                const mediaDestDir = path.join(process.cwd(), 'public', 'media');
 
                 // Ensure media dir exists
                 if (!fs.existsSync(mediaDestDir)) {

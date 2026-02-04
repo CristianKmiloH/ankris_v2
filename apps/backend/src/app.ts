@@ -26,7 +26,7 @@ app.use('/decks', deckRoutes); // TODO: Move to /api/decks for consistency? Leav
 app.use('/api/cards', cardRoutes); // New endpoint for Browser
 app.use('/api', studyRoutes);
 // Serve uploaded media files
-app.use('/media', express.static(path.join(__dirname, '../public/media')));
+app.use('/media', express.static(path.join(process.cwd(), 'public/media')));
 app.use('/api/ai', aiRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/import', importRoutes); // Registered import route
