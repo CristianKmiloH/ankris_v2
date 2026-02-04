@@ -142,20 +142,40 @@ const Browser: React.FC = () => {
             thumbnailSrc = src;
         }
 
-        // 2. TEXT ONLY (If cleanText is basically empty, show nothing or placeholder?)
-        // If content was ONLY image, text is empty.
+        // 2. EXTRACT AUDIO: Regex to find [sound:...]
+        // Supports: [sound:filename.mp3]
+        const audioRegex = /\[sound:(.*?)\]/g;
+        let audioMatches = [...html.matchAll(audioRegex)];
+        let audioSrcs: string[] = [];
+
+        // Remove sound tags from text
+        cleanText = cleanText.replace(audioRegex, '').trim();
+
+        if (audioMatches.length > 0) {
+            audioMatches.forEach(match => {
+                let src = match[1];
+                if (!src.startsWith('http') && !src.startsWith('data:')) {
+                    src = `${MEDIA_BASE_URL}/${src}`;
+                }
+                audioSrcs.push(src);
+            });
+        }
+
+        // 3. TEXT ONLY (If cleanText is basically empty, show nothing or placeholder?)
+        // If content was ONLY image or audio, text might be empty.
 
         return (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', width: '100%' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px', width: '100%', height: '100%' }}>
                 {thumbnailSrc && (
                     <div style={{
-                        width: '50px',
-                        height: '50px',
-                        borderRadius: '8px',
+                        width: '60px', // Slightly larger for better visibility 
+                        height: '60px',
+                        borderRadius: '12px',
                         overflow: 'hidden',
                         border: '2px solid var(--accent-cyan)',
                         backgroundColor: '#000',
-                        flexShrink: 0
+                        flexShrink: 0,
+                        boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
                     }}>
                         <img
                             src={thumbnailSrc}
@@ -167,11 +187,54 @@ const Browser: React.FC = () => {
                         />
                     </div>
                 )}
-                {/* Render Text Content (without images) */}
-                <div
-                    dangerouslySetInnerHTML={{ __html: cleanText || (thumbnailSrc ? '' : html) }} // If we stripped images and have text, show it. If no images, show original.
-                    style={{ width: '100%' }}
-                />
+
+                {/* Audio Buttons */}
+                {audioSrcs.length > 0 && (
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                        {audioSrcs.map((src, idx) => (
+                            <button
+                                key={idx}
+                                onClick={(e) => {
+                                    e.stopPropagation(); // Prevent card flip
+                                    new Audio(src).play().catch(err => console.error("Audio play failed", err));
+                                }}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    padding: '8px 16px',
+                                    borderRadius: '20px',
+                                    backgroundColor: 'rgba(0, 255, 255, 0.15)',
+                                    border: '1px solid var(--accent-cyan)',
+                                    color: 'var(--accent-cyan)',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s',
+                                    fontSize: '0.9rem',
+                                    fontWeight: '600',
+                                    boxShadow: '0 2px 8px rgba(0, 255, 255, 0.2)'
+                                }}
+                                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(0, 255, 255, 0.25)'}
+                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(0, 255, 255, 0.15)'}
+                            >
+                                <span style={{ marginRight: '6px' }}>🔊</span> {t('play') || 'Play'}
+                            </button>
+                        ))}
+                    </div>
+                )}
+
+                {/* Render Text Content (without images/audio tags) */}
+                {cleanText && (
+                    <div
+                        dangerouslySetInnerHTML={{ __html: cleanText }}
+                        style={{
+                            width: '100%',
+                            textAlign: 'center',
+                            overflowY: 'auto',
+                            maxHeight: '100%',
+                            padding: '0 8px'
+                        }}
+                    />
+                )}
             </div>
         );
     };
