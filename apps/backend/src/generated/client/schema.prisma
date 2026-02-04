@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String   @id @default(uuid())
+  email             String   @unique
+  passwordHash      String
+  username          String?
+  preferredLanguage String   @default("es")
+  colorScheme       String   @default("dark")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  isActive          Boolean  @default(true)
+
+  decks      Deck[]
+  notes      Note[]
+  cards      Card[]
+  reviewLogs ReviewLog[]
+}
+
+model Deck {
+  id          String   @id @default(uuid())
+  userId      String
+  name        String
+  description String?
+  parentId    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user     User   @relation(fields: [userId], references: [id])
+  parent   Deck?  @relation("DeckHierarchy", fields: [parentId], references: [id])
+  children Deck[] @relation("DeckHierarchy")
+  notes    Note[]
+  cards    Card[]
+}
+
+model Note {
+  id        String   @id @default(uuid())
+  userId    String
+  deckId    String
+  content   Json
+  tags      String[]
+  noteType  String   @default("BASIC") // Helper column for the Registry
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User   @relation(fields: [userId], references: [id])
+  deck  Deck   @relation(fields: [deckId], references: [id])
+  cards Card[]
+}
+
+model Card {
+  id            String    @id @default(uuid())
+  noteId        String
+  userId        String
+  deckId        String
+  ord           Int       @default(0)
+  front         String    @default("")
+  back          String    @default("")
+  due           DateTime  @default(now())
+  stability     Float     @default(0)
+  difficulty    Float     @default(0)
+  elapsedDays   Int       @default(0)
+  scheduledDays Int       @default(0)
+  reps          Int       @default(0)
+  lapses        Int       @default(0)
+  state         Int       @default(0)
+  lastReview    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  note Note        @relation(fields: [noteId], references: [id])
+  user User        @relation(fields: [userId], references: [id])
+  deck Deck        @relation(fields: [deckId], references: [id])
+  logs ReviewLog[]
+}
+
+model ReviewLog {
+  id            String   @id @default(uuid())
+  cardId        String
+  userId        String
+  grade         Int
+  reviewTime    Int
+  state         Int
+  scheduledDays Int
+  elapsedDays   Int
+  reviewDate    DateTime @default(now())
+
+  card Card @relation(fields: [cardId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+}

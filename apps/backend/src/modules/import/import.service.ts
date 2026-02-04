@@ -225,22 +225,72 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
             importStats.decks++;
         }
 
-        // 4. Get Notes
+        // 4. Get MODELS (Note Types) from Anki
+        console.log('[Import] Reading note types (models)...');
+        const colData: any = db.prepare('SELECT models FROM col').get();
+        const ankiModelsMap = JSON.parse(colData.models);
+
+        // Map Model ID -> Model Name
+        const modelNameMap = new Map<number, string>();
+        for (const key in ankiModelsMap) {
+            const model = ankiModelsMap[key];
+            modelNameMap.set(Number(model.id), model.name || 'Unknown');
+            console.log(`[Import] Detected Model: ID=${model.id}, Name=${model.name}`);
+        }
+
+        // 5. Get Notes
         console.log('[Import] Reading notes...');
         const notes = db.prepare('SELECT id, mid, flds FROM notes').all() as AnkiNote[];
         console.log(`[Import] Found ${notes.length} notes`);
 
-        // Map Note ID to Content
-        const noteMap = new Map<number, { front: string, back: string }>();
+        // Import the Note Type Registry
+        const { NoteTypeRegistry } = require('../notes/NoteTypeRegistry');
+        const registry = NoteTypeRegistry.getInstance();
+
+        // Map Note ID to Generated Cards
+        interface NoteData {
+            modelName: string;
+            fields: Record<string, string>;
+            generatedCards: any[]; // Array of {ord, front, back}
+        }
+        const noteDataMap = new Map<number, NoteData>();
 
         notes.forEach(n => {
             const fields = n.flds.split('\x1f');
-            const front = fields[0] || "Empty Front";
-            const back = fields.slice(1).join('<br>') || "Empty Back";
-            noteMap.set(n.id, { front, back });
+            const modelName = modelNameMap.get(n.mid) || 'Basic';
+
+            // Detect the Note Type
+            const noteType = registry.detectTypeFromAnkiName(modelName);
+
+            // Build field map (Anki models define field names, but we don't have that metadata here easily)
+            // For simplicity, we'll use generic field names based on the note type
+            let fieldMap: Record<string, string> = {};
+
+            if (noteType.typeId === 'CLOZE') {
+                // For Cloze, the first field is "Text", second is "Extra"
+                fieldMap = {
+                    'Text': fields[0] || '',
+                    'Extra': fields[1] || ''
+                };
+            } else {
+                // For Basic types, assume "Front" and "Back"
+                fieldMap = {
+                    'Front': fields[0] || 'Empty Front',
+                    'Back': fields.slice(1).join('<br>') || 'Empty Back'
+                };
+            }
+
+            // Generate cards using the Note Type logic
+            const generatedCards = noteType.generateCards(fieldMap);
+
+            noteDataMap.set(n.id, {
+                modelName,
+                fields: fieldMap,
+                generatedCards
+            });
         });
 
-        // 5. Get Cards
+        // 6. Get Cards
         const cards = db.prepare('SELECT id, nid, did, ord, type, queue, due, ivl, factor, reps, lapses FROM cards').all() as AnkiCard[];
 
         // Track processed Note IDs to enforce "One Card Per Note" rule requested by user
@@ -255,8 +305,8 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
                 continue;
             }
 
-            const content = noteMap.get(c.nid);
-            if (!content) {
+            const noteData = noteDataMap.get(c.nid);
+            if (!noteData) {
                 console.warn(`[Import] Warning: Note ${c.nid} not found, skipping card`);
                 continue;
             }
@@ -273,109 +323,86 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
                 importStats.decks++;
             }
 
-            // RELAXED: Allow all ordinals but FILTER by uniqueness.
-            // Previous restriction `if (c.ord !== 0)` prevented legitimate cards (like reversed ones) from importing.
-            // Now we simply take the FIRST card we see for this note (which is usually ord 0, but if deck only has ord 1, we take that).
-            // if (c.ord !== 0) {
-            //     continue;
-            // }
-
-            // Mark this note as processed so we don't import sibling cards (e.g. reversed)
+            // Mark this note as processed so we don't import sibling cards
             processedNoteIds.add(c.nid);
 
-            // CLEANUP CONTENT: Remove styles, fix clozes, etc.
+            // IMPORTANT: For Cloze and other multi-card types, we generate ALL cards from the note
+            // For Basic types, there's usually only 1 card in generatedCards
+            const cardsToImport = noteData.generatedCards;
+
+            if (cardsToImport.length === 0) {
+                console.warn(`[Import] Note ${c.nid} generated 0 cards, skipping`);
+                continue;
+            }
+
+            // CLEANUP helper (preserving existing logic)
             const cleanContent = (html: string) => {
                 if (!html) return "";
                 // 1. Remove style blocks
                 html = html.replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gim, "");
 
-                // 2. Remove specific Anki classes/ids
-                html = html.replace(/class=".*?"/g, "");
-                html = html.replace(/id=".*?"/g, "");
-
-                // 3. Format Cloze Deletions: {{c1::Answer::Hint}}
-                // Robust Regex: Match {{c<digits>::<content optional hint>}}
-                // We use [\s\S]*? to match across newlines non-greedily.
-                html = html.replace(/\{\{c\d+::([\s\S]*?)(::[\s\S]*?)?\}\}/g, (match, content, hint) => {
-                    // If content has nested HTML, that's fine.
-                    return `<span style="color: var(--accent-cyan); font-weight: bold;">[${content}]</span>`;
-                });
-
-                // Final cleanup of any lingering braces just in case validation fails
-                // html = html.replace(/\{\{c\d+::/g, "").replace(/\}\}/g, "");
+                // 2. Remove specific Anki classes/ids (except cloze-related)
+                html = html.replace(/class="(?!cloze).*?"/g, "");
+                html = html.replace(/id="(?!answer).*?"/g, "");
 
                 return html.trim();
             };
 
-            let frontRaw = content.front;
-            let backRaw = content.back;
+            // Import each generated card
+            for (const genCard of cardsToImport) {
+                const front = cleanContent(genCard.front);
+                const back = cleanContent(genCard.back);
+                const ord = genCard.ord;
 
-            // CLOZE DETECTION: Check for cloze pattern
-            const isCloze = /\{\{c\d+::/.test(frontRaw);
+                if (!front && !back) {
+                    console.warn(`[Import] Card ${c.id} has empty content, skipping`);
+                    continue;
+                }
 
-            let front = cleanContent(frontRaw);
-            let back = cleanContent(backRaw);
+                // CHECK DUPLICATES
+                const existingCards = await CardService.getAllCards(userId);
+                const noteIdStr = String(c.nid);
+                const isDuplicate = existingCards.some((ec: any) =>
+                    ec.deckId === targetDeckId &&
+                    ec.noteId === noteIdStr &&
+                    ec.ord === ord
+                );
 
-            if (isCloze) {
-                // Prepend context to Back
-                back = `${front}<br><br><hr><br>${back}`;
+                if (isDuplicate) {
+                    continue;
+                }
+
+                // ENSURE PARENT NOTE EXISTS
+                try {
+                    await prisma.note.upsert({
+                        where: { id: noteIdStr },
+                        update: {}, // No-op if exists
+                        create: {
+                            id: noteIdStr,
+                            userId: userId,
+                            deckId: targetDeckId!,
+                            content: noteData.fields,
+                            tags: [], // Todo: Parse tags from Anki
+                            noteType: registry.detectTypeFromAnkiName(noteData.modelName).typeId
+                        }
+                    });
+                } catch (noteErr) {
+                    console.warn(`[Import] Failed to upsert note ${noteIdStr}:`, noteErr);
+                }
+
+                // CREATE CARD
+                await CardService.createCard(
+                    userId,
+                    targetDeckId!,
+                    noteIdStr,
+                    front,
+                    back,
+                    ord
+                );
+
+                importStats.cards++;
+                importStats.cardsByDeck[targetDeckId!] = (importStats.cardsByDeck[targetDeckId!] || 0) + 1;
             }
-
-            // SPECIAL CHECK: If front is empty after cleaning
-            if (!front && back) {
-                front = back; // Fallback
-                back = "flipped";
-            }
-
-            // CHECK DUPLICATES: Check if a card with this Anki Note ID and Ordinal already exists in this deck
-            // This relies on CardService having a way to check.
-            const existingCards = await CardService.getAllCards(userId);
-            const isDuplicate = existingCards.some((ec: any) =>
-                ec.deckId === targetDeckId &&
-                ec.noteId === String(c.nid) &&
-                (ec.ord === c.ord || (ec.ord === undefined && ec.front === front)) // Fallback to front check if ord is missing in old cards
-            );
-
-            if (isDuplicate) {
-                // Skip duplicate
-                continue;
-            }
-
-            // CRITICAL FIX: Ensure Parent Note exists in Postgres before creating Card
-            // The constraint Card_noteId_fkey requires the Note to exist.
-            const noteIdStr = String(c.nid);
-
-            // We use upsert to create it if missing, or do nothing if it exists (e.g. created by sibling card)
-            // Ideally we'd optimize this with a Set cache, but upsert is safe and robust.
-            try {
-                await prisma.note.upsert({
-                    where: { id: noteIdStr },
-                    update: {}, // No-op if exists
-                    create: {
-                        id: noteIdStr,
-                        userId: userId,
-                        deckId: targetDeckId!,
-                        content: {
-                            front: front,
-                            back: back,
-                            original: content
-                        },
-                        tags: [] // Todo: Parse tags from Anki
-                    }
-                });
-            } catch (noteErr) {
-                console.warn(`[Import] Failed to upsert note ${noteIdStr}:`, noteErr);
-                // If note creation fails, card creation will likely fail too, but we let it try or continue.
-            }
-
-            const newCard = await CardService.createCard(
-                userId,
-                targetDeckId!, // We ensure this is defined in the check above
-                noteIdStr,
-                front,
-                back,
-                c.ord
-            );
 
             // TODO: Map detailed SRS state if possible
             // c.type: 0=new, 1=learning, 2=review, 3=relearning

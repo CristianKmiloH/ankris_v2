@@ -9,6 +9,7 @@ import Stats from './pages/Stats';
 import Settings from './pages/Settings';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SettingsProvider } from './context/SettingsContext';
+import './anki-types.css'; // Cloze, Type Answer, etc.
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();

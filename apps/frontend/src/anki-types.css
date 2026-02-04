@@ -1,0 +1,64 @@
+/* --- Anki Note Types Support --- */
+
+/* Cloze Deletion */
+.cloze {
+    font-weight: bold;
+    color: var(--accent-cyan);
+    background-color: rgba(0, 255, 255, 0.1);
+    padding: 0 4px;
+    border-radius: 4px;
+}
+
+.cloze-active {
+    font-weight: bold;
+    color: var(--accent-purple);
+    border-bottom: 2px solid var(--accent-purple);
+}
+
+/* Type Answer */
+.ankris-input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 1rem;
+    text-align: center;
+}
+
+.ankris-input:focus {
+    border-color: var(--accent-cyan);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 255, 255, 0.2);
+}
+
+.type-answer-comparison {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    text-align: left;
+}
+
+/* Image Occlusion Stub */
+.io-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.io-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    pointer-events: none;
+}

@@ -47,6 +47,7 @@ model Note {
   deckId    String
   content   Json
   tags      String[]
+  noteType  String   @default("BASIC") // Helper column for the Registry
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
