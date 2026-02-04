@@ -165,7 +165,7 @@ const Browser: React.FC = () => {
         // If content was ONLY image or audio, text might be empty.
 
         return (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px', width: '100%', height: '100%' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', padding: '2px', overflow: 'hidden' }}>
                 {thumbnailSrc && (
                     <div style={{
                         width: '60px',
@@ -176,7 +176,7 @@ const Browser: React.FC = () => {
                         backgroundColor: '#000',
                         flexShrink: 0,
                         boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
-                        marginBottom: '4px'
+                        marginBottom: '6px'
                     }}>
                         <img
                             src={thumbnailSrc}
@@ -189,9 +189,9 @@ const Browser: React.FC = () => {
                     </div>
                 )}
 
-                {/* Audio Buttons - Simplified */}
+                {/* Audio Buttons - Simplified & Circular */}
                 {audioSrcs.length > 0 && (
-                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '2px' }}>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '6px' }}>
                         {audioSrcs.map((src, idx) => (
                             <button
                                 key={idx}
@@ -203,22 +203,22 @@ const Browser: React.FC = () => {
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    padding: '6px',
-                                    width: '32px',
-                                    height: '32px',
-                                    borderRadius: '50%',
-                                    backgroundColor: 'rgba(0, 255, 255, 0.15)',
+                                    padding: '0',
+                                    width: '40px', // Fixed square size
+                                    height: '40px',
+                                    borderRadius: '50%', // Perfect circle
+                                    backgroundColor: 'rgba(0, 255, 255, 0.1)',
                                     border: '1px solid var(--accent-cyan)',
                                     color: 'var(--accent-cyan)',
                                     cursor: 'pointer',
                                     transition: 'all 0.2s',
-                                    boxShadow: '0 2px 8px rgba(0, 255, 255, 0.2)'
+                                    boxShadow: '0 2px 8px rgba(0, 255, 255, 0.15)'
                                 }}
                                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(0, 255, 255, 0.25)'}
-                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(0, 255, 255, 0.15)'}
+                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(0, 255, 255, 0.1)'}
                                 title={t('play')}
                             >
-                                <span style={{ fontSize: '1.1rem' }}>🔊</span>
+                                <span style={{ fontSize: '1.2rem', marginTop: '2px' }}>🔊</span>
                             </button>
                         ))}
                     </div>
@@ -232,11 +232,15 @@ const Browser: React.FC = () => {
                         style={{
                             width: '100%',
                             textAlign: 'center',
-                            overflowY: 'auto',
-                            maxHeight: '100%',
+                            overflowY: 'auto', // Scroll only if necessary
+                            flex: 1, // Take remaining space but allow shrinking
+                            minHeight: 0, // Critical for Flexbox scrolling
                             padding: '0 4px',
                             fontSize: '0.95em',
-                            lineHeight: '1.3'
+                            lineHeight: '1.4',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center', // Center vertically if short
                         }}
                     />
                 )}
