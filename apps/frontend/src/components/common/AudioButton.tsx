@@ -2,65 +2,69 @@ import React, { useState, useRef, useEffect } from 'react';
 import { MEDIA_BASE_URL } from '../../config';
 
 interface AudioButtonProps {
-    filename?: string; // Option 1: Just the filename (we prepend base url)
-    src?: string;      // Option 2: Full URL (overrides filename)
+    filename?: string;
+    src?: string;
     className?: string;
     style?: React.CSSProperties;
-    size?: number;     // Optional custom size, defaults to 40px via CSS
+    size?: number;
 }
 
 const AudioButton: React.FC<AudioButtonProps> = ({ filename, src, className = '', style, size }) => {
     const [isPlaying, setIsPlaying] = useState(false);
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
-    // Determine the full source URL
+    // Construct the full source URL reliably
     const audioSrc = src || (filename ? `${MEDIA_BASE_URL}/${filename}` : '');
 
-    // Cleanup on unmount
     useEffect(() => {
-        return () => {
-            if (audioRef.current) {
-                audioRef.current.pause();
-                audioRef.current = null;
-            }
+        if (!audioSrc) return;
+
+        // Create Audio instance only when src changes
+        const audio = new Audio(audioSrc);
+        audioRef.current = audio;
+
+        // Event handler to sync React state with REAL Audio state
+        const handleStateChange = () => {
+            // If paused or ended, we are NOT playing.
+            setIsPlaying(!audio.paused && !audio.ended);
         };
-    }, []);
+
+        const handleError = (e: Event) => {
+            console.error("Audio playback error:", e);
+            setIsPlaying(false);
+        };
+
+        // Attach listeners for ALL state changes
+        audio.addEventListener('play', handleStateChange);
+        audio.addEventListener('pause', handleStateChange);
+        audio.addEventListener('ended', handleStateChange);
+        audio.addEventListener('error', handleError);
+
+        // Cleanup
+        return () => {
+            audio.pause();
+            audio.removeEventListener('play', handleStateChange);
+            audio.removeEventListener('pause', handleStateChange);
+            audio.removeEventListener('ended', handleStateChange);
+            audio.removeEventListener('error', handleError);
+            audioRef.current = null;
+        };
+    }, [audioSrc]);
 
     const togglePlay = (e: React.MouseEvent) => {
         e.stopPropagation();
+        const audio = audioRef.current;
 
-        if (!audioSrc) return;
+        if (!audio) return;
 
-        if (isPlaying && audioRef.current) {
-            // Stop if playing
-            audioRef.current.pause();
-            audioRef.current.currentTime = 0;
-            setIsPlaying(false);
+        if (isPlaying) {
+            audio.pause();
+            audio.currentTime = 0; // Optional: Reset to start when stopped manually? User preference seems to be 'stop'.
         } else {
-            // Start playing
-            // Create new instance or reuse? Reusing is better for performance if rapid fire,
-            // but for simplicity and robustness (avoiding stale state), new instance is often safer.
-            // Let's reuse ref.
-            if (!audioRef.current || audioRef.current.src !== audioSrc) {
-                audioRef.current = new Audio(audioSrc);
-                // Attach event listeners
-                audioRef.current.onended = () => {
-                    setIsPlaying(false);
-                };
-                audioRef.current.onpause = () => {
-                    // Catch external pauses? Not needed for simple button
-                };
-                audioRef.current.onerror = (err) => {
-                    console.error("Audio play error", err);
-                    setIsPlaying(false);
-                };
-            }
-
-            audioRef.current.play().catch(err => {
-                console.error("Audio play failed", err);
+            audio.play().catch(err => {
+                console.error("Play failed:", err);
                 setIsPlaying(false);
             });
-            setIsPlaying(true);
         }
     };
 
