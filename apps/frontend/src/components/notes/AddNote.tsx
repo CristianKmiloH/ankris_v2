@@ -154,7 +154,7 @@ const AddNote: React.FC = () => {
                                 }}
                                 placeholder="Type text here. Select text then click Make Cloze button above."
                             />
-                            <p style={styles.hint}>💡 Example: The capital of France is {{ c1::Paris}}.</p>
+                            <p style={styles.hint}>💡 Example: The capital of France is {'{{c1::Paris}}'}.</p>
                         </div>
                         <div style={styles.fieldGroup}>
                             <label style={styles.label}>{t('extra') || 'Extra (Optional)'}</label>
