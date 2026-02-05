@@ -285,39 +285,42 @@ const AddNote: React.FC = () => {
                                 {mediaItems.length > 0 && (
                                     <div style={styles.mediaPreview}>
                                         {mediaItems.map((item, i) => (
-                                            <div key={i} style={styles.mediaItem}>
-                                                {/* Toggle Badge */}
+                                            <div key={i} style={{ ...styles.mediaItem, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                                {/* content */}
+                                                <div style={{ position: 'relative', width: '100%', display: 'flex', justifyContent: 'center' }}>
+                                                    {item.type === 'image' && <img src={item.preview} alt="preview" style={styles.previewImg} />}
+                                                    {item.type === 'audio' && <audio src={item.preview} controls style={styles.previewAudio} />}
+                                                    {item.type === 'video' && <video src={item.preview} controls style={styles.previewVideo} />}
+
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeMedia(i)}
+                                                        style={styles.removeBtn}
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </div>
+
+                                                {/* Toggle Badge - Relative Position Below */}
                                                 <button
                                                     type="button"
                                                     onClick={() => toggleMediaTarget(i)}
                                                     style={{
-                                                        position: 'absolute',
-                                                        bottom: '8px', // Moved to bottom
-                                                        left: '8px',
-                                                        zIndex: 10, // Increased z-index
+                                                        width: '100%',
                                                         background: item.target === 'front' ? 'var(--accent-cyan)' : 'var(--accent-purple)',
                                                         color: '#000',
                                                         border: 'none',
                                                         borderRadius: '6px',
-                                                        padding: '4px 8px',
+                                                        padding: '6px 8px',
                                                         fontSize: '0.75rem',
                                                         fontWeight: 'bold',
                                                         cursor: 'pointer',
-                                                        boxShadow: '0 2px 5px rgba(0,0,0,0.3)'
+                                                        boxShadow: '0 2px 5px rgba(0,0,0,0.3)',
+                                                        textTransform: 'uppercase',
+                                                        letterSpacing: '0.5px'
                                                     }}
                                                 >
-                                                    {item.target === 'front' ? 'FRONT' : 'BACK'}
-                                                </button>
-
-                                                {item.type === 'image' && <img src={item.preview} alt="preview" style={styles.previewImg} />}
-                                                {item.type === 'audio' && <audio src={item.preview} controls style={styles.previewAudio} />}
-                                                {item.type === 'video' && <video src={item.preview} controls style={styles.previewVideo} />}
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeMedia(i)}
-                                                    style={styles.removeBtn}
-                                                >
-                                                    ×
+                                                    {item.target === 'front' ? 'Position: FRONT' : 'Position: BACK'}
                                                 </button>
                                             </div>
                                         ))}
