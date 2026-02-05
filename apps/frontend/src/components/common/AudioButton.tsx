@@ -19,34 +19,25 @@ const AudioButton: React.FC<AudioButtonProps> = ({ filename, src, className = ''
     useEffect(() => {
         if (!audioSrc) return;
 
-        // Create Audio instance only when src changes
         const audio = new Audio(audioSrc);
         audioRef.current = audio;
 
-        // Event handler to sync React state with REAL Audio state
-        const handleStateChange = () => {
-            // If paused or ended, we are NOT playing.
-            setIsPlaying(!audio.paused && !audio.ended);
-        };
+        // Explicit handlers for each state
+        const onPlay = () => setIsPlaying(true);
+        const onStop = () => setIsPlaying(false); // Handles pause, ended, error
 
-        const handleError = (e: Event) => {
-            console.error("Audio playback error:", e);
-            setIsPlaying(false);
-        };
-
-        // Attach listeners for ALL state changes
-        audio.addEventListener('play', handleStateChange);
-        audio.addEventListener('pause', handleStateChange);
-        audio.addEventListener('ended', handleStateChange);
-        audio.addEventListener('error', handleError);
+        audio.addEventListener('play', onPlay);
+        audio.addEventListener('pause', onStop);
+        audio.addEventListener('ended', onStop);
+        audio.addEventListener('error', onStop);
 
         // Cleanup
         return () => {
+            audio.removeEventListener('play', onPlay);
+            audio.removeEventListener('pause', onStop);
+            audio.removeEventListener('ended', onStop);
+            audio.removeEventListener('error', onStop);
             audio.pause();
-            audio.removeEventListener('play', handleStateChange);
-            audio.removeEventListener('pause', handleStateChange);
-            audio.removeEventListener('ended', handleStateChange);
-            audio.removeEventListener('error', handleError);
             audioRef.current = null;
         };
     }, [audioSrc]);
@@ -59,8 +50,11 @@ const AudioButton: React.FC<AudioButtonProps> = ({ filename, src, className = ''
 
         if (isPlaying) {
             audio.pause();
-            audio.currentTime = 0; // Optional: Reset to start when stopped manually? User preference seems to be 'stop'.
+            audio.currentTime = 0;
         } else {
+            // Reset logic in case it was finished
+            if (audio.ended) audio.currentTime = 0;
+
             audio.play().catch(err => {
                 console.error("Play failed:", err);
                 setIsPlaying(false);

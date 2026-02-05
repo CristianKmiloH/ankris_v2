@@ -2600,7 +2600,10 @@ button:active .icon-glow-green {
 /* Remove the 'glow' effect from the container, enable ONLY wave animation */
 .anim-audio-btn.playing {
   background: rgba(0, 255, 255, 0.25);
-  /* No extra border or box-shadow changes requested */
+  box-shadow: none !important;
+  /* Force remove any glowing shadow */
+  border-color: var(--accent-cyan);
+  /* Maintain original border */
 }
 
 /* Wave Animation - Only active when .playing */
