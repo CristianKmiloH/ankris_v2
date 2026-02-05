@@ -19,7 +19,8 @@ export const createNote = async (
     front: string,
     back: string,
     noteType: string = 'BASIC',
-    files?: { front: File[], back: File[] }
+    files?: { front: File[], back: File[] },
+    extraFields?: Record<string, string>
 ) => {
     const token = localStorage.getItem('token');
 
@@ -29,6 +30,12 @@ export const createNote = async (
     formData.append('front', front);
     formData.append('back', back);
     formData.append('noteType', noteType);
+
+    if (extraFields) {
+        Object.entries(extraFields).forEach(([key, value]) => {
+            if (value) formData.append(key, value);
+        });
+    }
 
     if (files) {
         files.front.forEach(file => formData.append('media_front', file));

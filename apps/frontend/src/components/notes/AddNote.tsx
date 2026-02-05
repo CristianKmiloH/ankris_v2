@@ -46,6 +46,7 @@ const AddNote: React.FC = () => {
                 }
 
                 // Split media items
+                // Split media items
                 const frontFiles = mediaItems.filter(m => m.target === 'front').map(m => m.file);
                 const backFiles = mediaItems.filter(m => m.target === 'back').map(m => m.file);
 
@@ -54,7 +55,11 @@ const AddNote: React.FC = () => {
                     processedFront,
                     processedBack,
                     noteType,
-                    { front: frontFiles, back: backFiles }
+                    { front: frontFiles, back: backFiles },
+                    {
+                        addReverse,
+                        extra
+                    }
                 );
 
                 setShowSuccess(true);
@@ -113,28 +118,43 @@ const AddNote: React.FC = () => {
                 return (
                     <>
                         <div style={styles.fieldGroup}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                                 <label style={styles.label}>{t('text') || 'Text'}</label>
+                                {/* Removed inline button to avoid overlap */}
+                            </div>
+
+                            {/* Toolbar for Cloze */}
+                            <div style={{ display: 'flex', gap: '8px', marginBottom: '8px', padding: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
                                 <button
                                     type="button"
                                     onClick={insertCloze}
                                     style={styles.clozeButton}
                                     title="Wrap selected text in cloze deletion"
+                                    disabled={!selectedClozeText}
                                 >
-                                    [...] Cloze
+                                    ✂️ [...] Make Cloze
                                 </button>
+                                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', alignSelf: 'center' }}>
+                                    {selectedClozeText ? `Selected: "${selectedClozeText.substring(0, 15)}..."` : 'Select text below'}
+                                </span>
                             </div>
+
                             <textarea
                                 style={styles.textArea}
                                 value={clozeText}
                                 onChange={e => {
                                     setClozeText(e.target.value);
-                                    const selection = window.getSelection()?.toString();
-                                    if (selection) setSelectedClozeText(selection);
+                                    // Monitor selection on change/mouseup/keyup ideally, but here simplicity
                                 }}
-                                placeholder="Type text here. Select text and click [...] to create gaps."
+                                onSelect={(e) => {
+                                    const target = e.target as HTMLTextAreaElement;
+                                    const selection = target.value.substring(target.selectionStart, target.selectionEnd);
+                                    if (selection) setSelectedClozeText(selection);
+                                    else setSelectedClozeText('');
+                                }}
+                                placeholder="Type text here. Select text then click Make Cloze button above."
                             />
-                            <p style={styles.hint}>💡 Select text and click [...] to hide it</p>
+                            <p style={styles.hint}>💡 Example: The capital of France is {{ c1::Paris}}.</p>
                         </div>
                         <div style={styles.fieldGroup}>
                             <label style={styles.label}>{t('extra') || 'Extra (Optional)'}</label>
