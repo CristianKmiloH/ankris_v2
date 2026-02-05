@@ -156,7 +156,13 @@ const Study: React.FC = () => {
                                                             const soundMatch = text.match(/\[sound:(.*?)\]/);
                                                             if (soundMatch) {
                                                                 const filename = soundMatch[1];
-                                                                const cleanText = text.replace(/\[sound:.*?\]/g, '');
+                                                                const filename = soundMatch[1];
+                                                                // Clean sound tag AND any standalone 'd' artifact (user reported bug)
+                                                                // Use a regex to strip [sound:...] and also occasional trailing "d" lines
+                                                                let cleanText = text.replace(/\[sound:.*?\]/g, '');
+                                                                // Aggressive clean for the reported "d" artifact
+                                                                if (cleanText.trim() === 'd') cleanText = '';
+                                                                cleanText = cleanText.replace(/\s+d\s*$/, ''); // Remove trailing d
 
                                                                 return (
                                                                     <>
@@ -221,7 +227,10 @@ const Study: React.FC = () => {
                                                             const soundMatch = text.match(/\[sound:(.*?)\]/);
                                                             if (soundMatch) {
                                                                 const filename = soundMatch[1];
-                                                                const cleanText = text.replace(/\[sound:.*?\]/g, '');
+                                                                const filename = soundMatch[1];
+                                                                let cleanText = text.replace(/\[sound:.*?\]/g, '');
+                                                                if (cleanText.trim() === 'd') cleanText = '';
+                                                                cleanText = cleanText.replace(/\s+d\s*$/, '');
                                                                 const isVideo = /\.(mp4|webm|ogg|mov)$/i.test(filename);
 
                                                                 if (isVideo) {
