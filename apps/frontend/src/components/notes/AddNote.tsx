@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { createNote } from '../../services/noteService';
 import { useTranslation } from '../../i18n/useTranslation';
 import Layout from '../layout/Layout';
-import { MEDIA_BASE_URL } from '../../config';
 
 type NoteType = 'BASIC' | 'BASIC_REVERSED' | 'BASIC_OPTIONAL_REVERSED' | 'BASIC_TYPE_ANSWER' | 'CLOZE';
 
