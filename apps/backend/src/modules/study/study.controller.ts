@@ -71,7 +71,34 @@ router.post('/notes', cpUpload, async (req: AuthRequest, res) => {
             }
         }
 
-        const result = await NoteService.createNote(userId, deckId, front, back);
+        const { noteType, ...otherFields } = req.body;
+        console.log("Create Note Body:", { noteType, otherKeys: Object.keys(otherFields) });
+        console.log("Files received:", Object.keys(files || {}));
+
+        // Collect extra fields that are not standard (e.g. 'addReverse', 'extra')
+
+        // Collect extra fields that are not standard (e.g. 'addReverse', 'extra')
+        // We exclude standard fields that we already handled or extracted 
+        const extraFields: Record<string, string> = {};
+        Object.keys(otherFields).forEach(key => {
+            if (['media_front', 'media_back', 'deckId', 'front', 'back', 'userId'].includes(key)) return;
+            extraFields[key] = otherFields[key] as string;
+        });
+
+        // Also map standard fields if strategy needs them by specific names? 
+        // Strategy expects 'Front', 'Back', etc. service layer handles mapping front/back args to those keys.
+        // We just need to pass dynamic ones like 'Add Reverse'.
+
+        // Check if we need to map 'addReverse' from body to 'Add Reverse' key expected by strategy?
+        // Frontend likely sends 'addReverse'. Strategy expects 'Add Reverse'.
+        if (extraFields['addReverse']) {
+            extraFields['Add Reverse'] = extraFields['addReverse'];
+        }
+        if (extraFields['extra']) {
+            extraFields['Extra'] = extraFields['extra'];
+        }
+
+        const result = await NoteService.createNote(userId, deckId, front, back, noteType as string, extraFields);
         res.json(result);
     } catch (error: any) {
         console.error("Create note error:", error);

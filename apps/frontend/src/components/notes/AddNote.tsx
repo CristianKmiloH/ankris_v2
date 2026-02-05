@@ -96,9 +96,9 @@ const AddNote: React.FC = () => {
     };
 
     const toggleMediaTarget = (index: number) => {
-        const newItems = [...mediaItems];
-        newItems[index].target = newItems[index].target === 'front' ? 'back' : 'front';
-        setMediaItems(newItems);
+        setMediaItems(items => items.map((item, i) =>
+            i === index ? { ...item, target: item.target === 'front' ? 'back' : 'front' } : item
+        ));
     };
 
     const insertCloze = () => {
