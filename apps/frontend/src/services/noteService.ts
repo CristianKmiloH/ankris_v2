@@ -14,15 +14,34 @@ export interface Card {
     due: string;
 }
 
-export const createNote = async (deckId: string, front: string, back: string, noteType: string = 'BASIC') => {
+export const createNote = async (
+    deckId: string,
+    front: string,
+    back: string,
+    noteType: string = 'BASIC',
+    files?: { front: File[], back: File[] }
+) => {
     const token = localStorage.getItem('token');
+
+    // Use FormData for file upload support
+    const formData = new FormData();
+    formData.append('deckId', deckId);
+    formData.append('front', front);
+    formData.append('back', back);
+    formData.append('noteType', noteType);
+
+    if (files) {
+        files.front.forEach(file => formData.append('media_front', file));
+        files.back.forEach(file => formData.append('media_back', file));
+    }
+
     const response = await fetch(`${API_BASE_URL}/api/notes`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+            // Content-Type header must be undefined so browser sets it with boundary for mulitpart/form-data
             Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ deckId, front, back, noteType })
+        body: formData
     });
     if (!response.ok) throw new Error('Failed to create note');
     return response.json();

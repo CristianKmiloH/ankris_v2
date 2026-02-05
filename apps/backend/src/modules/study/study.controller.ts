@@ -7,13 +7,74 @@ const router = Router();
 router.use(authenticateToken);
 
 // --- NOTES ---
-router.post('/notes', async (req: AuthRequest, res) => {
+// --- CONFIG MULTER ---
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+
+// Ensure media directory exists
+const mediaDir = path.join(process.cwd(), 'public/media');
+if (!fs.existsSync(mediaDir)) {
+    fs.mkdirSync(mediaDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, mediaDir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname);
+        cb(null, `import_${uniqueSuffix}${ext}`);
+    }
+});
+
+const upload = multer({ storage: storage });
+
+// --- NOTES ---
+// modified to accept files
+const cpUpload = upload.fields([{ name: 'media_front', maxCount: 4 }, { name: 'media_back', maxCount: 4 }]);
+
+router.post('/notes', cpUpload, async (req: AuthRequest, res) => {
     try {
         const userId = req.user!.userId;
-        const { deckId, front, back } = req.body;
+        let { deckId, front, back } = req.body;
+
+        // --- Process Files ---
+        // Force strings (multer might make them something else if undefined)
+        front = front || '';
+        back = back || '';
+
+        const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+        if (files) {
+            // Append Front Media
+            if (files['media_front']) {
+                files['media_front'].forEach(file => {
+                    if (file.mimetype.startsWith('image/')) {
+                        front += `<br><img src="${file.filename}">`;
+                    } else if (file.mimetype.startsWith('audio/') || file.mimetype.startsWith('video/')) {
+                        // Anki sound/video tag
+                        front += ` [sound:${file.filename}]`;
+                    }
+                });
+            }
+            // Append Back Media
+            if (files['media_back']) {
+                files['media_back'].forEach(file => {
+                    if (file.mimetype.startsWith('image/')) {
+                        back += `<br><img src="${file.filename}">`;
+                    } else if (file.mimetype.startsWith('audio/') || file.mimetype.startsWith('video/')) {
+                        back += ` [sound:${file.filename}]`;
+                    }
+                });
+            }
+        }
+
         const result = await NoteService.createNote(userId, deckId, front, back);
         res.json(result);
     } catch (error: any) {
+        console.error("Create note error:", error);
         res.status(500).json({ error: error.message });
     }
 });

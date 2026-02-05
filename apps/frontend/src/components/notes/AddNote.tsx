@@ -11,6 +11,7 @@ interface MediaItem {
     type: 'image' | 'audio' | 'video';
     file: File;
     preview: string;
+    target: 'front' | 'back'; // New field
 }
 
 const AddNote: React.FC = () => {
@@ -45,16 +46,24 @@ const AddNote: React.FC = () => {
                     processedBack = back.replace(/\n/g, '<br>');
                 }
 
-                // TODO: Upload media files to server
-                // For now, we'll just submit the text
+                // Split media items
+                const frontFiles = mediaItems.filter(m => m.target === 'front').map(m => m.file);
+                const backFiles = mediaItems.filter(m => m.target === 'back').map(m => m.file);
 
-                await createNote(deckId, processedFront, processedBack, noteType);
+                await createNote(
+                    deckId,
+                    processedFront,
+                    processedBack,
+                    noteType,
+                    { front: frontFiles, back: backFiles }
+                );
 
                 setShowSuccess(true);
                 setTimeout(() => navigate('/'), 1500);
             }
         } catch (err) {
             console.error(err);
+            alert("Error saving note"); // Feedback on error
         }
     };
 
@@ -70,7 +79,9 @@ const AddNote: React.FC = () => {
             const file = e.target?.files?.[0];
             if (file) {
                 const preview = URL.createObjectURL(file);
-                setMediaItems([...mediaItems, { type, file, preview }]);
+                // Default to 'back' as answers usually have the media, or front if it's a "Show this image" question.
+                // Let's default to BACK as requested implicitly by Anki usage patterns, but user can toggle.
+                setMediaItems([...mediaItems, { type, file, preview, target: 'back' }]);
             }
         };
         input.click();
@@ -78,6 +89,12 @@ const AddNote: React.FC = () => {
 
     const removeMedia = (index: number) => {
         setMediaItems(mediaItems.filter((_, i) => i !== index));
+    };
+
+    const toggleMediaTarget = (index: number) => {
+        const newItems = [...mediaItems];
+        newItems[index].target = newItems[index].target === 'front' ? 'back' : 'front';
+        setMediaItems(newItems);
     };
 
     const insertCloze = () => {
