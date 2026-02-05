@@ -226,7 +226,6 @@ const Study: React.FC = () => {
                                                             const soundMatch = text.match(/\[sound:(.*?)\]/);
                                                             if (soundMatch) {
                                                                 const filename = soundMatch[1];
-                                                                const filename = soundMatch[1];
                                                                 let cleanText = text.replace(/\[sound:.*?\]/g, '');
                                                                 if (cleanText.trim() === 'd') cleanText = '';
                                                                 cleanText = cleanText.replace(/\s+d\s*$/, '');
