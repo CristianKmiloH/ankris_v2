@@ -122,7 +122,7 @@ const styles = {
         flex: '1 1 auto',
         width: '100%',
         minHeight: 0,
-        padding: '0 24px 74px 24px', // Reduced from 100px to match Nav height + buffer
+        padding: '0 24px 100px 24px', // Increased to 100px to ensure scroll clearance behind BottomNav
         scrollbarWidth: 'thin' as const,
     },
     fadeWrapper: {
