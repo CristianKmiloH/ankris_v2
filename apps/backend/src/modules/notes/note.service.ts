@@ -1,4 +1,5 @@
 import { prisma } from '../../db/prisma';
+import * as CardService from '../cards/card.service';
 
 export const createNote = async (userId: string, deckId: string, front: string, back: string) => {
     // 1. Create Note in DB
