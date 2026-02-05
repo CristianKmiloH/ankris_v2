@@ -161,7 +161,7 @@ const Study: React.FC = () => {
                                                                 return (
                                                                     <>
                                                                         {cleanText}
-                                                                        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '15px' }} onClick={(e) => e.stopPropagation()}>
+                                                                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', marginTop: '20px' }} onClick={(e) => e.stopPropagation()}>
                                                                             <AudioButton filename={filename} />
                                                                         </div>
                                                                     </>

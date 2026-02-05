@@ -2572,54 +2572,65 @@ button:active .icon-glow-green {
   /* Staggered */
   opacity: 1;
 }
-/* Audio Button Animation & Styles */
+
+/* Audio Button Animation & Styles - Refined */
 .anim-audio-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 2px solid var(--accent-cyan);
-    background: rgba(0, 255, 255, 0.1);
-    color: var(--accent-cyan);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    padding: 0;
-    flex-shrink: 0;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  border-radius: 50% !important;
+  border: 1px solid var(--accent-cyan);
+  background: rgba(0, 255, 255, 0.1);
+  color: var(--accent-cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0 !important;
+  margin: 0 auto;
+  /* Auto margin can help centering if display block, but flex parent handles it */
+  box-shadow: 0 2px 8px rgba(0, 255, 255, 0.15);
+  transition: background 0.2s;
 }
 
 .anim-audio-btn:hover {
-    background: rgba(0, 255, 255, 0.2);
-    transform: scale(1.05);
-    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+  background: rgba(0, 255, 255, 0.25);
 }
 
+/* Remove the 'glow' effect from the container, enable ONLY wave animation */
 .anim-audio-btn.playing {
-    background: rgba(0, 255, 255, 0.3);
-    box-shadow: 0 0 15px var(--accent-cyan);
-    border-color: #fff;
-    color: #fff;
+  background: rgba(0, 255, 255, 0.25);
+  /* No extra border or box-shadow changes requested */
 }
 
-.wave-1, .wave-2 {
-    transform-origin: center;
-    opacity: 0.6;
-    transition: all 0.3s;
+/* Wave Animation - Only active when .playing */
+.wave-1,
+.wave-2 {
+  transform-origin: center;
+  opacity: 0;
+  /* Hidden by default or static? User said 'effect like volume up'. Usually implies appearing/disappearing */
+  /* Let's keep them visible but static? Or invisible? Standard speaker icon usually has waves. */
+  /* If they are static in the SVG, opacity should be 1. */
+  opacity: 1;
 }
 
+/* When playing, they animate opacity/scale */
 .playing .wave-1 {
-    animation: wave-pulse 0.8s infinite alternate;
+  animation: wave-pulse 0.6s infinite alternate;
 }
 
 .playing .wave-2 {
-    animation: wave-pulse 0.8s infinite alternate 0.4s;
+  animation: wave-pulse 0.6s infinite alternate 0.3s;
 }
 
 @keyframes wave-pulse {
-    from { opacity: 0.4; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1.1); }
-}
+  from {
+    opacity: 0.3;
+    transform: scale(0.9);
+  }
 
+  to {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
