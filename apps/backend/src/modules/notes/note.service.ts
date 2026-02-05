@@ -15,7 +15,7 @@ export const createNote = async (
         data: {
             userId,
             deckId,
-            content: { front, back, ...extraFields }, // Store full content including extra fields (like 'Add Reverse' or 'Extra')
+            content: JSON.stringify({ front, back, ...extraFields }), // Store full content including extra fields (like 'Add Reverse' or 'Extra')
             noteType: noteType,
         }
     });

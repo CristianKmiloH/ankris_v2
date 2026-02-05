@@ -4,8 +4,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model User {
@@ -47,8 +47,8 @@ model Note {
   id        String   @id @default(uuid())
   userId    String
   deckId    String
-  content   Json
-  tags      String[]
+  content   String
+  tags      String?
   noteType  String   @default("BASIC") // Helper column for the Registry
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

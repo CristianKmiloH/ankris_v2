@@ -383,8 +383,8 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
                             id: noteIdStr,
                             userId: userId,
                             deckId: targetDeckId!,
-                            content: noteData.fields,
-                            tags: [], // Todo: Parse tags from Anki
+                            content: JSON.stringify(noteData.fields),
+                            tags: "", // Tags logic pending Anki parsing
                             noteType: registry.detectTypeFromAnkiName(noteData.modelName).typeId
                         }
                     });
