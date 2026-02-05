@@ -99,27 +99,27 @@ const styles: { [key: string]: React.CSSProperties } = {
     modal: {
         backgroundColor: 'var(--bg-card)',
         width: '100%',
-        maxWidth: 'min(90%, 450px)',
-        maxHeight: '85vh', // Slightly reduced to ensure it fits with nav bars
-        borderRadius: '24px',
+        maxWidth: 'min(90%, 400px)', // Slightly smaller max width
+        borderRadius: '20px',
         border: '1px solid var(--bg-card-elevated)',
         boxShadow: 'var(--shadow-card)',
         color: 'var(--text-primary)',
         display: 'flex',
         flexDirection: 'column',
-        position: 'relative', // Ensure containment
+        position: 'relative',
+        outline: 'none',
     },
     header: {
-        padding: '20px 24px',
+        padding: '16px 20px', // Reduced padding
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         borderBottom: '1px solid var(--bg-card-elevated)',
-        flexShrink: 0, // Header shouldn't shrink
+        flexShrink: 0,
     },
     title: {
         margin: 0,
-        fontSize: '1.25rem',
+        fontSize: '1.1rem', // Reduced font size
         fontWeight: '700',
         color: 'var(--text-primary)',
     },
@@ -137,18 +137,18 @@ const styles: { [key: string]: React.CSSProperties } = {
         transition: 'background 0.2s, color 0.2s',
     },
     content: {
-        padding: '24px',
-        overflowY: 'auto', // Scroll content only
-        flex: 1, // Take remaining space
-        minHeight: 0, // Allow flex shrinking
+        padding: '16px', // Reduced content padding
+        overflowY: 'auto',
+        flex: 1,
+        minHeight: 0,
     },
     section: {
-        marginBottom: '24px',
+        marginBottom: '16px', // Reduced margin
     },
     sectionTitle: {
-        fontSize: '0.75rem',
+        fontSize: '0.7rem',
         color: 'var(--text-muted)',
-        marginBottom: '12px',
+        marginBottom: '8px',
         textTransform: 'uppercase',
         fontWeight: '700',
         letterSpacing: '0.05em',
@@ -156,22 +156,25 @@ const styles: { [key: string]: React.CSSProperties } = {
     grid: {
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
-        gap: '12px',
+        gap: '8px', // Reduced gap for tighter fit
     },
     optionButton: {
-        padding: '12px',
+        padding: '10px 8px', // Reduced padding inside buttons
         backgroundColor: 'var(--bg-app)',
         border: '2px solid transparent',
-        borderRadius: '16px',
+        borderRadius: '12px',
         color: 'var(--text-secondary)',
         cursor: 'pointer',
-        fontSize: '0.95rem',
+        fontSize: '0.85rem', // Smaller text
         fontWeight: '600',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: '8px',
+        gap: '6px',
         transition: 'all 0.2s',
+        whiteSpace: 'nowrap', // Prevent wrap
+        textOverflow: 'ellipsis',
+        overflow: 'hidden',
     },
     optionActive: {
         backgroundColor: 'var(--bg-card)',
@@ -180,24 +183,24 @@ const styles: { [key: string]: React.CSSProperties } = {
         boxShadow: '0 2px 8px rgba(0, 217, 255, 0.15)',
     },
     icon: {
-        fontSize: '1.1rem',
+        fontSize: '1rem',
     },
     divider: {
         height: '1px',
         backgroundColor: 'var(--bg-card-elevated)',
-        margin: '8px 0 20px 0',
+        margin: '8px 0 16px 0',
     },
     infoText: {
-        fontSize: '0.8rem',
+        fontSize: '0.75rem',
         color: 'var(--text-muted)',
         textAlign: 'center',
-        marginBottom: '20px',
+        marginBottom: '16px',
     },
     logoutButton: {
         width: '100%',
-        padding: '14px',
-        fontWeight: '900',
-        fontSize: '0.95rem',
+        padding: '12px',
+        fontWeight: '800', // Slightly lighter weight
+        fontSize: '0.9rem',
         cursor: 'pointer',
         transition: 'all 0.2s',
         textTransform: 'uppercase',

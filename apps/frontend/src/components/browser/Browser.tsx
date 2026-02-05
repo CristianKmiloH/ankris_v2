@@ -5,6 +5,7 @@ import { getDecks, type Deck } from '../../services/deckService';
 import { getAllCards, type Card, updateCard, deleteCard } from '../../services/cardService';
 import { useTranslation } from '../../i18n/useTranslation';
 import { MEDIA_BASE_URL } from '../../config';
+import AudioButton from '../common/AudioButton';
 
 const ContentEditable = ({ html, onChange, style }: any) => {
     const contentEditableRef = React.useRef<HTMLDivElement>(null);
@@ -205,36 +206,7 @@ const Browser: React.FC = () => {
                 {audioSrcs.length > 0 && (
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '6px' }}>
                         {audioSrcs.map((src, idx) => (
-                            <button
-                                key={idx}
-                                onClick={(e) => {
-                                    e.stopPropagation(); // Prevent card flip
-                                    new Audio(src).play().catch(err => console.error("Audio play failed", err));
-                                }}
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    padding: '0',
-                                    width: '40px',
-                                    height: '40px',
-                                    minWidth: '40px', // Prevent squashing
-                                    aspectRatio: '1 / 1', // Enforce square/circle
-                                    flexShrink: 0,
-                                    borderRadius: '50% !important', // Force circle
-                                    backgroundColor: 'rgba(0, 255, 255, 0.1)',
-                                    border: '1px solid var(--accent-cyan)',
-                                    color: 'var(--accent-cyan)',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s',
-                                    boxShadow: '0 2px 8px rgba(0, 255, 255, 0.15)'
-                                }}
-                                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(0, 255, 255, 0.25)'}
-                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(0, 255, 255, 0.1)'}
-                                title={t('play')}
-                            >
-                                <span style={{ fontSize: '1.2rem', marginTop: '2px' }}>🔊</span>
-                            </button>
+                            <AudioButton key={idx} src={src} size={40} />
                         ))}
                     </div>
                 )}

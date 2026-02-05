@@ -6,6 +6,7 @@ import LoadingScreen from '../common/LoadingScreen';
 import { getDueCards, getAllDueCards, answerCard, type Card } from '../../services/noteService';
 import { useTranslation } from '../../i18n/useTranslation';
 import parse from 'html-react-parser';
+import AudioButton from '../common/AudioButton';
 
 const Study: React.FC = () => {
     const { deckId } = useParams();
@@ -160,7 +161,9 @@ const Study: React.FC = () => {
                                                                 return (
                                                                     <>
                                                                         {cleanText}
-                                                                        <AudioButton filename={filename} />
+                                                                        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '15px' }} onClick={(e) => e.stopPropagation()}>
+                                                                            <AudioButton filename={filename} />
+                                                                        </div>
                                                                     </>
                                                                 );
                                                             }
@@ -434,49 +437,5 @@ const styles: { [key: string]: React.CSSProperties } = {
     },
 };
 
-// Extracted Audio Button Component to handle playing state
-const AudioButton: React.FC<{ filename: string }> = ({ filename }) => {
-    const [isPlaying, setIsPlaying] = useState(false);
-
-    const playAudio = (e: React.MouseEvent) => {
-        e.stopPropagation();
-
-        if (isPlaying) return; // Prevent double play
-
-        const audio = new Audio(`${MEDIA_BASE_URL}/${filename}`);
-
-        setIsPlaying(true);
-        audio.play().catch(err => {
-            console.error("Audio play error", err);
-            setIsPlaying(false);
-        });
-
-        audio.onended = () => {
-            setIsPlaying(false);
-        };
-
-        // Safety timeout in case onended fails
-        audio.onerror = () => setIsPlaying(false);
-    };
-
-    return (
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '15px' }} onClick={(e) => e.stopPropagation()}>
-            <button
-                className={`anim-audio-btn ${isPlaying ? 'playing' : ''}`}
-                style={{ cursor: 'pointer' }}
-                onClick={playAudio}
-            >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    {/* Speaker Body - Static */}
-                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" fillOpacity="0.2"></polygon>
-                    {/* Small Wave */}
-                    <path className="wave-1" d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                    {/* Large Wave */}
-                    <path className="wave-2" d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
-                </svg>
-            </button>
-        </div>
-    );
-};
-
+// Internal AudioButton removed - Using shared component
 export default Study;
