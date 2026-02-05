@@ -26,10 +26,20 @@ const AudioButton: React.FC<AudioButtonProps> = ({ filename, src, className = ''
         const onPlay = () => setIsPlaying(true);
         const onStop = () => setIsPlaying(false); // Handles pause, ended, error
 
+        // Failsafe: Check time update to catch end if 'ended' event misses
+        const onTimeUpdate = () => {
+            if (audio.duration && audio.currentTime >= audio.duration - 0.2) {
+                // Close enough to end - force stop
+                audio.pause();
+                onStop();
+            }
+        };
+
         audio.addEventListener('play', onPlay);
         audio.addEventListener('pause', onStop);
         audio.addEventListener('ended', onStop);
         audio.addEventListener('error', onStop);
+        audio.addEventListener('timeupdate', onTimeUpdate);
 
         // Cleanup
         return () => {
@@ -37,6 +47,7 @@ const AudioButton: React.FC<AudioButtonProps> = ({ filename, src, className = ''
             audio.removeEventListener('pause', onStop);
             audio.removeEventListener('ended', onStop);
             audio.removeEventListener('error', onStop);
+            audio.removeEventListener('timeupdate', onTimeUpdate);
             audio.pause();
             audioRef.current = null;
         };
@@ -51,9 +62,12 @@ const AudioButton: React.FC<AudioButtonProps> = ({ filename, src, className = ''
         if (isPlaying) {
             audio.pause();
             audio.currentTime = 0;
+            setIsPlaying(false); // Force state update immediately
         } else {
             // Reset logic in case it was finished
-            if (audio.ended) audio.currentTime = 0;
+            if (audio.ended || audio.currentTime >= audio.duration) {
+                audio.currentTime = 0;
+            }
 
             audio.play().catch(err => {
                 console.error("Play failed:", err);
