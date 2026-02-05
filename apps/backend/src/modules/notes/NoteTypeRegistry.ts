@@ -45,7 +45,9 @@ export class NoteTypeRegistry {
         const lower = modelName.toLowerCase();
         if (lower.includes('cloze')) return this.get('CLOZE')!;
         if (lower.includes('basic') && lower.includes('optional')) return this.get('BASIC_OPTIONAL_REVERSED')!;
-        if (lower.includes('basic') && lower.includes('reverse')) return this.get('BASIC_REVERSED')!;
+        // User Preference Update: Treat "Basic (and reversed card)" as Optional.
+        // This prevents generating 200 cards for a 100 note deck unless 'Add Reverse' is explicitly present.
+        if (lower.includes('basic') && lower.includes('reverse')) return this.get('BASIC_OPTIONAL_REVERSED')!;
         if (lower.includes('type')) return this.get('BASIC_TYPE_ANSWER')!;
         if (lower.includes('image') && lower.includes('occlusion')) return this.get('IMAGE_OCCLUSION')!;
         return this.get('BASIC')!;
