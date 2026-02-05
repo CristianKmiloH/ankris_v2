@@ -33,6 +33,8 @@ model Deck {
   parentId    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  isFavorite  Boolean  @default(false)
+  orderIndex  Int      @default(0)
 
   user     User   @relation(fields: [userId], references: [id])
   parent   Deck?  @relation("DeckHierarchy", fields: [parentId], references: [id])

@@ -4,6 +4,9 @@ export interface Deck {
     id: string;
     name: string;
     description?: string;
+    isFavorite: boolean;
+    orderIndex: number;
+
     _count: {
         cards: number;
     };
@@ -78,6 +81,33 @@ export const updateDeck = async (id: string, name: string, description?: string)
         },
         body: JSON.stringify({ name, description })
     });
-    if (!response.ok) throw new Error('Failed to update deck');
+    return response.json();
+};
+
+export const toggleFavorite = async (id: string, isFavorite: boolean): Promise<Deck> => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/decks/${id}/favorite`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ isFavorite })
+    });
+    if (!response.ok) throw new Error('Failed to toggle favorite');
+    return response.json();
+};
+
+export const reorderDeck = async (id: string, direction: 'up' | 'down'): Promise<Deck[]> => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/decks/${id}/reorder`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ direction })
+    });
+    if (!response.ok) throw new Error('Failed to reorder deck');
     return response.json();
 };

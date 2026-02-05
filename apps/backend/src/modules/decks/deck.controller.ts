@@ -75,4 +75,41 @@ router.delete('/:id', async (req: AuthRequest, res) => {
     }
 });
 
+
+// Toggle Favorite
+router.patch('/:id/favorite', async (req: AuthRequest, res) => {
+    try {
+        const userId = req.user!.userId;
+        const { isFavorite } = req.body;
+
+        if (typeof isFavorite !== 'boolean') {
+            return res.status(400).json({ error: 'isFavorite must be a boolean' });
+        }
+
+        const updated = await DeckService.toggleFavorite(userId, req.params.id, isFavorite);
+        res.json(updated);
+    } catch (error: any) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Reorder Deck
+router.patch('/:id/reorder', async (req: AuthRequest, res) => {
+    try {
+        const userId = req.user!.userId;
+        const { direction } = req.body; // 'up' or 'down'
+
+        if (direction !== 'up' && direction !== 'down') {
+            return res.status(400).json({ error: 'Direction must be "up" or "down"' });
+        }
+
+        const decks = await DeckService.reorderDeck(userId, req.params.id, direction);
+        if (!decks) return res.status(404).json({ error: 'Deck not found' });
+
+        res.json(decks);
+    } catch (error: any) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 export default router;

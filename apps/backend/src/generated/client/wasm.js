@@ -141,7 +141,9 @@ exports.Prisma.DeckScalarFieldEnum = {
   description: 'description',
   parentId: 'parentId',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  isFavorite: 'isFavorite',
+  orderIndex: 'orderIndex'
 };
 
 exports.Prisma.NoteScalarFieldEnum = {

@@ -2429,8 +2429,18 @@ export namespace Prisma {
 
   export type AggregateDeck = {
     _count: DeckCountAggregateOutputType | null
+    _avg: DeckAvgAggregateOutputType | null
+    _sum: DeckSumAggregateOutputType | null
     _min: DeckMinAggregateOutputType | null
     _max: DeckMaxAggregateOutputType | null
+  }
+
+  export type DeckAvgAggregateOutputType = {
+    orderIndex: number | null
+  }
+
+  export type DeckSumAggregateOutputType = {
+    orderIndex: number | null
   }
 
   export type DeckMinAggregateOutputType = {
@@ -2441,6 +2451,8 @@ export namespace Prisma {
     parentId: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    isFavorite: boolean | null
+    orderIndex: number | null
   }
 
   export type DeckMaxAggregateOutputType = {
@@ -2451,6 +2463,8 @@ export namespace Prisma {
     parentId: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    isFavorite: boolean | null
+    orderIndex: number | null
   }
 
   export type DeckCountAggregateOutputType = {
@@ -2461,9 +2475,19 @@ export namespace Prisma {
     parentId: number
     createdAt: number
     updatedAt: number
+    isFavorite: number
+    orderIndex: number
     _all: number
   }
 
+
+  export type DeckAvgAggregateInputType = {
+    orderIndex?: true
+  }
+
+  export type DeckSumAggregateInputType = {
+    orderIndex?: true
+  }
 
   export type DeckMinAggregateInputType = {
     id?: true
@@ -2473,6 +2497,8 @@ export namespace Prisma {
     parentId?: true
     createdAt?: true
     updatedAt?: true
+    isFavorite?: true
+    orderIndex?: true
   }
 
   export type DeckMaxAggregateInputType = {
@@ -2483,6 +2509,8 @@ export namespace Prisma {
     parentId?: true
     createdAt?: true
     updatedAt?: true
+    isFavorite?: true
+    orderIndex?: true
   }
 
   export type DeckCountAggregateInputType = {
@@ -2493,6 +2521,8 @@ export namespace Prisma {
     parentId?: true
     createdAt?: true
     updatedAt?: true
+    isFavorite?: true
+    orderIndex?: true
     _all?: true
   }
 
@@ -2534,6 +2564,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: DeckAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DeckSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: DeckMinAggregateInputType
@@ -2564,6 +2606,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: DeckCountAggregateInputType | true
+    _avg?: DeckAvgAggregateInputType
+    _sum?: DeckSumAggregateInputType
     _min?: DeckMinAggregateInputType
     _max?: DeckMaxAggregateInputType
   }
@@ -2576,7 +2620,11 @@ export namespace Prisma {
     parentId: string | null
     createdAt: Date
     updatedAt: Date
+    isFavorite: boolean
+    orderIndex: number
     _count: DeckCountAggregateOutputType | null
+    _avg: DeckAvgAggregateOutputType | null
+    _sum: DeckSumAggregateOutputType | null
     _min: DeckMinAggregateOutputType | null
     _max: DeckMaxAggregateOutputType | null
   }
@@ -2603,6 +2651,8 @@ export namespace Prisma {
     parentId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    isFavorite?: boolean
+    orderIndex?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     parent?: boolean | Deck$parentArgs<ExtArgs>
     children?: boolean | Deck$childrenArgs<ExtArgs>
@@ -2619,6 +2669,8 @@ export namespace Prisma {
     parentId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    isFavorite?: boolean
+    orderIndex?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     parent?: boolean | Deck$parentArgs<ExtArgs>
   }, ExtArgs["result"]["deck"]>
@@ -2631,6 +2683,8 @@ export namespace Prisma {
     parentId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    isFavorite?: boolean
+    orderIndex?: boolean
   }
 
   export type DeckInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2663,6 +2717,8 @@ export namespace Prisma {
       parentId: string | null
       createdAt: Date
       updatedAt: Date
+      isFavorite: boolean
+      orderIndex: number
     }, ExtArgs["result"]["deck"]>
     composites: {}
   }
@@ -3068,6 +3124,8 @@ export namespace Prisma {
     readonly parentId: FieldRef<"Deck", 'String'>
     readonly createdAt: FieldRef<"Deck", 'DateTime'>
     readonly updatedAt: FieldRef<"Deck", 'DateTime'>
+    readonly isFavorite: FieldRef<"Deck", 'Boolean'>
+    readonly orderIndex: FieldRef<"Deck", 'Int'>
   }
     
 
@@ -6730,7 +6788,9 @@ export namespace Prisma {
     description: 'description',
     parentId: 'parentId',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    isFavorite: 'isFavorite',
+    orderIndex: 'orderIndex'
   };
 
   export type DeckScalarFieldEnum = (typeof DeckScalarFieldEnum)[keyof typeof DeckScalarFieldEnum]
@@ -6870,13 +6930,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Json'
-   */
-  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-  /**
    * Reference to a field of type 'Int'
    */
   export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -6887,6 +6940,13 @@ export namespace Prisma {
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
     
 
 
@@ -7002,6 +7062,8 @@ export namespace Prisma {
     parentId?: StringNullableFilter<"Deck"> | string | null
     createdAt?: DateTimeFilter<"Deck"> | Date | string
     updatedAt?: DateTimeFilter<"Deck"> | Date | string
+    isFavorite?: BoolFilter<"Deck"> | boolean
+    orderIndex?: IntFilter<"Deck"> | number
     user?: XOR<UserRelationFilter, UserWhereInput>
     parent?: XOR<DeckNullableRelationFilter, DeckWhereInput> | null
     children?: DeckListRelationFilter
@@ -7017,6 +7079,8 @@ export namespace Prisma {
     parentId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    isFavorite?: SortOrder
+    orderIndex?: SortOrder
     user?: UserOrderByWithRelationInput
     parent?: DeckOrderByWithRelationInput
     children?: DeckOrderByRelationAggregateInput
@@ -7035,6 +7099,8 @@ export namespace Prisma {
     parentId?: StringNullableFilter<"Deck"> | string | null
     createdAt?: DateTimeFilter<"Deck"> | Date | string
     updatedAt?: DateTimeFilter<"Deck"> | Date | string
+    isFavorite?: BoolFilter<"Deck"> | boolean
+    orderIndex?: IntFilter<"Deck"> | number
     user?: XOR<UserRelationFilter, UserWhereInput>
     parent?: XOR<DeckNullableRelationFilter, DeckWhereInput> | null
     children?: DeckListRelationFilter
@@ -7050,9 +7116,13 @@ export namespace Prisma {
     parentId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    isFavorite?: SortOrder
+    orderIndex?: SortOrder
     _count?: DeckCountOrderByAggregateInput
+    _avg?: DeckAvgOrderByAggregateInput
     _max?: DeckMaxOrderByAggregateInput
     _min?: DeckMinOrderByAggregateInput
+    _sum?: DeckSumOrderByAggregateInput
   }
 
   export type DeckScalarWhereWithAggregatesInput = {
@@ -7066,6 +7136,8 @@ export namespace Prisma {
     parentId?: StringNullableWithAggregatesFilter<"Deck"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Deck"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Deck"> | Date | string
+    isFavorite?: BoolWithAggregatesFilter<"Deck"> | boolean
+    orderIndex?: IntWithAggregatesFilter<"Deck"> | number
   }
 
   export type NoteWhereInput = {
@@ -7461,6 +7533,8 @@ export namespace Prisma {
     description?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    isFavorite?: boolean
+    orderIndex?: number
     user: UserCreateNestedOneWithoutDecksInput
     parent?: DeckCreateNestedOneWithoutChildrenInput
     children?: DeckCreateNestedManyWithoutParentInput
@@ -7476,6 +7550,8 @@ export namespace Prisma {
     parentId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    isFavorite?: boolean
+    orderIndex?: number
     children?: DeckUncheckedCreateNestedManyWithoutParentInput
     notes?: NoteUncheckedCreateNestedManyWithoutDeckInput
     cards?: CardUncheckedCreateNestedManyWithoutDeckInput
@@ -7487,6 +7563,8 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
+    orderIndex?: IntFieldUpdateOperationsInput | number
     user?: UserUpdateOneRequiredWithoutDecksNestedInput
     parent?: DeckUpdateOneWithoutChildrenNestedInput
     children?: DeckUpdateManyWithoutParentNestedInput
@@ -7502,6 +7580,8 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
+    orderIndex?: IntFieldUpdateOperationsInput | number
     children?: DeckUncheckedUpdateManyWithoutParentNestedInput
     notes?: NoteUncheckedUpdateManyWithoutDeckNestedInput
     cards?: CardUncheckedUpdateManyWithoutDeckNestedInput
@@ -7515,6 +7595,8 @@ export namespace Prisma {
     parentId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    isFavorite?: boolean
+    orderIndex?: number
   }
 
   export type DeckUpdateManyMutationInput = {
@@ -7523,6 +7605,8 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
+    orderIndex?: IntFieldUpdateOperationsInput | number
   }
 
   export type DeckUncheckedUpdateManyInput = {
@@ -7533,6 +7617,8 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
+    orderIndex?: IntFieldUpdateOperationsInput | number
   }
 
   export type NoteCreateInput = {
@@ -8029,6 +8115,17 @@ export namespace Prisma {
     _max?: NestedBoolFilter<$PrismaModel>
   }
 
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
   export type UserRelationFilter = {
     is?: UserWhereInput
     isNot?: UserWhereInput
@@ -8047,6 +8144,12 @@ export namespace Prisma {
     parentId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    isFavorite?: SortOrder
+    orderIndex?: SortOrder
+  }
+
+  export type DeckAvgOrderByAggregateInput = {
+    orderIndex?: SortOrder
   }
 
   export type DeckMaxOrderByAggregateInput = {
@@ -8057,6 +8160,8 @@ export namespace Prisma {
     parentId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    isFavorite?: SortOrder
+    orderIndex?: SortOrder
   }
 
   export type DeckMinOrderByAggregateInput = {
@@ -8067,6 +8172,28 @@ export namespace Prisma {
     parentId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    isFavorite?: SortOrder
+    orderIndex?: SortOrder
+  }
+
+  export type DeckSumOrderByAggregateInput = {
+    orderIndex?: SortOrder
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
   }
   export type JsonFilter<$PrismaModel = never> = 
     | PatchUndefined<
@@ -8156,17 +8283,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedJsonFilter<$PrismaModel>
     _max?: NestedJsonFilter<$PrismaModel>
-  }
-
-  export type IntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
   }
 
   export type FloatFilter<$PrismaModel = never> = {
@@ -8279,22 +8395,6 @@ export namespace Prisma {
     reps?: SortOrder
     lapses?: SortOrder
     state?: SortOrder
-  }
-
-  export type IntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type FloatWithAggregatesFilter<$PrismaModel = never> = {
@@ -8622,6 +8722,14 @@ export namespace Prisma {
     connect?: CardWhereUniqueInput | CardWhereUniqueInput[]
   }
 
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type UserUpdateOneRequiredWithoutDecksNestedInput = {
     create?: XOR<UserCreateWithoutDecksInput, UserUncheckedCreateWithoutDecksInput>
     connectOrCreate?: UserCreateOrConnectWithoutDecksInput
@@ -8833,14 +8941,6 @@ export namespace Prisma {
     connectOrCreate?: ReviewLogCreateOrConnectWithoutCardInput | ReviewLogCreateOrConnectWithoutCardInput[]
     createMany?: ReviewLogCreateManyCardInputEnvelope
     connect?: ReviewLogWhereUniqueInput | ReviewLogWhereUniqueInput[]
-  }
-
-  export type IntFieldUpdateOperationsInput = {
-    set?: number
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
   export type FloatFieldUpdateOperationsInput = {
@@ -9056,6 +9156,33 @@ export namespace Prisma {
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
   }
+
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
   export type NestedJsonFilter<$PrismaModel = never> = 
     | PatchUndefined<
         Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
@@ -9079,17 +9206,6 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type NestedFloatFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatFilter<$PrismaModel> | number
-  }
-
   export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -9099,22 +9215,6 @@ export namespace Prisma {
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
-  }
-
-  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
@@ -9153,6 +9253,8 @@ export namespace Prisma {
     description?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    isFavorite?: boolean
+    orderIndex?: number
     parent?: DeckCreateNestedOneWithoutChildrenInput
     children?: DeckCreateNestedManyWithoutParentInput
     notes?: NoteCreateNestedManyWithoutDeckInput
@@ -9166,6 +9268,8 @@ export namespace Prisma {
     parentId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    isFavorite?: boolean
+    orderIndex?: number
     children?: DeckUncheckedCreateNestedManyWithoutParentInput
     notes?: NoteUncheckedCreateNestedManyWithoutDeckInput
     cards?: CardUncheckedCreateNestedManyWithoutDeckInput
@@ -9324,6 +9428,8 @@ export namespace Prisma {
     parentId?: StringNullableFilter<"Deck"> | string | null
     createdAt?: DateTimeFilter<"Deck"> | Date | string
     updatedAt?: DateTimeFilter<"Deck"> | Date | string
+    isFavorite?: BoolFilter<"Deck"> | boolean
+    orderIndex?: IntFilter<"Deck"> | number
   }
 
   export type NoteUpsertWithWhereUniqueWithoutUserInput = {
@@ -9468,6 +9574,8 @@ export namespace Prisma {
     description?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    isFavorite?: boolean
+    orderIndex?: number
     user: UserCreateNestedOneWithoutDecksInput
     parent?: DeckCreateNestedOneWithoutChildrenInput
     notes?: NoteCreateNestedManyWithoutDeckInput
@@ -9482,6 +9590,8 @@ export namespace Prisma {
     parentId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    isFavorite?: boolean
+    orderIndex?: number
     notes?: NoteUncheckedCreateNestedManyWithoutDeckInput
     cards?: CardUncheckedCreateNestedManyWithoutDeckInput
   }
@@ -9497,6 +9607,8 @@ export namespace Prisma {
     description?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    isFavorite?: boolean
+    orderIndex?: number
     user: UserCreateNestedOneWithoutDecksInput
     children?: DeckCreateNestedManyWithoutParentInput
     notes?: NoteCreateNestedManyWithoutDeckInput
@@ -9510,6 +9622,8 @@ export namespace Prisma {
     description?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    isFavorite?: boolean
+    orderIndex?: number
     children?: DeckUncheckedCreateNestedManyWithoutParentInput
     notes?: NoteUncheckedCreateNestedManyWithoutDeckInput
     cards?: CardUncheckedCreateNestedManyWithoutDeckInput
@@ -9667,6 +9781,8 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
+    orderIndex?: IntFieldUpdateOperationsInput | number
     user?: UserUpdateOneRequiredWithoutDecksNestedInput
     parent?: DeckUpdateOneWithoutChildrenNestedInput
     notes?: NoteUpdateManyWithoutDeckNestedInput
@@ -9681,6 +9797,8 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
+    orderIndex?: IntFieldUpdateOperationsInput | number
     notes?: NoteUncheckedUpdateManyWithoutDeckNestedInput
     cards?: CardUncheckedUpdateManyWithoutDeckNestedInput
   }
@@ -9774,6 +9892,8 @@ export namespace Prisma {
     description?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    isFavorite?: boolean
+    orderIndex?: number
     user: UserCreateNestedOneWithoutDecksInput
     parent?: DeckCreateNestedOneWithoutChildrenInput
     children?: DeckCreateNestedManyWithoutParentInput
@@ -9788,6 +9908,8 @@ export namespace Prisma {
     parentId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    isFavorite?: boolean
+    orderIndex?: number
     children?: DeckUncheckedCreateNestedManyWithoutParentInput
     cards?: CardUncheckedCreateNestedManyWithoutDeckInput
   }
@@ -9907,6 +10029,8 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
+    orderIndex?: IntFieldUpdateOperationsInput | number
     user?: UserUpdateOneRequiredWithoutDecksNestedInput
     parent?: DeckUpdateOneWithoutChildrenNestedInput
     children?: DeckUpdateManyWithoutParentNestedInput
@@ -9921,6 +10045,8 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
+    orderIndex?: IntFieldUpdateOperationsInput | number
     children?: DeckUncheckedUpdateManyWithoutParentNestedInput
     cards?: CardUncheckedUpdateManyWithoutDeckNestedInput
   }
@@ -10009,6 +10135,8 @@ export namespace Prisma {
     description?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    isFavorite?: boolean
+    orderIndex?: number
     user: UserCreateNestedOneWithoutDecksInput
     parent?: DeckCreateNestedOneWithoutChildrenInput
     children?: DeckCreateNestedManyWithoutParentInput
@@ -10023,6 +10151,8 @@ export namespace Prisma {
     parentId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    isFavorite?: boolean
+    orderIndex?: number
     children?: DeckUncheckedCreateNestedManyWithoutParentInput
     notes?: NoteUncheckedCreateNestedManyWithoutDeckInput
   }
@@ -10155,6 +10285,8 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
+    orderIndex?: IntFieldUpdateOperationsInput | number
     user?: UserUpdateOneRequiredWithoutDecksNestedInput
     parent?: DeckUpdateOneWithoutChildrenNestedInput
     children?: DeckUpdateManyWithoutParentNestedInput
@@ -10169,6 +10301,8 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
+    orderIndex?: IntFieldUpdateOperationsInput | number
     children?: DeckUncheckedUpdateManyWithoutParentNestedInput
     notes?: NoteUncheckedUpdateManyWithoutDeckNestedInput
   }
@@ -10372,6 +10506,8 @@ export namespace Prisma {
     parentId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    isFavorite?: boolean
+    orderIndex?: number
   }
 
   export type NoteCreateManyUserInput = {
@@ -10421,6 +10557,8 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
+    orderIndex?: IntFieldUpdateOperationsInput | number
     parent?: DeckUpdateOneWithoutChildrenNestedInput
     children?: DeckUpdateManyWithoutParentNestedInput
     notes?: NoteUpdateManyWithoutDeckNestedInput
@@ -10434,6 +10572,8 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
+    orderIndex?: IntFieldUpdateOperationsInput | number
     children?: DeckUncheckedUpdateManyWithoutParentNestedInput
     notes?: NoteUncheckedUpdateManyWithoutDeckNestedInput
     cards?: CardUncheckedUpdateManyWithoutDeckNestedInput
@@ -10446,6 +10586,8 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
+    orderIndex?: IntFieldUpdateOperationsInput | number
   }
 
   export type NoteUpdateWithoutUserInput = {
@@ -10582,6 +10724,8 @@ export namespace Prisma {
     description?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    isFavorite?: boolean
+    orderIndex?: number
   }
 
   export type NoteCreateManyDeckInput = {
@@ -10620,6 +10764,8 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
+    orderIndex?: IntFieldUpdateOperationsInput | number
     user?: UserUpdateOneRequiredWithoutDecksNestedInput
     children?: DeckUpdateManyWithoutParentNestedInput
     notes?: NoteUpdateManyWithoutDeckNestedInput
@@ -10633,6 +10779,8 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
+    orderIndex?: IntFieldUpdateOperationsInput | number
     children?: DeckUncheckedUpdateManyWithoutParentNestedInput
     notes?: NoteUncheckedUpdateManyWithoutDeckNestedInput
     cards?: CardUncheckedUpdateManyWithoutDeckNestedInput
@@ -10645,6 +10793,8 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
+    orderIndex?: IntFieldUpdateOperationsInput | number
   }
 
   export type NoteUpdateWithoutDeckInput = {

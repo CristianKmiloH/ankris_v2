@@ -1,6 +1,6 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { useTranslation } from '../../i18n/useTranslation';
-import { getDecks, createDeck, deleteDeck, importDeck, type Deck } from '../../services/deckService';
+import { getDecks, createDeck, deleteDeck, importDeck, updateDeck, toggleFavorite, reorderDeck, type Deck } from '../../services/deckService';
 import GeneratorModal from '../ai/GeneratorModal';
 import Layout from '../layout/Layout';
 import { useNavigate } from 'react-router-dom';
@@ -108,6 +108,53 @@ const DeckList: React.FC = () => {
         }
     };
 
+    const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+
+    const handleToggleFavorite = async (e: React.MouseEvent, deck: Deck) => {
+        e.stopPropagation();
+        try {
+            // Optimistic update
+            const newStatus = !deck.isFavorite;
+            setDecks(prev => prev.map(d => d.id === deck.id ? { ...d, isFavorite: newStatus } : d));
+
+            await toggleFavorite(deck.id, newStatus);
+        } catch (error) {
+            console.error("Failed to toggle favorite", error);
+            // Revert on failure
+            loadDecks();
+        }
+    };
+
+    const handleReorder = async (e: React.MouseEvent, deck: Deck, direction: 'up' | 'down') => {
+        e.stopPropagation();
+
+        // Optimistic local reorder (fake)
+        // Find current index
+        const index = decks.findIndex(d => d.id === deck.id);
+        if (index === -1) return;
+
+        const targetIndex = direction === 'up' ? index - 1 : index + 1;
+        if (targetIndex < 0 || targetIndex >= decks.length) return;
+
+        const newDecks = [...decks];
+        // Swap
+        [newDecks[index], newDecks[targetIndex]] = [newDecks[targetIndex], newDecks[index]];
+        // Update order indices locally to match fake position
+        newDecks[index].orderIndex = index;
+        newDecks[targetIndex].orderIndex = targetIndex;
+
+        setDecks(newDecks);
+
+        try {
+            await reorderDeck(deck.id, direction);
+            // Ideally reload, but to keep UI smooth we might skip reload if successful
+            // loadDecks(); 
+        } catch (error) {
+            console.error("Failed to reorder", error);
+            loadDecks(); // Revert
+        }
+    };
+
     // --- Edit Functionality ---
     const [showEditModal, setShowEditModal] = useState(false);
     const [deckToEdit, setDeckToEdit] = useState<Deck | null>(null);
@@ -126,9 +173,7 @@ const DeckList: React.FC = () => {
         if (!deckToEdit || !editName.trim()) return;
 
         try {
-            // Check if updateDeck works (requires importing updateDeck from service, verify imports first)
-            // Assuming updateDeck is exported from service as per plan
-            await import('../../services/deckService').then(mod => mod.updateDeck(deckToEdit.id, editName));
+            await updateDeck(deckToEdit.id, editName);
             loadDecks();
             setShowEditModal(false);
             setDeckToEdit(null);
@@ -258,6 +303,21 @@ const DeckList: React.FC = () => {
                     {/* Tray (Static Base) */}
                     <path className="icon-tray" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1" />
                 </svg>
+            </button>
+            <button
+                onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+                className="btn-icon-round"
+                title={showFavoritesOnly ? "Show All Decks" : "Show Favorites Only"}
+                style={{
+                    background: showFavoritesOnly ? 'rgba(255, 215, 0, 0.2)' : 'rgba(255,255,255,0.05)',
+                    border: showFavoritesOnly ? '1px solid gold' : '1px solid rgba(255,255,255,0.1)',
+                    color: showFavoritesOnly ? 'gold' : '#fff',
+                    transition: 'all 0.2s',
+                    width: '40px', height: '40px',
+                    marginRight: '8px'
+                }}
+            >
+                {showFavoritesOnly ? '★' : '☆'}
             </button>
             <button
                 onClick={() => setIsSearchOpen(true)}
@@ -558,115 +618,155 @@ const DeckList: React.FC = () => {
                     )}
 
                     <div style={styles.deckGrid}>
-                        {(activeFilterId ? decks.filter(d => d.id === activeFilterId) : decks).map((deck) => (
-                            <div key={deck.id} style={styles.deckCard} className="card-large">
-                                <div style={styles.deckHeader}>
-                                    <div>
-                                        <h2 style={styles.deckTitle}>{deck.name}</h2>
-                                        <p style={styles.deckCount}>
-                                            {deck._count?.cards || 0} {deck._count?.cards === 1 ? t('cardCount') : t('cardsCount')}
-                                        </p>
+                        {decks
+                            .filter(d => activeFilterId ? d.id === activeFilterId : true)
+                            .filter(d => showFavoritesOnly ? d.isFavorite : true)
+                            .map((deck) => (
+                                <div key={deck.id} style={styles.deckCard} className="card-large">
+                                    <div style={styles.deckHeader}>
+                                        <div style={{ flex: 1 }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                                                <h2 style={styles.deckTitle}>{deck.name}</h2>
+                                                {deck.isFavorite && <span style={{ fontSize: '1.2rem' }}>⭐</span>}
+                                            </div>
+                                            <p style={styles.deckCount}>
+                                                {deck._count?.cards || 0} {deck._count?.cards === 1 ? t('cardCount') : t('cardsCount')}
+                                            </p>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                            {/* Reorder Buttons */}
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginRight: '4px' }}>
+                                                <button
+                                                    onClick={(e) => handleReorder(e, deck, 'up')}
+                                                    style={{ border: 'none', background: 'transparent', cursor: 'pointer', opacity: 0.6, fontSize: '10px', padding: '2px' }}
+                                                    title="Move Up"
+                                                >
+                                                    ▲
+                                                </button>
+                                                <button
+                                                    onClick={(e) => handleReorder(e, deck, 'down')}
+                                                    style={{ border: 'none', background: 'transparent', cursor: 'pointer', opacity: 0.6, fontSize: '10px', padding: '2px' }}
+                                                    title="Move Down"
+                                                >
+                                                    ▼
+                                                </button>
+                                            </div>
+
+                                            {/* Favorite Button */}
+                                            <button
+                                                onClick={(e) => handleToggleFavorite(e, deck)}
+                                                className="btn-icon-round"
+                                                style={{
+                                                    width: '32px', height: '32px',
+                                                    background: deck.isFavorite ? 'rgba(255, 215, 0, 0.2)' : 'rgba(255,255,255,0.05)',
+                                                    border: deck.isFavorite ? '1px solid gold' : 'none',
+                                                    color: deck.isFavorite ? 'gold' : '#666',
+                                                    cursor: 'pointer'
+                                                }}
+                                                title={deck.isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+                                            >
+                                                {deck.isFavorite ? '★' : '☆'}
+                                            </button>
+
+                                            <button
+                                                onClick={(e) => openEditModal(deck, e)}
+                                                className="anim-edit-blue btn-icon-round"
+                                                title={t('editDeck') || 'Editar'}
+                                                style={{
+                                                    ...styles.editButton,
+                                                    borderColor: 'var(--accent-cyan)', // Ensure strict match
+                                                    color: 'var(--accent-cyan)',
+                                                    backgroundColor: 'rgba(0, 217, 255, 0.05)', // base subtle state
+                                                    zIndex: 100,
+                                                    position: 'relative',
+                                                    pointerEvents: 'auto',
+                                                }}
+                                            >
+                                                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20" style={{ overflow: 'visible' }}>
+                                                    {/* Pencil Icon */}
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                </svg>
+                                            </button>
+                                            <button
+                                                onClick={(e) => openDeleteModal(deck.id, e)}
+                                                className="anim-trash btn-icon-round"
+                                                title={t('deleteDeck')}
+                                                style={{
+                                                    ...styles.deleteButton,
+                                                    zIndex: 100, // Boosted Z-Index
+                                                    position: 'relative',
+                                                    pointerEvents: 'auto', // Force clickable
+                                                }}
+                                            >
+                                                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20" className="trash-icon" style={{ overflow: 'visible', pointerEvents: 'none' }}>
+                                                    <defs>
+                                                        <radialGradient id="trashLight" cx="0.5" cy="0.5" r="0.5" fx="0.5" fy="0.5">
+                                                            <stop offset="0%" stopColor="#FFF" stopOpacity="0.9" /> {/* Hot Core */}
+                                                            <stop offset="40%" stopColor="var(--accent-red)" stopOpacity="0.8" /> {/* Main Glow */}
+                                                            <stop offset="100%" stopColor="var(--accent-red)" stopOpacity="0" /> {/* Fade out */}
+                                                        </radialGradient>
+                                                    </defs>
+
+                                                    {/* Neon Glow (Bottom Layer - "Bulb" inside) */}
+                                                    <ellipse className="trash-glow" cx="12" cy="10" rx="4" ry="2" fill="url(#trashLight)" opacity="0" />
+
+                                                    {/* Can (Middle Layer - Solid) */}
+                                                    <path className="trash-can" fill="var(--bg-card)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7M10 11v6M14 11v6" />
+
+                                                    {/* Lid (Top Layer - Solid) */}
+                                                    <path className="trash-lid" fill="var(--bg-card)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7h16M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" />
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div style={{ display: 'flex', gap: '8px' }}>
+
+                                    <div style={styles.deckActions}>
                                         <button
-                                            onClick={(e) => openEditModal(deck, e)}
-                                            className="anim-edit-blue btn-icon-round"
-                                            title={t('editDeck') || 'Editar'}
+                                            onClick={() => navigate(`/decks/${deck.id}/study`)}
+                                            className="btn-easy"
+                                            onMouseEnter={() => setHoveredDeckId(deck.id)}
+                                            onMouseLeave={() => setHoveredDeckId(null)}
                                             style={{
-                                                ...styles.editButton,
-                                                borderColor: 'var(--accent-cyan)', // Ensure strict match
-                                                color: 'var(--accent-cyan)',
-                                                backgroundColor: 'rgba(0, 217, 255, 0.05)', // base subtle state
-                                                zIndex: 100,
-                                                position: 'relative',
-                                                pointerEvents: 'auto',
+                                                ...styles.studyButton,
+                                                transition: 'all 0.3s ease',
+                                                transform: hoveredDeckId === deck.id ? 'scale(1.05)' : 'scale(1)',
+                                                boxShadow: hoveredDeckId === deck.id
+                                                    ? '0 0 20px rgba(45, 138, 62, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.2)' // Green neon glow
+                                                    : styles.studyButton.boxShadow || 'none'
                                             }}
                                         >
-                                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20" style={{ overflow: 'visible' }}>
-                                                {/* Pencil Icon */}
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                            {t('study')}
+                                        </button>
+
+                                        <button
+                                            onClick={() => { setSelectedDeckId(deck.id); setShowAiModal(true); }}
+                                            style={styles.magicButton}
+                                            className="magic-button" // Hook for CSS animation
+                                            title={t('generateWithAI')}
+                                        >
+                                            <svg className="magic-icon" fill="currentColor" viewBox="0 0 24 24" width="24" height="24">
+                                                {/* Star 1 (Big) */}
+                                                <path className="star-1" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" />
+                                                {/* Star 2 (Medium - Top Right) */}
+                                                <path className="star-2" d="M18 2L19 6L23 7L19 8L18 12L17 8L13 7L17 6L18 2Z" />
+                                                {/* Star 3 (Small - Bottom Left) */}
+                                                <path className="star-3" d="M6 16L7 19L10 20L7 21L6 24L5 21L2 20L5 19L6 16Z" />
                                             </svg>
                                         </button>
+
                                         <button
-                                            onClick={(e) => openDeleteModal(deck.id, e)}
-                                            className="anim-trash btn-icon-round"
-                                            title={t('deleteDeck')}
-                                            style={{
-                                                ...styles.deleteButton,
-                                                zIndex: 100, // Boosted Z-Index
-                                                position: 'relative',
-                                                pointerEvents: 'auto', // Force clickable
-                                            }}
+                                            onClick={() => navigate(`/decks/${deck.id}/add`)}
+                                            className="btn-glass"
+                                            style={styles.addButton}
+                                            title={t('addCards')}
                                         >
-                                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20" className="trash-icon" style={{ overflow: 'visible', pointerEvents: 'none' }}>
-                                                <defs>
-                                                    <radialGradient id="trashLight" cx="0.5" cy="0.5" r="0.5" fx="0.5" fy="0.5">
-                                                        <stop offset="0%" stopColor="#FFF" stopOpacity="0.9" /> {/* Hot Core */}
-                                                        <stop offset="40%" stopColor="var(--accent-red)" stopOpacity="0.8" /> {/* Main Glow */}
-                                                        <stop offset="100%" stopColor="var(--accent-red)" stopOpacity="0" /> {/* Fade out */}
-                                                    </radialGradient>
-                                                </defs>
-
-                                                {/* Neon Glow (Bottom Layer - "Bulb" inside) */}
-                                                <ellipse className="trash-glow" cx="12" cy="10" rx="4" ry="2" fill="url(#trashLight)" opacity="0" />
-
-                                                {/* Can (Middle Layer - Solid) */}
-                                                <path className="trash-can" fill="var(--bg-card)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7M10 11v6M14 11v6" />
-
-                                                {/* Lid (Top Layer - Solid) */}
-                                                <path className="trash-lid" fill="var(--bg-card)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7h16M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" />
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ color: 'var(--text-primary)' }}>
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                                             </svg>
                                         </button>
                                     </div>
                                 </div>
-
-                                <div style={styles.deckActions}>
-                                    <button
-                                        onClick={() => navigate(`/decks/${deck.id}/study`)}
-                                        className="btn-easy"
-                                        onMouseEnter={() => setHoveredDeckId(deck.id)}
-                                        onMouseLeave={() => setHoveredDeckId(null)}
-                                        style={{
-                                            ...styles.studyButton,
-                                            transition: 'all 0.3s ease',
-                                            transform: hoveredDeckId === deck.id ? 'scale(1.05)' : 'scale(1)',
-                                            boxShadow: hoveredDeckId === deck.id
-                                                ? '0 0 20px rgba(45, 138, 62, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.2)' // Green neon glow
-                                                : styles.studyButton.boxShadow || 'none'
-                                        }}
-                                    >
-                                        {t('study')}
-                                    </button>
-
-                                    <button
-                                        onClick={() => { setSelectedDeckId(deck.id); setShowAiModal(true); }}
-                                        style={styles.magicButton}
-                                        className="magic-button" // Hook for CSS animation
-                                        title={t('generateWithAI')}
-                                    >
-                                        <svg className="magic-icon" fill="currentColor" viewBox="0 0 24 24" width="24" height="24">
-                                            {/* Star 1 (Big) */}
-                                            <path className="star-1" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" />
-                                            {/* Star 2 (Medium - Top Right) */}
-                                            <path className="star-2" d="M18 2L19 6L23 7L19 8L18 12L17 8L13 7L17 6L18 2Z" />
-                                            {/* Star 3 (Small - Bottom Left) */}
-                                            <path className="star-3" d="M6 16L7 19L10 20L7 21L6 24L5 21L2 20L5 19L6 16Z" />
-                                        </svg>
-                                    </button>
-
-                                    <button
-                                        onClick={() => navigate(`/decks/${deck.id}/add`)}
-                                        className="btn-glass"
-                                        style={styles.addButton}
-                                        title={t('addCards')}
-                                    >
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ color: 'var(--text-primary)' }}>
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
+                            ))}
 
                         {fetchError && !isLoading && (
                             <div style={{

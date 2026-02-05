@@ -23,7 +23,10 @@ export const getDecks = async (userId: string) => {
                 select: { cards: true }
             }
         },
-        orderBy: { createdAt: 'desc' }
+        orderBy: [
+            { orderIndex: 'asc' },
+            { createdAt: 'desc' }
+        ]
     });
     return decks;
 };
@@ -83,4 +86,56 @@ export const updateDeck = async (userId: string, deckId: string, name: string, d
             updatedAt: new Date()
         }
     });
+};
+
+export const toggleFavorite = async (userId: string, deckId: string, isFavorite: boolean) => {
+    return await prisma.deck.update({
+        where: { id: deckId },
+        data: { isFavorite }
+    });
+};
+
+export const reorderDeck = async (userId: string, deckId: string, direction: 'up' | 'down') => {
+    // 1. Get all decks for user, ordered by orderIndex ASC, then createdAt DESC (stable sort)
+    const decks = await prisma.deck.findMany({
+        where: { userId },
+        orderBy: [
+            { orderIndex: 'asc' },
+            { createdAt: 'desc' }
+        ]
+    });
+
+    const currentIndex = decks.findIndex(d => d.id === deckId);
+    if (currentIndex === -1) return null;
+
+    // 2. Determine target index
+    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+
+    // Boundary checks
+    if (targetIndex < 0 || targetIndex >= decks.length) return decks; // No change needed
+
+    // 3. Swap logic with Normalization
+    // We re-assign orderIndex for ALL decks to ensure they are clean integers 0..N
+    // Then we just swap the indices of current and target in the array
+
+    // Swap in array
+    const temp = decks[currentIndex];
+    decks[currentIndex] = decks[targetIndex];
+    decks[targetIndex] = temp;
+
+    // 4. Update all relevant decks in DB (using valid transaction would be best, but Promise.all is okay for now)
+    // Optimization: only update the two swapped decks IF the list was already normalized.
+    // However, fast normalization is safer. Let's precise-update for performance if possible, 
+    // but to fix "all 0" legacy data, strictly setting based on new array position is robust.
+
+    const updatePromises = decks.map((deck, index) =>
+        prisma.deck.update({
+            where: { id: deck.id },
+            data: { orderIndex: index }
+        })
+    );
+
+    await Promise.all(updatePromises);
+
+    return decks;
 };
