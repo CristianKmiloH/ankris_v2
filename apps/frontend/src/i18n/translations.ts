@@ -56,6 +56,8 @@ export const translations = {
         createFlashcards: 'Create New Flashcards',
         front: 'Front (Question)',
         back: 'Back (Answer)',
+        text: 'Text', // New key
+        extra: 'Extra', // New key
         saved: 'Saved',
         save: 'Save',
         cancel: 'Cancel',
@@ -198,6 +200,8 @@ export const translations = {
         createFlashcards: 'Crear Nuevas Tarjetas',
         front: 'Frente (Pregunta)',
         back: 'Reverso (Respuesta)',
+        text: 'Texto', // New key
+        extra: 'Extra', // New key
         saved: 'Guardado',
         save: 'Guardar',
         cancel: 'Cancelar',

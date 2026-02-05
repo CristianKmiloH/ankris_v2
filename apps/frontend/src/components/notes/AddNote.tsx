@@ -287,6 +287,29 @@ const AddNote: React.FC = () => {
                                     <div style={styles.mediaPreview}>
                                         {mediaItems.map((item, i) => (
                                             <div key={i} style={styles.mediaItem}>
+                                                {/* Toggle Badge */}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => toggleMediaTarget(i)}
+                                                    style={{
+                                                        position: 'absolute',
+                                                        top: '8px',
+                                                        left: '8px',
+                                                        zIndex: 5,
+                                                        background: item.target === 'front' ? 'var(--accent-cyan)' : 'var(--accent-purple)',
+                                                        color: '#000',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        padding: '4px 8px',
+                                                        fontSize: '0.75rem',
+                                                        fontWeight: 'bold',
+                                                        cursor: 'pointer',
+                                                        boxShadow: '0 2px 5px rgba(0,0,0,0.3)'
+                                                    }}
+                                                >
+                                                    {item.target === 'front' ? 'FRONT' : 'BACK'}
+                                                </button>
+
                                                 {item.type === 'image' && <img src={item.preview} alt="preview" style={styles.previewImg} />}
                                                 {item.type === 'audio' && <audio src={item.preview} controls style={styles.previewAudio} />}
                                                 {item.type === 'video' && <video src={item.preview} controls style={styles.previewVideo} />}
