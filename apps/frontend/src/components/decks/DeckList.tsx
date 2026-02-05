@@ -981,7 +981,7 @@ const styles: { [key: string]: React.CSSProperties } = {
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', // Use auto-fit to expand single cards
         gap: '12px', // Comfortable gap
-        paddingBottom: '20px',
+        paddingBottom: '120px',
         width: '100%',
     },
     deckCard: {
