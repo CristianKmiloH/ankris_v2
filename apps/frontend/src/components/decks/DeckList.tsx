@@ -44,16 +44,21 @@ const DeckList: React.FC = () => {
     const navigate = useNavigate();
     const { t } = useTranslation();
 
+    const [fetchError, setFetchError] = useState<string | null>(null);
+
     useEffect(() => {
         loadDecks();
     }, []);
 
     const loadDecks = async () => {
         try {
+            setFetchError(null);
+            setIsLoading(true);
             const data = await getDecks();
             setDecks(data);
         } catch (err) {
             console.error(err);
+            setFetchError('Failed to load decks. Please check your connection.');
         } finally {
             setIsLoading(false);
         }
@@ -663,7 +668,25 @@ const DeckList: React.FC = () => {
                             </div>
                         ))}
 
-                        {decks.length === 0 && (
+                        {fetchError && !isLoading && (
+                            <div style={{
+                                gridColumn: '1 / -1',
+                                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                                padding: '40px', gap: '16px', color: '#ff4d4d', opacity: 0.8
+                            }}>
+                                <span style={{ fontSize: '2rem' }}>⚠️</span>
+                                <p style={{ fontSize: '1.1rem', margin: 0 }}>{t('connectionError') || 'Connection Error'}</p>
+                                <button
+                                    onClick={loadDecks}
+                                    className="btn-primary"
+                                    style={{ padding: '8px 24px', borderRadius: '20px', background: 'rgba(255,255,255,0.1)' }}
+                                >
+                                    {t('retry') || 'Retry'}
+                                </button>
+                            </div>
+                        )}
+
+                        {!fetchError && decks.length === 0 && !isLoading && (
                             <div style={styles.emptyState}>
                                 <p style={styles.emptyText}>{t('noDecksYet')}</p>
                             </div>

@@ -21,11 +21,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setToken(savedToken);
         }
 
-        // Simulating a brief branding delay (800ms) or just async check
-        // Realistically this just marks initialization complete
-        setTimeout(() => {
-            setLoading(false);
-        }, 1500);
+        setLoading(false);
     }, []);
 
     const login = (newToken: string) => {
