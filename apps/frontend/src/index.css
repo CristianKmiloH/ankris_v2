@@ -2573,14 +2573,16 @@ button:active .icon-glow-green {
   opacity: 1;
 }
 
-/* Audio Button Animation & Styles - Refined */
+/* Audio Button Animation & Styles - Final Polish */
 .anim-audio-btn {
   width: 40px !important;
   height: 40px !important;
   min-width: 40px !important;
   border-radius: 50% !important;
-  border: 1px solid var(--accent-cyan);
-  background: rgba(0, 255, 255, 0.1);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  /* Dim border by default */
+  background: rgba(0, 255, 255, 0.05);
+  /* Very subtle bg */
   color: var(--accent-cyan);
   display: flex;
   align-items: center;
@@ -2588,36 +2590,41 @@ button:active .icon-glow-green {
   cursor: pointer;
   padding: 0 !important;
   margin: 0 auto;
-  /* Auto margin can help centering if display block, but flex parent handles it */
-  box-shadow: 0 2px 8px rgba(0, 255, 255, 0.15);
-  transition: background 0.2s;
+  box-shadow: none;
+  /* NO shadow by default */
+  transition: all 0.2s ease;
 }
 
 .anim-audio-btn:hover {
-  background: rgba(0, 255, 255, 0.25);
-}
-
-/* Remove the 'glow' effect from the container, enable ONLY wave animation */
-.anim-audio-btn.playing {
-  background: rgba(0, 255, 255, 0.25);
-  box-shadow: none !important;
-  /* Force remove any glowing shadow */
+  background: rgba(0, 255, 255, 0.15);
   border-color: var(--accent-cyan);
-  /* Maintain original border */
 }
 
-/* Wave Animation - Only active when .playing */
+/* Active Playing State: Glows and Brighter */
+.anim-audio-btn.playing {
+  background: rgba(0, 255, 255, 0.2);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 15px var(--accent-cyan);
+  /* Glow ONLY when playing */
+  color: #fff;
+}
+
+/* Wave Animation - Default State (Inactive) */
 .wave-1,
 .wave-2 {
   transform-origin: center;
-  opacity: 0;
-  /* Hidden by default or static? User said 'effect like volume up'. Usually implies appearing/disappearing */
-  /* Let's keep them visible but static? Or invisible? Standard speaker icon usually has waves. */
-  /* If they are static in the SVG, opacity should be 1. */
-  opacity: 1;
+  opacity: 0.3;
+  /* Dimmed when idle */
+  transition: opacity 0.2s;
 }
 
-/* When playing, they animate opacity/scale */
+/* Playing State (Active) */
+.playing .wave-1,
+.playing .wave-2 {
+  opacity: 1;
+  /* Bright when playing */
+}
+
 .playing .wave-1 {
   animation: wave-pulse 0.6s infinite alternate;
 }
@@ -2628,12 +2635,10 @@ button:active .icon-glow-green {
 
 @keyframes wave-pulse {
   from {
-    opacity: 0.3;
-    transform: scale(0.9);
+    transform: scale(0.85);
   }
 
   to {
-    opacity: 1;
-    transform: scale(1.1);
+    transform: scale(1.15);
   }
 }
