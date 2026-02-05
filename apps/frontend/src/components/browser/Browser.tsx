@@ -294,7 +294,7 @@ const Browser: React.FC = () => {
                         <span style={styles.hint}>💡 {t('clickToFlip')}</span>
                     </div>
 
-                    <div style={{ flex: 1, overflowY: 'auto', paddingRight: '4px', scrollbarWidth: 'thin' }}>
+                    <div style={{ flex: 1, overflowY: 'auto', paddingRight: '4px', paddingBottom: '120px', scrollbarWidth: 'thin' }}>
                         {selectedDeck === null ? (
                             <div style={styles.noSelectionState}>
                                 <span style={{ fontSize: '3rem' }}>👆</span>
