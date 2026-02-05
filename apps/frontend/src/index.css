@@ -2606,15 +2606,16 @@ button:active .icon-glow-green {
   border-color: var(--accent-cyan);
   box-shadow: 0 0 15px var(--accent-cyan);
   /* Glow ONLY when playing */
-  color: #fff;
+  color: var(--accent-cyan);
+  /* Keep Neon Cyan color, do NOT turn white */
 }
 
 /* Wave Animation - Default State (Inactive) */
 .wave-1,
 .wave-2 {
   transform-origin: center;
-  opacity: 0.3;
-  /* Dimmed when idle */
+  opacity: 0;
+  /* Completely hidden when idle to avoid confusion */
   transition: opacity 0.2s;
 }
 
