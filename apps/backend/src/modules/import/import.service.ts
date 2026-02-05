@@ -164,42 +164,44 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
         if (fs.existsSync(mediaJsonPath)) {
             try {
                 const mediaMap = JSON.parse(fs.readFileSync(mediaJsonPath, 'utf-8'));
-                // Use process.cwd() to target the project root 'public' folder reliably
-                const mediaDestDir = path.join(process.cwd(), 'public', 'media');
+                const { StorageService } = require('../../services/storage.service');
+                const storageService = StorageService.getInstance();
 
-                // Ensure media dir exists
-                if (!fs.existsSync(mediaDestDir)) {
-                    fs.mkdirSync(mediaDestDir, { recursive: true });
-                }
-
-                console.log(`[Import] Processing media files...`);
+                console.log(`[Import] Processing media files to Supabase...`);
                 let mediaCount = 0;
 
                 // Convert to array for batch processing
                 const mediaEntries = Object.entries(mediaMap);
-                const BATCH_SIZE = 50;
+                const BATCH_SIZE = 10; // Reduced batch size for network uploads
 
                 for (let i = 0; i < mediaEntries.length; i += BATCH_SIZE) {
                     const batch = mediaEntries.slice(i, i + BATCH_SIZE);
                     await Promise.all(batch.map(async ([numericName, originalName]) => {
                         const srcPath = path.join(workingDir, numericName);
-                        // Async check and copy
+                        // Async check and upload
                         try {
                             // Use promises to check access instead of existsSync
                             await fs.promises.access(srcPath);
-                            const destPath = path.join(mediaDestDir, originalName as string);
-                            await fs.promises.copyFile(srcPath, destPath);
+
+                            // Upload to Supabase
+                            // contentType logic: naive inference or let Supabase/StorageService handle defaults
+                            // We pass the file path and the desired filename (originalName)
+                            await storageService.uploadFile(srcPath, originalName as string);
                             mediaCount++;
                         } catch (err) {
-                            // Ignore missing files to allow import to continue
+                            console.warn(`[Import] Failed to upload media ${originalName}:`, err);
+                            // Ignore missing files or upload errors to allow import to continue
                         }
                     }));
+
+                    // Optional: Add small delay to avoid rate limits if necessary
+                    // await new Promise(r => setTimeout(r, 100));
                 }
 
                 console.log(`[Import] Processed ${mediaCount} media files.`);
             } catch (mediaErr) {
                 console.error('[Import] Error processing media:', mediaErr);
-                // Don't fail the hole import, just log it
+                // Don't fail the whole import, just log it
             }
         }
 

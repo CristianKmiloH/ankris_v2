@@ -10,5 +10,7 @@ export const config = {
     port: process.env.PORT || 3000,
     databaseUrl: process.env.DATABASE_URL,
     jwtSecret: process.env.JWT_SECRET || 'super-secret-key',
-    groqKey: process.env.GROQ_API_KEY
+    groqKey: process.env.GROQ_API_KEY,
+    supabaseUrl: process.env.SUPABASE_URL,
+    supabaseKey: process.env.SUPABASE_SERVICE_ROLE_KEY
 };

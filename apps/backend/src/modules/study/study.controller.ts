@@ -11,24 +11,11 @@ router.use(authenticateToken);
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+const { StorageService } = require('../../services/storage.service');
+const storageService = StorageService.getInstance();
 
-// Ensure media directory exists
-const mediaDir = path.join(process.cwd(), 'public/media');
-if (!fs.existsSync(mediaDir)) {
-    fs.mkdirSync(mediaDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, mediaDir);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const ext = path.extname(file.originalname);
-        cb(null, `import_${uniqueSuffix}${ext}`);
-    }
-});
-
+// Use Memory Storage for Supabase Uploads
+const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 // --- NOTES ---
@@ -48,26 +35,35 @@ router.post('/notes', cpUpload, async (req: AuthRequest, res) => {
         const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
         if (files) {
+            // Helper to process uploads
+            const processFiles = async (fileList: Express.Multer.File[]) => {
+                const processedTags: string[] = [];
+                for (const file of fileList) {
+                    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+                    const ext = path.extname(file.originalname);
+                    const filename = `upload_${uniqueSuffix}${ext}`; // Consistent naming
+
+                    // Upload Buffer to Supabase
+                    await storageService.uploadBuffer(file.buffer, filename, file.mimetype);
+
+                    if (file.mimetype.startsWith('image/')) {
+                        processedTags.push(`<br><img src="${filename}">`);
+                    } else if (file.mimetype.startsWith('audio/') || file.mimetype.startsWith('video/')) {
+                        processedTags.push(` [sound:${filename}]`);
+                    }
+                }
+                return processedTags;
+            };
+
             // Append Front Media
             if (files['media_front']) {
-                files['media_front'].forEach(file => {
-                    if (file.mimetype.startsWith('image/')) {
-                        front += `<br><img src="${file.filename}">`;
-                    } else if (file.mimetype.startsWith('audio/') || file.mimetype.startsWith('video/')) {
-                        // Anki sound/video tag
-                        front += ` [sound:${file.filename}]`;
-                    }
-                });
+                const frontTags = await processFiles(files['media_front']);
+                front += frontTags.join('');
             }
             // Append Back Media
             if (files['media_back']) {
-                files['media_back'].forEach(file => {
-                    if (file.mimetype.startsWith('image/')) {
-                        back += `<br><img src="${file.filename}">`;
-                    } else if (file.mimetype.startsWith('audio/') || file.mimetype.startsWith('video/')) {
-                        back += ` [sound:${file.filename}]`;
-                    }
-                });
+                const backTags = await processFiles(files['media_back']);
+                back += backTags.join('');
             }
         }
 

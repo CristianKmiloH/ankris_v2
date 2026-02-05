@@ -16,15 +16,73 @@ router.get('/', async (req: AuthRequest, res) => {
     }
 });
 
+// --- CONFIG MULTER ---
+import multer from 'multer';
+import path from 'path';
+const { StorageService } = require('../../services/storage.service');
+const storageService = StorageService.getInstance();
+
+// Use Memory Storage for Supabase Uploads
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+const cpUpload = upload.fields([
+    { name: 'new_media_front', maxCount: 4 },
+    { name: 'new_media_back', maxCount: 4 }
+]);
+
 // PATCH /api/cards/:id -> Update card
-router.patch('/:id', async (req: AuthRequest, res) => {
+router.patch('/:id', cpUpload, async (req: AuthRequest, res) => {
     try {
         const userId = req.user!.userId;
         const cardId = req.params.id;
-        const updates = req.body;
+        let { front, back } = req.body;
+
+        // Force strings
+        front = front || '';
+        back = back || '';
+
+        // --- Process New Files ---
+        const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+        if (files) {
+            // Helper to process uploads
+            const processFiles = async (fileList: Express.Multer.File[]) => {
+                const processedTags: string[] = [];
+                for (const file of fileList) {
+                    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+                    const ext = path.extname(file.originalname);
+                    const filename = `up_edit_${uniqueSuffix}${ext}`;
+
+                    // Upload Buffer to Supabase
+                    await storageService.uploadBuffer(file.buffer, filename, file.mimetype);
+
+                    if (file.mimetype.startsWith('image/')) {
+                        processedTags.push(`<br><img src="${filename}">`);
+                    } else if (file.mimetype.startsWith('audio/') || file.mimetype.startsWith('video/')) {
+                        processedTags.push(` [sound:${filename}]`);
+                    }
+                }
+                return processedTags;
+            };
+
+            // Append Front Media
+            if (files['new_media_front']) {
+                const tags = await processFiles(files['new_media_front']);
+                front += tags.join('');
+            }
+            // Append Back Media
+            if (files['new_media_back']) {
+                const tags = await processFiles(files['new_media_back']);
+                back += tags.join('');
+            }
+        }
+
+        const updates = { front, back };
         const updatedCard = await CardService.updateCard(userId, cardId, updates);
         res.json(updatedCard);
     } catch (error: any) {
+        console.error("Update card error:", error);
         res.status(500).json({ error: error.message });
     }
 });

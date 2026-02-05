@@ -7,29 +7,9 @@ import { useTranslation } from '../../i18n/useTranslation';
 import { MEDIA_BASE_URL } from '../../config';
 import AudioButton from '../common/AudioButton';
 
-const ContentEditable = ({ html, onChange, style }: any) => {
-    const contentEditableRef = React.useRef<HTMLDivElement>(null);
+import EditCardModal from './EditCardModal';
 
-    React.useEffect(() => {
-        if (contentEditableRef.current && contentEditableRef.current.innerHTML !== html) {
-            // Only update if content is different to avoid cursor jumps
-            if (document.activeElement !== contentEditableRef.current) {
-                contentEditableRef.current.innerHTML = html;
-            }
-        }
-    }, [html]);
-
-    return (
-        <div
-            ref={contentEditableRef}
-            style={{ ...style, overflowY: 'auto' }}
-            contentEditable
-            onInput={(e) => onChange(e.currentTarget.innerHTML)}
-            onBlur={(e) => onChange(e.currentTarget.innerHTML)}
-            suppressContentEditableWarning={true}
-        />
-    );
-};
+// ... (ContentEditable logic can be removed if unused, or kept if used elsewhere, but we are replacing the edit modal anyway)
 
 const Browser: React.FC = () => {
     const [cards, setCards] = useState<Card[]>([]);
@@ -46,13 +26,10 @@ const Browser: React.FC = () => {
             sessionStorage.removeItem('browser_selected_deck');
         }
     }, [selectedDeck]);
+
     const [flippedCardId, setFlippedCardId] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const { t } = useTranslation();
-
-    const [editingCard, setEditingCard] = useState<Card | null>(null);
-    const [editFront, setEditFront] = useState('');
-    const [editBack, setEditBack] = useState('');
     const [deletingCard, setDeletingCard] = useState<Card | null>(null);
 
     useEffect(() => {
@@ -65,7 +42,6 @@ const Browser: React.FC = () => {
                 getAllCards(),
                 getDecks()
             ]);
-
             setCards(cardsData);
             setDecks(decksData);
         } catch (err) {
@@ -75,19 +51,36 @@ const Browser: React.FC = () => {
         }
     };
 
+    const [editingCard, setEditingCard] = useState<Card | null>(null);
+    // editFront/Back were used by inline modal, EditCardModal uses internal state initialized from card prop.
+
+    // ...
+
     const handleEditClick = (card: Card, e: React.MouseEvent) => {
         e.stopPropagation();
         setEditingCard(card);
-        setEditFront(card.front);
-        setEditBack(card.back);
     };
 
-    const handleSaveEdit = async () => {
-        if (!editingCard) return;
+    const handleSaveEdit = async (id: string, front: string, back: string, newFiles?: { front?: File[], back?: File[] }) => {
         try {
-            await updateCard(editingCard.id, editFront, editBack);
-            // Optimistic update
-            setCards(prev => prev.map(c => c.id === editingCard.id ? { ...c, front: editFront, back: editBack } : c));
+            // Update via Service
+            await updateCard(id, front, back, newFiles);
+
+            // Optimistic update - Note: New media files won't show immediately as URL/blob until refresh unless we reconstruct logic complexity
+            // But 'front'/'back' strings returned by service might contain the new tags if we returned the UPDATED card from backend.
+            // Backend DOES return updated card.
+
+            // Re-fetch or strict optimistic update?
+            // Ideally we use the response from updateCard if it returns the full object.
+
+            // Let's refetch all cards to be safe and simple, OR manually update text.
+            // Text is safe to update. Media URLs might need server response.
+            // Since we use the service which calls API, let's assume valid response.
+
+            // Wait, cardService.updateCard retuns Promise<Card>. Use it!
+            const updatedCard = await updateCard(id, front, back, newFiles);
+
+            setCards(prev => prev.map(c => c.id === id ? updatedCard : c));
             setEditingCard(null);
         } catch (error) {
             console.error("Failed to update", error);
@@ -409,37 +402,11 @@ const Browser: React.FC = () => {
 
             {/* EDIT MODAL */}
             {editingCard && (
-                <div style={styles.modalOverlay}>
-                    <div style={styles.modalContent}>
-                        <h3 style={styles.modalTitle}>{t('editCard') || 'Editar Tarjeta'}</h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%', flex: 1, overflow: 'hidden', minHeight: 0 }}>
-                            <div style={{ flex: '1 1 0', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-                                <label style={styles.label}>{t('question')}</label>
-                                <ContentEditable
-                                    html={editFront}
-                                    onChange={setEditFront}
-                                    style={styles.textarea}
-                                />
-                            </div>
-                            <div style={{ flex: '1 1 0', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-                                <label style={styles.label}>{t('answer')}</label>
-                                <ContentEditable
-                                    html={editBack}
-                                    onChange={setEditBack}
-                                    style={styles.textarea}
-                                />
-                            </div>
-                        </div>
-                        <div style={styles.modalActions}>
-                            <button onClick={() => setEditingCard(null)} style={styles.cancelButton}>
-                                {t('cancel')}
-                            </button>
-                            <button onClick={handleSaveEdit} className="btn-primary" style={{ padding: '10px 24px' }}>
-                                {t('save') || 'Guardar'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <EditCardModal
+                    card={editingCard}
+                    onClose={() => setEditingCard(null)}
+                    onSave={handleSaveEdit}
+                />
             )}
 
             {/* DELETE MODAL */}
@@ -588,13 +555,9 @@ const styles: { [key: string]: React.CSSProperties } = {
         padding: '0 4px',
         display: 'flex',
         flexDirection: 'column',
+        alignItems: 'center', // Center content safely
         justifyContent: 'center', // Center content if short
         scrollbarWidth: 'thin',
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'column', // Stack vertically
-        alignItems: 'center',
-        justifyContent: 'center',
     },
     deckBadge: {
         fontSize: '0.7rem',
