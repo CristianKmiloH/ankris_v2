@@ -264,88 +264,91 @@ const styles: Record<string, React.CSSProperties> = {
         backdropFilter: 'blur(8px)',
         zIndex: 1000,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '20px'
+        padding: '16px' // Reduce padding for small screens
     },
     modal: {
         backgroundColor: '#1E1E24',
-        width: '100%', maxWidth: '500px',
-        maxHeight: '90vh',
-        borderRadius: '24px',
+        width: '100%', maxWidth: '440px', // Slightly narrower for better proportion
+        maxHeight: '85vh',
+        borderRadius: '28px', // More modern curve
         display: 'flex', flexDirection: 'column',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
+        boxShadow: '0 40px 80px -12px rgba(0, 0, 0, 0.9)',
         border: '1px solid rgba(255,255,255,0.08)',
         overflow: 'hidden'
     },
     header: {
-        padding: '20px 24px',
-        borderBottom: '1px solid rgba(255,255,255,0.05)',
+        padding: '24px 28px 16px', // Balanced padding
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        background: 'rgba(255,255,255,0.02)'
+        background: 'transparent' // Cleaner look without separator line
     },
-    title: { margin: 0, color: '#fff', fontSize: '1.25rem', fontWeight: '700', letterSpacing: '-0.025em' },
+    title: { margin: 0, color: '#fff', fontSize: '1.4rem', fontWeight: '800', letterSpacing: '-0.02em' },
     closeBtn: {
-        background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff',
-        width: '32px', height: '32px', borderRadius: '50%',
+        background: 'rgba(255,255,255,0.08)', border: 'none', color: '#fff',
+        width: '36px', height: '36px', borderRadius: '50%', // Strict circle
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: '18px', cursor: 'pointer', transition: 'all 0.2s',
-        lineHeight: 1
+        fontSize: '20px', cursor: 'pointer', transition: 'all 0.2s',
+        lineHeight: 1, padding: 0, flexShrink: 0
     },
     content: {
-        padding: '24px',
+        padding: '0 28px 28px',
         overflowY: 'auto',
         display: 'flex', flexDirection: 'column', gap: '24px'
     },
-    section: { display: 'flex', flexDirection: 'column', gap: '8px' },
-    labelRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' },
-    label: { color: 'var(--accent-cyan)', fontWeight: '700', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.9 },
+    section: { display: 'flex', flexDirection: 'column', gap: '10px' },
+    labelRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' },
+    label: { color: 'var(--accent-cyan)', fontWeight: '700', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.9 },
     uploadBtn: {
-        fontSize: '0.8rem', color: '#fff', cursor: 'pointer',
-        backgroundColor: 'rgba(255,255,255,0.08)', padding: '6px 12px', borderRadius: '20px',
-        display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '500', transition: 'background 0.2s'
+        fontSize: '0.75rem', color: '#fff', cursor: 'pointer',
+        backgroundColor: 'rgba(255,255,255,0.06)', padding: '6px 14px', borderRadius: '20px',
+        display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '600', transition: 'background 0.2s',
+        border: '1px solid rgba(255,255,255,0.05)'
     },
     textArea: {
-        width: '100%', minHeight: '100px',
-        backgroundColor: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)',
-        borderRadius: '16px', color: '#eee', padding: '16px', fontSize: '1rem',
+        width: '100%', minHeight: '90px',
+        backgroundColor: '#151519', border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: '18px', color: '#eee', padding: '16px', fontSize: '1rem',
         resize: 'vertical', lineHeight: '1.6', fontFamily: 'inherit',
         outline: 'none', transition: 'border-color 0.2s'
     },
     mediaGrid: {
-        display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '4px'
+        display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '6px'
     },
     previewItem: {
-        position: 'relative', width: '70px', height: '70px',
-        borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)',
-        backgroundColor: '#111', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.3)'
+        position: 'relative', width: '64px', height: '64px',
+        borderRadius: '14px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)',
+        backgroundColor: '#000', boxShadow: '0 2px 5px rgba(0,0,0,0.4)'
     },
     thumb: { width: '100%', height: '100%', objectFit: 'cover' },
-    audioThumb: { width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' },
+    audioThumb: { width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' },
     removeBtn: {
-        position: 'absolute', top: 4, right: 4,
-        width: '20px', height: '20px', borderRadius: '50%',
-        backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
-        color: '#fff', border: '1px solid rgba(255,255,255,0.2)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '12px', padding: 0
+        position: 'absolute', top: 3, right: 3,
+        width: '18px', height: '18px', borderRadius: '50%',
+        backgroundColor: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)',
+        color: '#ff4d4d', border: 'none', // Red tint for delete
+        display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '14px', padding: 0,
+        boxShadow: '0 2px 4px rgba(0,0,0,0.5)'
     },
     newBadge: {
         position: 'absolute', bottom: 0, left: 0, right: 0,
-        backgroundColor: '#10b981', color: '#000', fontSize: '0.6rem', fontWeight: 'bold',
-        textAlign: 'center', padding: '2px 0'
+        background: 'linear-gradient(to top, rgba(16, 185, 129, 0.9), rgba(16, 185, 129, 0.7))',
+        color: '#fff', fontSize: '0.55rem', fontWeight: 'bold',
+        textAlign: 'center', padding: '2px 0', backdropFilter: 'blur(2px)'
     },
     footer: {
-        padding: '20px 24px', borderTop: '1px solid rgba(255,255,255,0.05)',
-        background: 'rgba(255,255,255,0.02)',
-        display: 'flex', justifyContent: 'space-between', gap: '16px'
+        padding: '20px 28px 28px',
+        background: 'linear-gradient(to top, #1E1E24, rgba(30,30,36,0))',
+        display: 'flex', justifyContent: 'space-between', gap: '12px'
     },
     cancelBtn: {
-        padding: '12px 0', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)',
-        backgroundColor: 'transparent', color: '#ccc', cursor: 'pointer',
-        flex: 1, fontWeight: '600', fontSize: '0.95rem', transition: 'background 0.2s'
+        padding: '14px 0', borderRadius: '30px', border: '1px solid rgba(255,255,255,0.1)',
+        backgroundColor: 'rgba(255,255,255,0.03)', color: '#ccc', cursor: 'pointer',
+        flex: 1, fontWeight: '700', fontSize: '0.9rem', transition: 'background 0.2s'
     },
     saveBtn: {
-        padding: '12px 0', borderRadius: '12px', border: 'none',
-        backgroundColor: 'var(--accent-cyan)', color: '#000', fontWeight: '700', cursor: 'pointer',
-        flex: 1, fontSize: '0.95rem', boxShadow: '0 0 15px rgba(var(--accent-cyan-rgb), 0.3)'
+        padding: '14px 0', borderRadius: '30px', border: 'none',
+        backgroundColor: 'var(--accent-cyan)', color: '#09090b', fontWeight: '800', cursor: 'pointer',
+        flex: 1, fontSize: '0.9rem', boxShadow: '0 8px 20px -6px rgba(var(--accent-cyan-rgb), 0.5)',
+        letterSpacing: '0.03em'
     }
 };
 
