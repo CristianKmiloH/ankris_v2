@@ -292,9 +292,9 @@ const AddNote: React.FC = () => {
                                                     onClick={() => toggleMediaTarget(i)}
                                                     style={{
                                                         position: 'absolute',
-                                                        top: '8px',
+                                                        bottom: '8px', // Moved to bottom
                                                         left: '8px',
-                                                        zIndex: 5,
+                                                        zIndex: 10, // Increased z-index
                                                         background: item.target === 'front' ? 'var(--accent-cyan)' : 'var(--accent-purple)',
                                                         color: '#000',
                                                         border: 'none',
