@@ -42,7 +42,8 @@ export const createNote = async (
         files.back.forEach(file => formData.append('media_back', file));
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/notes`, {
+    // Send noteType in Query as well to bypass potential Body parsing issues with Multer/FormData
+    const response = await fetch(`${API_BASE_URL}/api/notes?noteType=${encodeURIComponent(noteType)}`, {
         method: 'POST',
         headers: {
             // Content-Type header must be undefined so browser sets it with boundary for mulitpart/form-data

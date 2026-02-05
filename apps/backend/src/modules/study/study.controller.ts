@@ -71,7 +71,13 @@ router.post('/notes', cpUpload, async (req: AuthRequest, res) => {
             }
         }
 
-        const { noteType, ...otherFields } = req.body;
+        let { noteType, ...otherFields } = req.body;
+
+        // Fallback: Check Query Param if Body failed
+        if (!noteType && req.query.noteType) {
+            noteType = req.query.noteType;
+        }
+
         console.log("Create Note Body:", { noteType, otherKeys: Object.keys(otherFields) });
         console.log("Files received:", Object.keys(files || {}));
 
