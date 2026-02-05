@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 interface LayoutProps {
     children: ReactNode;
     activeTab?: 'home' | 'library' | 'study' | 'stats';
-    title?: string;
+    title?: ReactNode;
     subtitle?: string;
     showBackButton?: boolean;
     headerAction?: ReactNode;

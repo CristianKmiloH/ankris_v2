@@ -305,28 +305,6 @@ const DeckList: React.FC = () => {
                 </svg>
             </button>
             <button
-                onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-                className="btn-icon-round anim-header-filter"
-                title={showFavoritesOnly ? "Show All Decks" : "Show Favorites Only"}
-                style={{
-                    background: showFavoritesOnly
-                        ? 'radial-gradient(circle at 50% 50%, rgba(255, 223, 0, 0.25) 0%, rgba(0, 0, 0, 0.5) 100%)' // Gold glow if active
-                        : 'rgba(255,255,255,0.05)',
-                    border: showFavoritesOnly
-                        ? '1px solid rgba(255, 215, 0, 0.5)'
-                        : '1px solid rgba(255, 255, 255, 0.08)',
-                    color: showFavoritesOnly ? '#FFD700' : 'rgba(255, 255, 255, 0.8)',
-                    boxShadow: showFavoritesOnly
-                        ? '0 0 15px rgba(255, 215, 0, 0.3)'
-                        : 'none',
-                    marginRight: '12px'
-                }}
-            >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill={showFavoritesOnly ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                </svg>
-            </button>
-            <button
                 onClick={() => setIsSearchOpen(true)}
                 className="btn-icon-round anim-header-search"
                 title={t('searchDecks') || "Search Decks"}
@@ -358,10 +336,48 @@ const DeckList: React.FC = () => {
         </div>
     );
 
+    const FilterToggle = () => (
+        <button
+            onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+            className="btn-icon-round"
+            title={showFavoritesOnly ? "Show All Decks" : "Show Favorites Only"}
+            style={{
+                width: '32px',
+                height: '32px',
+                minWidth: '32px',
+                padding: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: showFavoritesOnly
+                    ? 'radial-gradient(circle at 50% 50%, rgba(255, 223, 0, 0.25) 0%, rgba(0, 0, 0, 0.4) 100%)'
+                    : 'rgba(255,255,255,0.05)',
+                border: showFavoritesOnly
+                    ? '1px solid rgba(255, 215, 0, 0.5)'
+                    : '1px solid rgba(255, 255, 255, 0.1)',
+                color: showFavoritesOnly ? '#FFD700' : 'rgba(255, 255, 255, 0.4)',
+                boxShadow: showFavoritesOnly
+                    ? '0 0 10px rgba(255, 215, 0, 0.2)'
+                    : 'none',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+            }}
+        >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill={showFavoritesOnly ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+        </button>
+    );
+
     return (
         <Layout
             activeTab="home"
-            title={t('myDecks')}
+            title={
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    {t('myDecks')}
+                    <FilterToggle />
+                </div>
+            }
             subtitle={t('startJourney')}
             headerAction={<HeaderButtons />}
         >
@@ -678,44 +694,68 @@ const DeckList: React.FC = () => {
                                         // If jump > 1, it's harder. We'll skip backend for now to satisfy UI first.
                                     }}
                                 >
-                                    {/* Favorite Button - Absolute Positioned Top Right */}
-                                    <button
-                                        onClick={(e) => handleToggleFavorite(e, deck)}
-                                        style={{
-                                            position: 'absolute',
-                                            top: '12px',
-                                            right: '12px',
-                                            width: '32px',
-                                            height: '32px',
-                                            borderRadius: '50%',
-                                            background: deck.isFavorite ? 'rgba(255, 215, 0, 0.15)' : 'rgba(255, 255, 255, 0.03)',
-                                            border: deck.isFavorite ? '1px solid rgba(255, 215, 0, 0.6)' : '1px solid rgba(255, 255, 255, 0.1)',
-                                            color: deck.isFavorite ? '#FFD700' : 'rgba(255, 255, 255, 0.4)',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            fontSize: '1.1rem',
-                                            cursor: 'pointer',
-                                            transition: 'all 0.2s ease',
-                                            zIndex: 5,
-                                            boxShadow: deck.isFavorite ? '0 0 10px rgba(255, 215, 0, 0.2)' : 'none',
-                                            backdropFilter: 'blur(4px)'
-                                        }}
-                                        title={deck.isFavorite ? t('removeFromFavorites' as any) : t('addToFavorites' as any)}
-                                    >
-                                        {deck.isFavorite ? '★' : '☆'}
-                                    </button>
+                                    {/* Drag Handle - Subtle hint */}
+                                    <div style={{
+                                        position: 'absolute',
+                                        left: '8px',
+                                        top: '50%',
+                                        transform: 'translateY(-50%)',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: '3px',
+                                        opacity: 0.2, // Very subtle
+                                        pointerEvents: 'none'
+                                    }}>
+                                        <div style={{ display: 'flex', gap: '3px' }}>
+                                            <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: '#fff' }}></div>
+                                            <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: '#fff' }}></div>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '3px' }}>
+                                            <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: '#fff' }}></div>
+                                            <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: '#fff' }}></div>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '3px' }}>
+                                            <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: '#fff' }}></div>
+                                            <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: '#fff' }}></div>
+                                        </div>
+                                    </div>
 
                                     <div style={styles.deckHeader}>
-                                        <div style={{ flex: 1, minWidth: 0, paddingRight: '40px' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                                        <div style={{ flex: 1, minWidth: 0, paddingLeft: '14px', paddingRight: '12px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+                                                {/* Favorite Toggle inside card - Circular and distinct */}
+                                                <button
+                                                    onClick={(e) => handleToggleFavorite(e, deck)}
+                                                    style={{
+                                                        width: '28px',
+                                                        height: '28px',
+                                                        minWidth: '28px',
+                                                        borderRadius: '50%',
+                                                        background: deck.isFavorite ? 'rgba(255, 215, 0, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                                                        border: deck.isFavorite ? '1px solid rgba(255, 215, 0, 0.4)' : '1px solid rgba(255, 255, 255, 0.1)',
+                                                        color: deck.isFavorite ? '#FFD700' : 'rgba(255, 255, 255, 0.3)',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        fontSize: '0.9rem',
+                                                        cursor: 'pointer',
+                                                        transition: 'all 0.2s ease',
+                                                        flexShrink: 0,
+                                                        boxShadow: deck.isFavorite ? '0 0 8px rgba(255, 215, 0, 0.15)' : 'none',
+                                                    }}
+                                                    title={deck.isFavorite ? t('removeFromFavorites' as any) : t('addToFavorites' as any)}
+                                                >
+                                                    {deck.isFavorite ? '★' : '☆'}
+                                                </button>
+
                                                 <h2 style={{
                                                     ...styles.deckTitle,
                                                     whiteSpace: 'nowrap',
                                                     overflow: 'hidden',
                                                     textOverflow: 'ellipsis',
                                                     maxWidth: '100%',
-                                                    fontSize: '1.4rem'
+                                                    fontSize: '1.4rem',
+                                                    margin: 0
                                                 }} title={deck.name}>
                                                     {deck.name}
                                                 </h2>
