@@ -154,15 +154,14 @@ const Study: React.FC = () => {
                                                             const text = domNode.data;
                                                             // Check for [sound:file.mp3] pattern
                                                             const soundMatch = text.match(/\[sound:(.*?)\]/);
+
+                                                            // Aggressive clean for the reported "d" artifact everywhere
+                                                            let cleanText = text.replace(/\[sound:.*?\]/g, '');
+                                                            if (cleanText.trim() === 'd') cleanText = '';
+                                                            else cleanText = cleanText.replace(/\s+d\s*$/, ''); // Remove trailing d
+
                                                             if (soundMatch) {
                                                                 const filename = soundMatch[1];
-                                                                // Clean sound tag AND any standalone 'd' artifact (user reported bug)
-                                                                // Use a regex to strip [sound:...] and also occasional trailing "d" lines
-                                                                let cleanText = text.replace(/\[sound:.*?\]/g, '');
-                                                                // Aggressive clean for the reported "d" artifact
-                                                                if (cleanText.trim() === 'd') cleanText = '';
-                                                                cleanText = cleanText.replace(/\s+d\s*$/, ''); // Remove trailing d
-
                                                                 return (
                                                                     <>
                                                                         {cleanText}
@@ -172,6 +171,7 @@ const Study: React.FC = () => {
                                                                     </>
                                                                 );
                                                             }
+                                                            return cleanText;
                                                         }
                                                         // Handle Images - Fix src relative path
                                                         if (domNode.type === 'tag') {
@@ -224,11 +224,13 @@ const Study: React.FC = () => {
                                                             const text = domNode.data;
                                                             // Check for [sound:file.ext] pattern
                                                             const soundMatch = text.match(/\[sound:(.*?)\]/);
+
+                                                            let cleanText = text.replace(/\[sound:.*?\]/g, '');
+                                                            if (cleanText.trim() === 'd') cleanText = '';
+                                                            else cleanText = cleanText.replace(/\s+d\s*$/, '');
+
                                                             if (soundMatch) {
                                                                 const filename = soundMatch[1];
-                                                                let cleanText = text.replace(/\[sound:.*?\]/g, '');
-                                                                if (cleanText.trim() === 'd') cleanText = '';
-                                                                cleanText = cleanText.replace(/\s+d\s*$/, '');
                                                                 const isVideo = /\.(mp4|webm|ogg|mov)$/i.test(filename);
 
                                                                 if (isVideo) {
@@ -251,6 +253,7 @@ const Study: React.FC = () => {
                                                                     );
                                                                 }
                                                             }
+                                                            return cleanText;
                                                         }
                                                         // Handle Images & Videos (HTML tags)
                                                         if (domNode.type === 'tag') {

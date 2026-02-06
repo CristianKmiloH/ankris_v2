@@ -167,7 +167,7 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
                 const { StorageService } = require('../../services/storage.service');
                 const storageService = StorageService.getInstance();
 
-                console.log(`[Import] Processing media files to Supabase...`);
+                console.log(`[Import] Processing ${mediaEntries.length} media files to Supabase...`);
                 let mediaCount = 0;
 
                 // Convert to array for batch processing
@@ -184,23 +184,19 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
                             await fs.promises.access(srcPath);
 
                             // Upload to Supabase
-                            // contentType logic: naive inference or let Supabase/StorageService handle defaults
-                            // We pass the file path and the desired filename (originalName)
+                            console.log(`[Import] Uploading media: ${originalName} (${numericName})...`);
                             await storageService.uploadFile(srcPath, originalName as string);
                             mediaCount++;
-                        } catch (err) {
-                            console.warn(`[Import] Failed to upload media ${originalName}:`, err);
+                        } catch (err: any) {
+                            console.warn(`[Import] Failed to process media "${originalName}" (ZIP name: ${numericName}): ${err.message}`);
                             // Ignore missing files or upload errors to allow import to continue
                         }
                     }));
-
-                    // Optional: Add small delay to avoid rate limits if necessary
-                    // await new Promise(r => setTimeout(r, 100));
                 }
 
-                console.log(`[Import] Processed ${mediaCount} media files.`);
+                console.log(`[Import] Successfully uploaded ${mediaCount} out of ${mediaEntries.length} media files.`);
             } catch (mediaErr) {
-                console.error('[Import] Error processing media:', mediaErr);
+                console.error('[Import] Critical Error during media processing:', mediaErr);
                 // Don't fail the whole import, just log it
             }
         }

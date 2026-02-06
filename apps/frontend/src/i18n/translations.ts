@@ -142,6 +142,10 @@ export const translations = {
         days_thu: 'Thu',
         days_fri: 'Fri',
         days_sat: 'Sat',
+        addToFavorites: 'Add to favorites',
+        removeFromFavorites: 'Remove from favorites',
+        connectionError: 'Connection Error. Please check your internet.',
+        retry: 'Retry',
     },
     es: {
         // Auth
@@ -286,6 +290,10 @@ export const translations = {
         days_thu: 'Jue',
         days_fri: 'Vie',
         days_sat: 'Sáb',
+        addToFavorites: 'Agregar a favoritos',
+        removeFromFavorites: 'Quitar de favoritos',
+        connectionError: 'Error de conexión. Por favor verifica tu internet.',
+        retry: 'Reintentar',
     }
 };
 
