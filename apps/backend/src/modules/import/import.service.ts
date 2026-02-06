@@ -243,6 +243,8 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
         // Import the Note Type Registry
         const { NoteTypeRegistry } = require('../notes/NoteTypeRegistry');
         const registry = NoteTypeRegistry.getInstance();
+        const { StorageService } = require('../../services/storage.service');
+        const storageService = StorageService.getInstance();
 
         // Map Note ID to Generated Cards
         interface NoteData {
@@ -276,6 +278,26 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
                     'Back': fields.slice(1).join('<br>') || 'Empty Back'
                 };
             }
+
+            // [FIX] Inject Media URLs
+            // Anki uses <img src="file.jpg"> and [sound:file.mp3]. wWe need to replace these with Supabase URLs.
+            Object.keys(fieldMap).forEach(key => {
+                let content = fieldMap[key];
+
+                // 1. Replace Images: <img src="filename.ext"> -> <img src="https://.../filename.ext">
+                content = content.replace(/<img src="([^"]+)"/g, (match, filename) => {
+                    const publicUrl = storageService.getPublicUrl(filename);
+                    return `<img src="${publicUrl}" style="max-width: 100%; height: auto;">`;
+                });
+
+                // 2. Replace Audio: [sound:filename.ext] -> <audio controls src="https://.../filename.ext"></audio>
+                content = content.replace(/\[sound:([^\]]+)\]/g, (match, filename) => {
+                    const publicUrl = storageService.getPublicUrl(filename);
+                    return `<audio controls src="${publicUrl}"></audio>`; // Add controls for playback
+                });
+
+                fieldMap[key] = content;
+            });
 
             // Generate cards using the Note Type logic
             const generatedCards = noteType.generateCards(fieldMap);
