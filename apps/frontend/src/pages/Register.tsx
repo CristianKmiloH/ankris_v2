@@ -105,6 +105,7 @@ const Register: React.FC = () => {
                                     padding: '0 12px',
                                     height: '100%',
                                     width: '40px',
+                                    minWidth: '40px',
                                     zIndex: 10
                                 }}
                             >
@@ -153,6 +154,7 @@ const Register: React.FC = () => {
                                     padding: '0 12px',
                                     height: '100%',
                                     width: '40px',
+                                    minWidth: '40px',
                                     zIndex: 10
                                 }}
                             >
