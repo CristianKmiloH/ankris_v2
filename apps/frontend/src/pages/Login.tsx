@@ -95,14 +95,14 @@ const Login: React.FC = () => {
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
                                 disabled={isLoading}
-                                style={{ padding: '12px 40px 12px 16px', fontSize: '1rem', width: '100%', boxSizing: 'border-box' }}
+                                style={{ padding: '12px 40px 12px 16px', fontSize: '1rem', width: '100%', boxSizing: 'border-box', appearance: 'none' }}
                             />
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
                                 style={{
                                     position: 'absolute',
-                                    right: '2px', // Moved to far right
+                                    right: '0px', // Strict right alignment
                                     top: '50%',
                                     transform: 'translateY(-50%)',
                                     background: 'none',
@@ -111,8 +111,11 @@ const Login: React.FC = () => {
                                     color: 'var(--text-secondary)',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    padding: '8px', // Increased padding for touch target, kept visual size small
-                                    zIndex: 10 // Ensure it's above input
+                                    justifyContent: 'center',
+                                    padding: '0 12px', // Horizontal padding to expand touch area inwards
+                                    height: '100%', // Full height to center vertically nicely
+                                    width: '40px', // Fixed width area
+                                    zIndex: 10
                                 }}
                             >
                                 {showPassword ? (

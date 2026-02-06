@@ -48,36 +48,66 @@ const EditCardModal: React.FC<EditCardModalProps> = ({ card, onClose, onSave }) 
     }, [card]);
 
     const parseContent = (html: string) => {
-        let text = html;
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
         const media: MediaItem[] = [];
 
-        // Extract Images: <img src="...">
-        const imgRegex = /<img[^>]+src="([^">]+)"[^>]*>/g;
-        let imgMatch;
-        while ((imgMatch = imgRegex.exec(html)) !== null) {
-            const fullTag = imgMatch[0];
-            let src = imgMatch[1];
+        // 1. Images
+        const images = doc.querySelectorAll('img');
+        images.forEach(img => {
+            const src = img.getAttribute('src');
+            if (src) {
+                let previewSrc = src;
+                if (!src.startsWith('http') && !src.startsWith('data:')) {
+                    previewSrc = `${MEDIA_BASE_URL}/${src}`;
+                }
 
-            // Fix relative paths for preview
-            let previewSrc = src;
-            if (!src.startsWith('http') && !src.startsWith('data:')) {
-                previewSrc = `${MEDIA_BASE_URL}/${src}`;
+                // Construct the "Tag" that will be removed from text
+                // Since we are parsing DOM, the easiest way to remove is to remove element from DOM and then get textContent of body
+                media.push({
+                    type: 'image',
+                    src: previewSrc,
+                    originalTag: img.outerHTML,
+                    isNew: false
+                });
+                img.remove();
             }
+        });
 
-            media.push({
-                type: 'image',
-                src: previewSrc,
-                originalTag: fullTag, // Keep full tag to preserve classes/styles if any
-                isNew: false
-            });
-            text = text.replace(fullTag, ''); // Remove from text
-        }
+        // 2. Audio/Video
+        // Legacy [sound:...] might be pure text, so we check text content?
+        // Actually, htmlToText cleans text.
+        // Let's first check for standard <audio> / <video> tags
+        const audios = doc.querySelectorAll('audio');
+        audios.forEach(audio => {
+            const src = audio.getAttribute('src') || audio.querySelector('source')?.getAttribute('src');
+            if (src) {
+                // Ensure src is valid
+                let previewSrc = src;
+                if (!src.startsWith('http') && !src.startsWith('data:')) {
+                    previewSrc = `${MEDIA_BASE_URL}/${src}`;
+                }
 
-        // Extract Audio/Video: [sound:...] OR <audio src="...">
-        // 1. Legacy [sound:...]
+                media.push({
+                    type: 'audio',
+                    src: previewSrc,
+                    originalTag: audio.outerHTML,
+                    isNew: false
+                });
+                audio.remove();
+            }
+        });
+
+        // 3. Legacy [sound:...] check on the remaining HTML text content?
+        // Actually, if it's text, it won't be in a tag.
+        // But [sound:...] usually isn't parsed into a tag unless backend did it.
+        // The previous regex was robust enough for [sound:...] text.
+        // We can run regex on the innerHTML of body remaining?
+        let remainingHtml = doc.body.innerHTML;
+
         const soundRegex = /\[sound:(.*?)\]/g;
         let soundMatch;
-        while ((soundMatch = soundRegex.exec(text)) !== null) { // Run on 'text' to prevent infinite loop if we replace? actually replacing text var is safe
+        while ((soundMatch = soundRegex.exec(remainingHtml)) !== null) {
             const fullTag = soundMatch[0];
             const filename = soundMatch[1];
             const isVideo = /\.(mp4|webm|mov)$/i.test(filename);
@@ -93,29 +123,15 @@ const EditCardModal: React.FC<EditCardModalProps> = ({ card, onClose, onSave }) 
                 originalTag: fullTag,
                 isNew: false
             });
-            text = text.replace(fullTag, '');
+            remainingHtml = remainingHtml.replace(fullTag, '');
         }
 
-        // 2. New <audio> tags
-        const audioTagRegex = /<audio[^>]+src="([^">]+)"[^>]*>.*?<\/audio>/g;
-        let audioMatch;
-        while ((audioMatch = audioTagRegex.exec(html)) !== null) {
-            const fullTag = audioMatch[0];
-            const src = audioMatch[1];
+        // Finally convert remaining HTML to clean text
+        let text = remainingHtml.replace(/<br\s*\/?>/gi, '\n');
+        text = text.replace(/<[^>]+>/g, '');
+        text = text.replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
 
-            media.push({
-                type: 'audio',
-                src: src,
-                originalTag: fullTag,
-                isNew: false
-            });
-            text = text.replace(fullTag, '');
-        }
-
-        // Clean up text (trim brs)
-        text = text.replace(/^(<br\s*\/?>)+|(<br\s*\/?>)+$/gi, '').trim();
-
-        return { text, media };
+        return { text: text.trim(), media };
     };
 
     const handleFileAdd = (files: FileList | null, side: 'front' | 'back') => {
@@ -269,6 +285,7 @@ const MediaPreview: React.FC<{ item: MediaItem, onRemove: () => void }> = ({ ite
         {item.type === 'video' && <video src={item.src} style={styles.thumb} />}
         {item.type === 'audio' && <div style={styles.audioThumb}>🔊</div>}
 
+        {/* Remove Button with high z-index and flex positioning */}
         <button onClick={onRemove} style={styles.removeBtn}>×</button>
         {item.isNew && <span style={styles.newBadge}>NEW</span>}
     </div>
@@ -333,17 +350,19 @@ const styles: Record<string, React.CSSProperties> = {
     previewItem: {
         position: 'relative', width: '64px', height: '64px',
         borderRadius: '14px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)',
-        backgroundColor: '#000', boxShadow: '0 2px 5px rgba(0,0,0,0.4)'
+        backgroundColor: '#000', boxShadow: '0 2px 5px rgba(0,0,0,0.4)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center' // Center audio icon
     },
     thumb: { width: '100%', height: '100%', objectFit: 'cover' },
-    audioThumb: { width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' },
+    audioThumb: { width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.8rem' },
     removeBtn: {
-        position: 'absolute', top: 3, right: 3,
-        width: '18px', height: '18px', borderRadius: '50%',
-        backgroundColor: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)',
-        color: '#ff4d4d', border: 'none', // Red tint for delete
+        position: 'absolute', top: 2, right: 2,
+        width: '20px', height: '20px', borderRadius: '50%',
+        backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+        color: '#fff', border: 'none',
         display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '14px', padding: 0,
-        boxShadow: '0 2px 4px rgba(0,0,0,0.5)'
+        boxShadow: '0 2px 4px rgba(0,0,0,0.5)',
+        zIndex: 10, flexShrink: 0
     },
     newBadge: {
         position: 'absolute', bottom: 0, left: 0, right: 0,
