@@ -77,7 +77,7 @@ const Register: React.FC = () => {
 
                     <div className="input-group">
                         <label className="input-label">{t('password')}</label>
-                        <div style={{ position: 'relative', width: '100%' }}>
+                        <div style={{ position: 'relative', width: '100%', boxSizing: 'border-box' }}>
                             <input
                                 type={showPassword ? "text" : "password"}
                                 placeholder="••••••••"
@@ -85,7 +85,7 @@ const Register: React.FC = () => {
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
                                 disabled={isLoading}
-                                style={{ padding: '12px 16px', fontSize: '1rem', width: '100%', paddingRight: '40px' }}
+                                style={{ padding: '12px 40px 12px 16px', fontSize: '1rem', width: '100%', boxSizing: 'border-box' }}
                             />
                             <button
                                 type="button"
@@ -122,7 +122,7 @@ const Register: React.FC = () => {
 
                     <div className="input-group">
                         <label className="input-label">{t('confirmPassword')}</label>
-                        <div style={{ position: 'relative', width: '100%' }}>
+                        <div style={{ position: 'relative', width: '100%', boxSizing: 'border-box' }}>
                             <input
                                 type={showConfirmPassword ? "text" : "password"}
                                 placeholder="••••••••"
@@ -130,7 +130,7 @@ const Register: React.FC = () => {
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                 required
                                 disabled={isLoading}
-                                style={{ padding: '12px 16px', fontSize: '1rem', width: '100%', paddingRight: '40px' }}
+                                style={{ padding: '12px 40px 12px 16px', fontSize: '1rem', width: '100%', boxSizing: 'border-box' }}
                             />
                             <button
                                 type="button"

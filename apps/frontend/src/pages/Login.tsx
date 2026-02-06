@@ -79,7 +79,7 @@ const Login: React.FC = () => {
                             onChange={(e) => setEmail(e.target.value)}
                             required
                             disabled={isLoading}
-                            style={{ padding: '12px 16px', fontSize: '1rem' }}
+                            style={{ padding: '12px 16px', fontSize: '1rem', width: '100%', boxSizing: 'border-box' }}
                         />
                     </div>
 
@@ -87,7 +87,7 @@ const Login: React.FC = () => {
 
                     <div className="input-group">
                         <label className="input-label" style={{ fontSize: '0.85rem' }}>{t('password')}</label>
-                        <div style={{ position: 'relative', width: '100%' }}>
+                        <div style={{ position: 'relative', width: '100%', boxSizing: 'border-box' }}>
                             <input
                                 type={showPassword ? "text" : "password"}
                                 placeholder="••••••••"
@@ -95,7 +95,7 @@ const Login: React.FC = () => {
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
                                 disabled={isLoading}
-                                style={{ padding: '12px 16px', fontSize: '1rem', width: '100%', paddingRight: '40px' }}
+                                style={{ padding: '12px 40px 12px 16px', fontSize: '1rem', width: '100%', boxSizing: 'border-box' }}
                             />
                             <button
                                 type="button"

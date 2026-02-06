@@ -73,10 +73,11 @@ const EditCardModal: React.FC<EditCardModalProps> = ({ card, onClose, onSave }) 
             text = text.replace(fullTag, ''); // Remove from text
         }
 
-        // Extract Audio/Video: [sound:...]
+        // Extract Audio/Video: [sound:...] OR <audio src="...">
+        // 1. Legacy [sound:...]
         const soundRegex = /\[sound:(.*?)\]/g;
         let soundMatch;
-        while ((soundMatch = soundRegex.exec(html)) !== null) {
+        while ((soundMatch = soundRegex.exec(text)) !== null) { // Run on 'text' to prevent infinite loop if we replace? actually replacing text var is safe
             const fullTag = soundMatch[0];
             const filename = soundMatch[1];
             const isVideo = /\.(mp4|webm|mov)$/i.test(filename);
@@ -89,6 +90,22 @@ const EditCardModal: React.FC<EditCardModalProps> = ({ card, onClose, onSave }) 
             media.push({
                 type: isVideo ? 'video' : 'audio',
                 src: previewSrc,
+                originalTag: fullTag,
+                isNew: false
+            });
+            text = text.replace(fullTag, '');
+        }
+
+        // 2. New <audio> tags
+        const audioTagRegex = /<audio[^>]+src="([^">]+)"[^>]*>.*?<\/audio>/g;
+        let audioMatch;
+        while ((audioMatch = audioTagRegex.exec(html)) !== null) {
+            const fullTag = audioMatch[0];
+            const src = audioMatch[1];
+
+            media.push({
+                type: 'audio',
+                src: src,
                 originalTag: fullTag,
                 isNew: false
             });
@@ -284,10 +301,10 @@ const styles: Record<string, React.CSSProperties> = {
     title: { margin: 0, color: '#fff', fontSize: '1.4rem', fontWeight: '800', letterSpacing: '-0.02em' },
     closeBtn: {
         background: 'rgba(255,255,255,0.08)', border: 'none', color: '#fff',
-        width: '36px', height: '36px', borderRadius: '50%', // Strict circle
+        width: '36px', height: '36px', minWidth: '36px', borderRadius: '50%', // Strict circle
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontSize: '20px', cursor: 'pointer', transition: 'all 0.2s',
-        lineHeight: 1, padding: 0, flexShrink: 0
+        lineHeight: 1, padding: 0, flexShrink: 0, aspectRatio: '1'
     },
     content: {
         padding: '0 28px 28px',
