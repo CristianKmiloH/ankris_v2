@@ -167,11 +167,10 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
                 const { StorageService } = require('../../services/storage.service');
                 const storageService = StorageService.getInstance();
 
-                console.log(`[Import] Processing ${mediaEntries.length} media files to Supabase...`);
-                let mediaCount = 0;
-
                 // Convert to array for batch processing
                 const mediaEntries = Object.entries(mediaMap);
+                console.log(`[Import] Processing ${mediaEntries.length} media files to Supabase...`);
+                let mediaCount = 0;
                 const BATCH_SIZE = 10; // Reduced batch size for network uploads
 
                 for (let i = 0; i < mediaEntries.length; i += BATCH_SIZE) {
