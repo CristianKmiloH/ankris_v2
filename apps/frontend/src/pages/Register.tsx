@@ -77,7 +77,7 @@ const Register: React.FC = () => {
 
                     <div className="input-group">
                         <label className="input-label">{t('password')}</label>
-                        <div style={{ position: 'relative' }}>
+                        <div style={{ position: 'relative', width: '100%' }}>
                             <input
                                 type={showPassword ? "text" : "password"}
                                 placeholder="••••••••"
@@ -101,7 +101,8 @@ const Register: React.FC = () => {
                                     color: 'var(--text-secondary)',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    padding: '8px' // Increased padding for touch target, kept visual size small
+                                    padding: '8px', // Increased padding for touch target, kept visual size small
+                                    zIndex: 10 // Ensure it's above input
                                 }}
                             >
                                 {showPassword ? (
@@ -121,7 +122,7 @@ const Register: React.FC = () => {
 
                     <div className="input-group">
                         <label className="input-label">{t('confirmPassword')}</label>
-                        <div style={{ position: 'relative' }}>
+                        <div style={{ position: 'relative', width: '100%' }}>
                             <input
                                 type={showConfirmPassword ? "text" : "password"}
                                 placeholder="••••••••"
@@ -145,7 +146,8 @@ const Register: React.FC = () => {
                                     color: 'var(--text-secondary)',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    padding: '8px' // Increased padding for touch target, kept visual size small
+                                    padding: '8px', // Increased padding for touch target, kept visual size small
+                                    zIndex: 10 // Ensure it's above input
                                 }}
                             >
                                 {showConfirmPassword ? (

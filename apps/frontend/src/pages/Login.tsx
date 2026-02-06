@@ -87,7 +87,7 @@ const Login: React.FC = () => {
 
                     <div className="input-group">
                         <label className="input-label" style={{ fontSize: '0.85rem' }}>{t('password')}</label>
-                        <div style={{ position: 'relative' }}>
+                        <div style={{ position: 'relative', width: '100%' }}>
                             <input
                                 type={showPassword ? "text" : "password"}
                                 placeholder="••••••••"
@@ -111,7 +111,8 @@ const Login: React.FC = () => {
                                     color: 'var(--text-secondary)',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    padding: '8px' // Increased padding for touch target, kept visual size small
+                                    padding: '8px', // Increased padding for touch target, kept visual size small
+                                    zIndex: 10 // Ensure it's above input
                                 }}
                             >
                                 {showPassword ? (

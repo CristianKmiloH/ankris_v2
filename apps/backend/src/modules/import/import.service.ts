@@ -284,16 +284,18 @@ export const importAnkiDeck = async (userId: string, filePath: string) => {
             Object.keys(fieldMap).forEach(key => {
                 let content = fieldMap[key];
 
-                // 1. Replace Images: <img src="filename.ext"> -> <img src="https://.../filename.ext">
-                content = content.replace(/<img src="([^"]+)"/g, (match, filename) => {
+                // 1. Replace Images: <img src="filename.ext" ...> -> <img src="url" ...>
+                // consuming the entire tag to prevent artifacts like '/>'
+                content = content.replace(/<img src="([^"]+)"[^>]*>/g, (match, filename) => {
                     const publicUrl = storageService.getPublicUrl(filename);
-                    return `<img src="${publicUrl}" style="max-width: 100%; height: auto;">`;
+                    return `<img src="${publicUrl}" style="max-width: 100%; height: auto; display: block; margin: 10px auto;">`;
                 });
 
-                // 2. Replace Audio: [sound:filename.ext] -> <audio controls src="https://.../filename.ext"></audio>
+                // 2. Replace Audio: [sound:filename.ext] -> Audio Player
+                // Using a compact standard audio player to look more like a button/bar
                 content = content.replace(/\[sound:([^\]]+)\]/g, (match, filename) => {
                     const publicUrl = storageService.getPublicUrl(filename);
-                    return `<audio controls src="${publicUrl}"></audio>`; // Add controls for playback
+                    return `<audio controls src="${publicUrl}" style="height: 40px; margin-top: 5px;"></audio>`;
                 });
 
                 fieldMap[key] = content;
