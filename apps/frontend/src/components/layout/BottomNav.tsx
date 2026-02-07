@@ -126,7 +126,8 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab }) => {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        flexShrink: 0
+                        flexShrink: 0,
+                        marginRight: '8px'
                     }}
                     title={t('settings')}
                 >

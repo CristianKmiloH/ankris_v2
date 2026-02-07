@@ -313,9 +313,9 @@ const DeckList: React.FC = () => {
             className="btn-icon-round"
             title={showFavoritesOnly ? "Show All Decks" : "Show Favorites Only"}
             style={{
-                width: '32px',
-                height: '32px',
-                minWidth: '32px',
+                width: '40px',
+                height: '40px',
+                minWidth: '40px',
                 padding: 0,
                 display: 'flex',
                 alignItems: 'center',
@@ -788,7 +788,9 @@ const DeckList: React.FC = () => {
                                                     }}
                                                     title={deck.isFavorite ? t('removeFromFavorites' as any) : t('addToFavorites' as any)}
                                                 >
-                                                    {deck.isFavorite ? '★' : '☆'}
+                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill={deck.isFavorite ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                                    </svg>
                                                 </button>
                                             </div>
                                         </div>
@@ -840,7 +842,9 @@ const DeckList: React.FC = () => {
                                                 minWidth: '40px',
                                                 borderRadius: '50%',
                                                 padding: 0,
-                                                display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                flexShrink: 0,
+                                                aspectRatio: '1/1'
                                             }}
                                             title={t('addCards')}
                                         >
