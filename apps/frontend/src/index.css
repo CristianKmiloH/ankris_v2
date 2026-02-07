@@ -968,7 +968,7 @@ button.btn-glass:active {
   background: var(--bg-card);
   border-top: 1px solid var(--bg-card-elevated);
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
   /* Force vertical centering of all items */
   /* Force vertical centering of all items */
@@ -976,7 +976,7 @@ button.btn-glass:active {
   height: 60px !important;
   min-height: 60px !important;
   max-height: 60px !important;
-  padding: 0 !important;
+  padding: 0 40px !important;
   padding-bottom: env(safe-area-inset-bottom) !important;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
 }
@@ -2069,11 +2069,11 @@ button:active .icon-glow-green {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
   z-index: 1000;
   /* Ensure above everything */
-  padding: 0 32px;
+  padding: 0 40px;
   padding-bottom: env(safe-area-inset-bottom);
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
