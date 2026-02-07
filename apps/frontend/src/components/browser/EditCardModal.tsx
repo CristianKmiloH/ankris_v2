@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { Card } from '../../services/cardService';
 import { useTranslation } from '../../i18n/useTranslation';
 import { MEDIA_BASE_URL } from '../../config';
@@ -24,6 +24,14 @@ const EditCardModal: React.FC<EditCardModalProps> = ({ card, onClose, onSave }) 
     const [frontMedia, setFrontMedia] = useState<MediaItem[]>([]);
     const [backMedia, setBackMedia] = useState<MediaItem[]>([]);
     const [isSaving, setIsSaving] = useState(false);
+
+    // Recording State
+    const [isRecording, setIsRecording] = useState(false);
+    const [recordingTime, setRecordingTime] = useState(0);
+    const [activeSide, setActiveSide] = useState<'front' | 'back' | null>(null);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const audioChunksRef = useRef<Blob[]>([]);
+    const timerRef = useRef<number | null>(null);
 
     const htmlToText = (html: string) => {
         let text = html.replace(/<br\s*\/?>/gi, '\n');
@@ -163,6 +171,68 @@ const EditCardModal: React.FC<EditCardModalProps> = ({ card, onClose, onSave }) 
         }
     };
 
+    const startRecording = async (side: 'front' | 'back') => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const mediaRecorder = new MediaRecorder(stream);
+            mediaRecorderRef.current = mediaRecorder;
+            audioChunksRef.current = [];
+
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    audioChunksRef.current.push(event.data);
+                }
+            };
+
+            mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+                const audioFile = new File([audioBlob], `recording_${Date.now()}.webm`, { type: 'audio/webm' });
+
+                // Reuse handleFileAdd logic
+                const fileList = {
+                    0: audioFile,
+                    length: 1,
+                    item: (index: number) => audioFile
+                } as unknown as FileList; // Mock FileList
+
+                handleFileAdd(fileList, side);
+
+                // Cleanup
+                stream.getTracks().forEach(track => track.stop());
+                setIsRecording(false);
+                setRecordingTime(0);
+                setActiveSide(null);
+                if (timerRef.current) clearInterval(timerRef.current);
+            };
+
+            mediaRecorder.start();
+            setIsRecording(true);
+            setActiveSide(side);
+
+            // Start Timer
+            setRecordingTime(0);
+            timerRef.current = window.setInterval(() => {
+                setRecordingTime(prev => prev + 1);
+            }, 1000);
+
+        } catch (error) {
+            console.error("Error accessing microphone:", error);
+            alert("Could not access microphone. Please check permissions.");
+        }
+    };
+
+    const stopRecording = () => {
+        if (mediaRecorderRef.current && isRecording) {
+            mediaRecorderRef.current.stop();
+        }
+    };
+
+    const formatTime = (seconds: number) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    };
+
     const handleSave = async () => {
         setIsSaving(true);
         try {
@@ -216,15 +286,25 @@ const EditCardModal: React.FC<EditCardModalProps> = ({ card, onClose, onSave }) 
                     <div style={styles.section}>
                         <div style={styles.labelRow}>
                             <label style={styles.label}>{t('question')} (Front)</label>
-                            <label style={styles.uploadBtn}>
-                                <span style={{ fontSize: '1.2em', marginRight: '4px' }}>+</span> Media
-                                <input
-                                    type="file"
-                                    multiple
-                                    style={{ display: 'none' }}
-                                    onChange={(e) => handleFileAdd(e.target.files, 'front')}
-                                />
-                            </label>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                <button
+                                    onClick={() => isRecording && activeSide === 'front' ? stopRecording() : startRecording('front')}
+                                    style={isRecording && activeSide === 'front' ? styles.recordingBtnActive : styles.recordingBtn}
+                                    disabled={isRecording && activeSide !== 'front'}
+                                >
+                                    {isRecording && activeSide === 'front' ? `⏹ ${formatTime(recordingTime)}` : '🎤 Rec'}
+                                </button>
+                                <label style={styles.uploadBtn}>
+                                    <span style={{ fontSize: '1.2em', marginRight: '4px' }}>+</span> Media
+                                    <input
+                                        type="file"
+                                        multiple
+                                        accept="image/*,video/*,audio/*"
+                                        style={{ display: 'none' }}
+                                        onChange={(e) => handleFileAdd(e.target.files, 'front')}
+                                    />
+                                </label>
+                            </div>
                         </div>
                         <textarea
                             style={styles.textArea}
@@ -244,15 +324,25 @@ const EditCardModal: React.FC<EditCardModalProps> = ({ card, onClose, onSave }) 
                     <div style={styles.section}>
                         <div style={styles.labelRow}>
                             <label style={styles.label}>{t('answer')} (Back)</label>
-                            <label style={styles.uploadBtn}>
-                                <span style={{ fontSize: '1.2em', marginRight: '4px' }}>+</span> Media
-                                <input
-                                    type="file"
-                                    multiple
-                                    style={{ display: 'none' }}
-                                    onChange={(e) => handleFileAdd(e.target.files, 'back')}
-                                />
-                            </label>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                <button
+                                    onClick={() => isRecording && activeSide === 'back' ? stopRecording() : startRecording('back')}
+                                    style={isRecording && activeSide === 'back' ? styles.recordingBtnActive : styles.recordingBtn}
+                                    disabled={isRecording && activeSide !== 'back'}
+                                >
+                                    {isRecording && activeSide === 'back' ? `⏹ ${formatTime(recordingTime)}` : '🎤 Rec'}
+                                </button>
+                                <label style={styles.uploadBtn}>
+                                    <span style={{ fontSize: '1.2em', marginRight: '4px' }}>+</span> Media
+                                    <input
+                                        type="file"
+                                        multiple
+                                        accept="image/*,video/*,audio/*"
+                                        style={{ display: 'none' }}
+                                        onChange={(e) => handleFileAdd(e.target.files, 'back')}
+                                    />
+                                </label>
+                            </div>
                         </div>
                         <textarea
                             style={styles.textArea}
@@ -345,6 +435,19 @@ const styles: Record<string, React.CSSProperties> = {
         backgroundColor: 'rgba(255,255,255,0.06)', padding: '6px 14px', borderRadius: '20px',
         display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '600', transition: 'background 0.2s',
         border: '1px solid rgba(255,255,255,0.05)'
+    },
+    recordingBtn: {
+        fontSize: '0.75rem', color: '#fff', cursor: 'pointer',
+        backgroundColor: 'rgba(239, 68, 68, 0.1)', // Red tint
+        padding: '6px 14px', borderRadius: '20px', border: '1px solid rgba(239, 68, 68, 0.2)',
+        display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '600', transition: 'all 0.2s',
+    },
+    recordingBtnActive: {
+        fontSize: '0.75rem', color: '#fff', cursor: 'pointer',
+        backgroundColor: 'rgba(239, 68, 68, 0.8)', // Solid Red
+        padding: '6px 14px', borderRadius: '20px', border: '1px solid rgba(239, 68, 68, 1)',
+        display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '600', transition: 'all 0.2s',
+        animation: 'pulse 1.5s infinite'
     },
     textArea: {
         width: '100%', minHeight: '90px',
