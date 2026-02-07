@@ -2038,8 +2038,7 @@ button:active .anim-shake-glow {
   z-index: 1;
 }
 
-z-index: 1;
-}
+
 
 /* Unified Top Reflection (Same as Study/Add buttons) */
 .magic-button::after {
