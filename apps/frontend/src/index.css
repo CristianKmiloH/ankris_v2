@@ -2073,6 +2073,7 @@ button:active .icon-glow-green {
   align-items: center;
   z-index: 1000;
   /* Ensure above everything */
+  padding: 0 32px;
   padding-bottom: env(safe-area-inset-bottom);
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
@@ -2643,6 +2644,7 @@ button:active .icon-glow-green {
     transform: scale(1.15);
   }
 }
+
 /* ===== STRICT UTILITIES FOR ICON BUTTONS ===== */
 /* These classes force icons to be circular/clean, overriding the aggressive global button styles */
 
@@ -2674,49 +2676,72 @@ button:active .icon-glow-green {
 }
 
 /* Specific size enforcement helpers */
-.size-20 { width: 20px !important; height: 20px !important; }
-.size-24 { width: 24px !important; height: 24px !important; }
-.size-32 { width: 32px !important; height: 32px !important; }
-.size-36 { width: 36px !important; height: 36px !important; }
-.size-40 { width: 40px !important; height: 40px !important; }
+.size-20 {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+.size-24 {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.size-32 {
+  width: 32px !important;
+  height: 32px !important;
+}
+
+.size-36 {
+  width: 36px !important;
+  height: 36px !important;
+}
+
+.size-40 {
+  width: 40px !important;
+  height: 40px !important;
+}
 
 /* Visibility helper for remove buttons */
 .btn-remove-media {
-  background-color: #ef4444 !important; /* Tailwind Red 500 */
+  background-color: #ef4444 !important;
+  /* Tailwind Red 500 */
   color: white !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.5) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5) !important;
   transition: transform 0.2s ease !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
 }
+
 .btn-remove-media:hover {
-  background-color: #dc2626 !important; /* Tailwind Red 600 */
+  background-color: #dc2626 !important;
+  /* Tailwind Red 600 */
   transform: scale(1.1) !important;
 }
 
 /* Eye Icon Specific Alignment Override */
 .btn-eye-toggle {
-    position: absolute !important;
-    right: 0px !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    z-index: 10 !important;
-    width: 40px !important;
-    height: 100% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    color: var(--text-secondary) !important;
-    background: transparent !important;
-    min-width: 40px !important;
-    padding: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
-}
-.btn-eye-toggle:hover {
-    color: var(--text-primary) !important;
-    background: transparent !important;
-    transform: translateY(-50%) !important; /* Prevent bounce */
+  position: absolute !important;
+  right: 0px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  z-index: 10 !important;
+  width: 40px !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: var(--text-secondary) !important;
+  background: transparent !important;
+  min-width: 40px !important;
+  padding: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
+.btn-eye-toggle:hover {
+  color: var(--text-primary) !important;
+  background: transparent !important;
+  transform: translateY(-50%) !important;
+  /* Prevent bounce */
+}

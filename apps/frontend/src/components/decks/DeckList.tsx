@@ -313,9 +313,9 @@ const DeckList: React.FC = () => {
             className="btn-icon-round"
             title={showFavoritesOnly ? "Show All Decks" : "Show Favorites Only"}
             style={{
-                width: '48px',
-                height: '48px',
-                minWidth: '48px',
+                width: '54px',
+                height: '54px',
+                minWidth: '54px',
                 padding: 0,
                 display: 'flex',
                 alignItems: 'center',
@@ -834,21 +834,11 @@ const DeckList: React.FC = () => {
                                                 e.stopPropagation();
                                                 navigate(`/decks/${deck.id}/add`);
                                             }}
-                                            className="btn-glass btn-icon-round"
-                                            style={{
-                                                ...styles.addButton,
-                                                width: '48px',
-                                                height: '48px',
-                                                minWidth: '48px',
-                                                borderRadius: '50%',
-                                                padding: 0,
-                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                flexShrink: 0,
-                                                aspectRatio: '1/1'
-                                            }}
+                                            className="magic-button"
+                                            style={styles.magicButton}
                                             title={t('addCards')}
                                         >
-                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ color: 'var(--text-primary)' }}>
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ color: 'var(--text-inverse)' }}>
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                                             </svg>
                                         </button>
