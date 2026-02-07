@@ -2029,6 +2029,7 @@ button:active .anim-shake-glow {
   position: relative;
   background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
   border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 999px;
   /* Pill shape */
   color: white;
