@@ -1598,6 +1598,67 @@ const styles: { [key: string]: React.CSSProperties } = {
         fontWeight: '600',
     },
 
+    // Restored Modal Styles (Edit/Search)
+    searchModalContent: {
+        backgroundColor: 'var(--bg-card)',
+        padding: '24px',
+        borderRadius: '24px',
+        width: '90%',
+        maxWidth: '400px', // Compact for Edit Modal
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+        display: 'flex',
+        flexDirection: 'column',
+    },
+    searchHeader: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '20px',
+    },
+    closeSearch: {
+        background: 'rgba(255, 255, 255, 0.1)',
+        border: 'none',
+        color: 'var(--text-primary)',
+        width: '32px',
+        height: '32px',
+        minWidth: '32px', // Force circle
+        borderRadius: '50%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: 'pointer',
+        fontSize: '1rem',
+        padding: 0,
+        transition: 'background 0.2s',
+    },
+    searchInput: {
+        width: '100%',
+        padding: '16px',
+        borderRadius: '16px',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        backgroundColor: 'rgba(0, 0, 0, 0.2)',
+        color: 'var(--text-primary)',
+        fontSize: '1rem',
+        outline: 'none',
+        boxSizing: 'border-box', // Ensure padding doesn't overflow
+    },
+    cancelButton: {
+        padding: '12px 24px', // Taller hit area
+        borderRadius: '24px', // Pill shape
+        border: 'none',
+        background: 'rgba(255, 255, 255, 0.1)', // Neutral gray background
+        color: 'var(--text-secondary)',
+        cursor: 'pointer',
+        fontWeight: 'bold',
+        fontSize: '0.9rem',
+        minWidth: '100px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textTransform: 'uppercase',
+        letterSpacing: '0.5px',
+    },
 
 };
 
