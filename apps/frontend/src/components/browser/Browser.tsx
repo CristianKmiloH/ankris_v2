@@ -5,7 +5,7 @@ import { getDecks, type Deck } from '../../services/deckService';
 import { getAllCards, type Card, updateCard, deleteCard } from '../../services/cardService';
 import { useTranslation } from '../../i18n/useTranslation';
 import { MEDIA_BASE_URL } from '../../config';
-import AudioButton from '../common/AudioButton';
+
 
 import EditCardModal from './EditCardModal';
 
@@ -212,11 +212,17 @@ const Browser: React.FC = () => {
                     </div>
                 )}
 
-                {/* Audio Buttons - Simplified & Circular */}
+                {/* Audio Players - Standard HTML5 to match Study Mode */}
                 {audioSrcs.length > 0 && (
-                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '6px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', alignItems: 'center', marginBottom: '8px' }}>
                         {audioSrcs.map((src, idx) => (
-                            <AudioButton key={idx} src={src} size={40} />
+                            <audio
+                                key={idx}
+                                controls
+                                src={src}
+                                style={{ width: '100%', height: '36px', maxWidth: '100%' }}
+                                onClick={(e) => e.stopPropagation()}
+                            />
                         ))}
                     </div>
                 )}
