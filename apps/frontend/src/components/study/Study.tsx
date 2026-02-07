@@ -157,8 +157,8 @@ const Study: React.FC = () => {
                                                                 return (
                                                                     <>
                                                                         {cleanText}
-                                                                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', minHeight: '60px', margin: '20px 0', border: '1px dashed red', position: 'relative', zIndex: 10 }} onClick={(e) => e.stopPropagation()}>
-                                                                            <AudioButton filename={filename} size={48} />
+                                                                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', margin: '20px 0', position: 'relative', zIndex: 10 }} onClick={(e) => e.stopPropagation()}>
+                                                                            <audio controls src={`${MEDIA_BASE_URL}/${filename}`} style={{ width: '100%' }} />
                                                                         </div>
                                                                     </>
                                                                 );
@@ -174,14 +174,25 @@ const Study: React.FC = () => {
                                                                     delete domNode.attribs.style;
                                                                 }
                                                             }
-                                                            if (domNode.name === 'video' || domNode.name === 'audio') {
+                                                            if (domNode.name === 'audio') {
+                                                                const src = domNode.attribs.src;
+                                                                const finalSrc = (src && !src.startsWith('http') && !src.startsWith('data:'))
+                                                                    ? `${MEDIA_BASE_URL}/${src}`
+                                                                    : src;
+
+                                                                return (
+                                                                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', margin: '20px 0', position: 'relative', zIndex: 10 }} onClick={(e) => e.stopPropagation()}>
+                                                                        <audio controls src={finalSrc} style={{ width: '100%' }} />
+                                                                    </div>
+                                                                );
+                                                            }
+                                                            if (domNode.name === 'video') {
                                                                 const src = domNode.attribs.src;
                                                                 if (src && !src.startsWith('http') && !src.startsWith('data:')) {
                                                                     domNode.attribs.src = `${MEDIA_BASE_URL}/${src}`;
                                                                 }
                                                                 domNode.attribs.class = (domNode.attribs.class || '') + ' card-media';
                                                                 domNode.attribs.controls = "true";
-                                                                // Force block display via inline style to be safe against global CSS
                                                                 domNode.attribs.style = "display: block; width: 100%; margin: 10px 0;";
                                                             }
                                                         }
@@ -243,8 +254,8 @@ const Study: React.FC = () => {
                                                                     return (
                                                                         <>
                                                                             {cleanText}
-                                                                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', minHeight: '60px', margin: '20px 0', border: '1px dashed red', position: 'relative', zIndex: 10 }} onClick={(e) => e.stopPropagation()}>
-                                                                                <AudioButton filename={filename} size={48} />
+                                                                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', margin: '20px 0', position: 'relative', zIndex: 10 }} onClick={(e) => e.stopPropagation()}>
+                                                                                <audio controls src={`${MEDIA_BASE_URL}/${filename}`} style={{ width: '100%' }} />
                                                                             </div>
                                                                         </>
                                                                     );
@@ -261,7 +272,19 @@ const Study: React.FC = () => {
                                                                     delete domNode.attribs.style;
                                                                 }
                                                             }
-                                                            if (domNode.name === 'video' || domNode.name === 'audio') {
+                                                            if (domNode.name === 'audio') {
+                                                                const src = domNode.attribs.src;
+                                                                const finalSrc = (src && !src.startsWith('http') && !src.startsWith('data:'))
+                                                                    ? `${MEDIA_BASE_URL}/${src}`
+                                                                    : src;
+
+                                                                return (
+                                                                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', margin: '20px 0', position: 'relative', zIndex: 10 }} onClick={(e) => e.stopPropagation()}>
+                                                                        <audio controls src={finalSrc} style={{ width: '100%' }} />
+                                                                    </div>
+                                                                );
+                                                            }
+                                                            if (domNode.name === 'video') {
                                                                 const src = domNode.attribs.src;
                                                                 if (src && !src.startsWith('http') && !src.startsWith('data:')) {
                                                                     domNode.attribs.src = `${MEDIA_BASE_URL}/${src}`;
@@ -271,8 +294,7 @@ const Study: React.FC = () => {
                                                                 domNode.attribs.style = "display: block; width: 100%; margin: 10px 0;";
                                                             }
                                                         }
-                                                    }
-                                                })}
+                                                    })}
                                             </div>
                                         </div>
                                     </div>
@@ -313,10 +335,7 @@ const Study: React.FC = () => {
                             </button>
                         )}
                     </div>
-                    {/* DEBUG PANEL */}
-                    <div style={{ position: 'absolute', bottom: 160, left: 10, right: 10, background: 'rgba(0,0,0,0.8)', color: '#0f0', padding: 10, zIndex: 9999, fontSize: 12, maxHeight: 150, overflow: 'auto', pointerEvents: 'none' }}>
-                        <strong>RAW FRONT:</strong> {JSON.stringify(cards[currentCardIndex]?.front)}
-                    </div>
+
                 </div>
             )}
         </Layout>
