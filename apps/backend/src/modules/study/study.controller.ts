@@ -39,17 +39,21 @@ router.post('/notes', cpUpload, async (req: AuthRequest, res) => {
             const processFiles = async (fileList: Express.Multer.File[]) => {
                 const processedTags: string[] = [];
                 for (const file of fileList) {
+                    console.log(`Processing file: ${file.originalname}, Size: ${file.size} bytes, Type: ${file.mimetype}`);
+
                     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
                     const ext = path.extname(file.originalname);
                     const filename = `upload_${uniqueSuffix}${ext}`; // Consistent naming
 
-                    // Upload Buffer to Supabase
-                    await storageService.uploadBuffer(file.buffer, filename, file.mimetype);
+                    // Upload Buffer to Supabase -> Returns Full Public URL
+                    const publicUrl = await storageService.uploadBuffer(file.buffer, filename, file.mimetype);
+                    console.log(`Uploaded to: ${publicUrl}`);
 
                     if (file.mimetype.startsWith('image/')) {
-                        processedTags.push(`<br><img src="${filename}">`);
+                        processedTags.push(`<br><img src="${publicUrl}">`);
                     } else if (file.mimetype.startsWith('audio/') || file.mimetype.startsWith('video/')) {
-                        processedTags.push(` [sound:${filename}]`);
+                        // Use full URL for sound tag as well. Frontend supports http/https src.
+                        processedTags.push(` [sound:${publicUrl}]`);
                     }
                 }
                 return processedTags;
