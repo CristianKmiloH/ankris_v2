@@ -36,8 +36,8 @@ const Register: React.FC = () => {
             const data = await registerUser(email, password);
             login(data.token);
             navigate('/');
-        } catch (err) {
-            setError('Registration failed. Email may already be in use.');
+        } catch (err: any) {
+            setError(err.message || 'Registration failed. Email may already be in use.');
         } finally {
             setIsLoading(false);
         }
