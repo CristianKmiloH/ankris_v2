@@ -1997,782 +1997,812 @@ button:active .anim-rotate-icon,
 
   25% {
     transform: scale(1.1) rotate(-5deg);
-
-    .magic-button {
-      position: relative;
-      background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
-      border: none;
-      border-radius: 999px;
-      /* Pill shape */
-      color: white;
-      overflow: hidden;
-      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.4);
-      z-index: 1;
-    }
-
-    /* Unified Top Reflection (Same as Study/Add buttons) */
-    .magic-button::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 40%;
-      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.05) 100%);
-      border-radius: 999px 999px 200% 200%;
-      pointer-events: none;
-    }
-
-    /* Unified Bottom Glow (Same as Study/Add buttons) */
-    .magic-button::before {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 10%;
-      right: 10%;
-      height: 30%;
-      background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
-      border-radius: 50%;
-      filter: blur(4px);
-      pointer-events: none;
-    }
-
-    transform-origin: center;
+    filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.6));
   }
 
-  button:hover .anim-shake-glow,
-  button:active .anim-shake-glow {
-    animation: shake-glow 0.5s ease-in-out both;
-  }
-
-  /* ===== Check Glow Animation ===== */
-  .icon-glow-green {
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  button:hover .icon-glow-green,
-  button:active .icon-glow-green {
-    transform: scale(1.15) rotate(-5deg);
-    filter: drop-shadow(0 0 6px #4ade80);
-  }
-
-  @keyframes trash-pulse-red {
-    from {
-      opacity: 0.3;
-      filter: drop-shadow(0 0 4px rgba(255, 0, 0, 0.6));
-    }
-
-    to {
-      opacity: 0.8;
-      filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.9));
-    }
-  }
-
-  .magic-button:active .star-2 {
-    animation: star-twinkle 0.8s ease-in-out 0.1s infinite alternate-reverse;
-  }
-
-  .magic-button:hover .star-3,
-  .magic-button:active .star-3 {
-    animation: star-twinkle 1.2s ease-in-out 0.2s infinite alternate;
-  }
-
-  /* ===== Bottom Navigation ===== */
-  .bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: auto;
-    height: 80px;
-    /* Fixed height for calculations */
-    background: rgba(20, 20, 20, 0.95);
-    /* var(--bg-secondary) with opacity */
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    align-items: center;
-    z-index: 1000;
-    /* Ensure above everything */
-    padding: 0 8px;
-    padding-bottom: env(safe-area-inset-bottom);
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
-  }
-
-  .light-theme .bottom-nav {
-    background: rgba(255, 255, 255, 0.95);
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
-    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
-  }
-
-  .nav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    color: var(--text-muted);
-    gap: 4px;
-    /* Grid handles width */
-    width: auto;
-    height: 100%;
-    transition: all 0.3s ease;
-    position: relative;
-  }
-
-  .settings-button {
-    /* Flex items inside grid cell */
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .nav-item span {
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-  }
-
-  .nav-item svg {
-    width: 24px;
-    height: 24px;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-
-  .nav-item.active {
-    color: var(--accent-cyan);
-  }
-
-  .nav-item.active svg {
-    transform: translateY(-4px);
-    filter: drop-shadow(0 0 8px var(--accent-cyan));
-  }
-
-
-  .nav-item:active svg {
-    transform: scale(0.9);
-  }
-
-  /* ===== Premium Close Button ===== */
-  .btn-close-premium {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
-    /* Prevent squishing */
-    min-height: 36px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: var(--text-secondary);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    padding: 0;
-    /* Critical for perfect circle */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  }
-
-  .btn-close-premium:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.3);
-    color: white;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3), 0 0 10px rgba(255, 255, 255, 0.1);
-    /* Glow */
-  }
-
-  .btn-close-premium:active {
-    transform: translateY(1px) scale(0.95);
-    background: rgba(255, 255, 255, 0.02);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) inset;
-    /* Pressed depth */
-  }
-
-  /* Ensure SVG icon is centered and sized */
-
-  /* ===== Premium Action Buttons ===== */
-  .btn-premium-base {
-    padding: 12px 24px;
-    border-radius: 30px;
-    /* Fully rounded pill */
-    font-weight: 600;
-    font-size: 0.95rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .btn-premium-base:active {
-    transform: scale(0.96);
-  }
-
-  /* Primary Action (Save, Generate) */
-  .btn-premium-primary {
-    background: var(--gradient-primary);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: white;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 20px rgba(var(--primary-rgb), 0.2);
-  }
-
-  .btn-premium-primary:hover {
-    filter: brightness(1.1);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 25px rgba(var(--primary-rgb), 0.4);
-    transform: translateY(-2px);
-  }
-
-  /* Secondary Action (Cancel, Again) */
-  .btn-premium-secondary {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: var(--text-secondary);
-    backdrop-filter: blur(10px);
-  }
-
-  .btn-premium-secondary:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.2);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  }
-
-  /* Option Select Button (Settings, Choices) */
-  .btn-select-option {
-    padding: 16px;
-    border-radius: 20px;
-    /* Slightly less rounded than pills, but still soft */
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: var(--text-secondary);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: all 0.2s ease;
-    font-weight: 600;
-  }
-
-  /* ===== Specialized Icon Glows ===== */
-  .icon-glow-green {
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    filter: drop-shadow(0 0 2px rgba(74, 222, 128, 0.3));
-  }
-
-  .btn-premium-base:hover .icon-glow-green,
-  .btn-premium-base:active .icon-glow-green {
-    filter: drop-shadow(0 0 8px rgba(74, 222, 128, 1));
-    stroke: #4ade80;
-    /* Ensure vibrant green on hover */
-    transform: scale(1.15) rotate(-5deg);
-    /* Subtle pop animation */
-  }
-
-  /* Gold Glow (Lightning) */
-  .icon-glow-gold {
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.5));
-  }
-
-  .btn-premium-base:hover .icon-glow-gold,
-  .btn-premium-base:active .icon-glow-gold {
+  50% {
+    transform: scale(1.1) rotate(5deg);
     filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
-    stroke: #FFD700;
-    animation: rhythmic-pulse 1.5s ease-in-out infinite;
   }
 
-  @keyframes rhythmic-pulse {
-    0% {
-      transform: scale(1);
-    }
-
-    15% {
-      transform: scale(1.15) rotate(-3deg);
-    }
-
-    30% {
-      transform: scale(1.15) rotate(3deg);
-    }
-
-    45% {
-      transform: scale(1.15) rotate(-3deg);
-    }
-
-    60% {
-      transform: scale(1);
-    }
-
-    100% {
-      transform: scale(1);
-    }
+  75% {
+    transform: scale(1.1) rotate(-5deg);
+    filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.6));
   }
 
+  100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 0 rgba(255, 215, 0, 0));
+  }
+}
 
+.anim-shake-glow {
+  transform-origin: center;
+}
 
-  /* ===== Download Animation (Home Header) ===== */
-  .anim-header-import:hover .arrow-group,
-  .anim-header-import:active .arrow-group {
-    animation: download-elastic 1.5s cubic-bezier(0.28, 0.84, 0.42, 1) infinite;
-    transform-box: fill-box;
-    transform-origin: center;
+button:hover .anim-shake-glow,
+button:active .anim-shake-glow {
+  animation: shake-glow 0.5s ease-in-out both;
+}
+
+.magic-button {
+  position: relative;
+  background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+  border: none;
+  border-radius: 999px;
+  /* Pill shape */
+  color: white;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  z-index: 1;
+}
+
+z-index: 1;
+}
+
+/* Unified Top Reflection (Same as Study/Add buttons) */
+.magic-button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.05) 100%);
+  border-radius: 999px 999px 200% 200%;
+  pointer-events: none;
+}
+
+/* Unified Bottom Glow (Same as Study/Add buttons) */
+.magic-button::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 10%;
+  right: 10%;
+  height: 30%;
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(4px);
+  pointer-events: none;
+}
+
+transform-origin: center;
+}
+
+button:hover .anim-shake-glow,
+button:active .anim-shake-glow {
+  animation: shake-glow 0.5s ease-in-out both;
+}
+
+/* ===== Check Glow Animation ===== */
+.icon-glow-green {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+button:hover .icon-glow-green,
+button:active .icon-glow-green {
+  transform: scale(1.15) rotate(-5deg);
+  filter: drop-shadow(0 0 6px #4ade80);
+}
+
+@keyframes trash-pulse-red {
+  from {
+    opacity: 0.3;
+    filter: drop-shadow(0 0 4px rgba(255, 0, 0, 0.6));
   }
 
-  .anim-header-import:hover .arrow-shaft,
-  .anim-header-import:active .arrow-shaft {
-    animation: arrow-light-match 1.5s ease-in-out infinite;
+  to {
+    opacity: 0.8;
+    filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.9));
+  }
+}
+
+.magic-button:active .star-2 {
+  animation: star-twinkle 0.8s ease-in-out 0.1s infinite alternate-reverse;
+}
+
+.magic-button:hover .star-3,
+.magic-button:active .star-3 {
+  animation: star-twinkle 1.2s ease-in-out 0.2s infinite alternate;
+}
+
+/* ===== Bottom Navigation ===== */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: auto;
+  height: 80px;
+  /* Fixed height for calculations */
+  background: rgba(20, 20, 20, 0.95);
+  /* var(--bg-secondary) with opacity */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  align-items: center;
+  z-index: 1000;
+  /* Ensure above everything */
+  padding: 0 8px;
+  padding-bottom: env(safe-area-inset-bottom);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.light-theme .bottom-nav {
+  background: rgba(255, 255, 255, 0.95);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: var(--text-muted);
+  gap: 4px;
+  /* Grid handles width */
+  width: auto;
+  height: 100%;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.settings-button {
+  /* Flex items inside grid cell */
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-item span {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.nav-item svg {
+  width: 24px;
+  height: 24px;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.nav-item.active {
+  color: var(--accent-cyan);
+}
+
+.nav-item.active svg {
+  transform: translateY(-4px);
+  filter: drop-shadow(0 0 8px var(--accent-cyan));
+}
+
+
+.nav-item:active svg {
+  transform: scale(0.9);
+}
+
+/* ===== Premium Close Button ===== */
+.btn-close-premium {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  /* Prevent squishing */
+  min-height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding: 0;
+  /* Critical for perfect circle */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn-close-premium:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3), 0 0 10px rgba(255, 255, 255, 0.1);
+  /* Glow */
+}
+
+.btn-close-premium:active {
+  transform: translateY(1px) scale(0.95);
+  background: rgba(255, 255, 255, 0.02);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) inset;
+  /* Pressed depth */
+}
+
+/* Ensure SVG icon is centered and sized */
+
+/* ===== Premium Action Buttons ===== */
+.btn-premium-base {
+  padding: 12px 24px;
+  border-radius: 30px;
+  /* Fully rounded pill */
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-premium-base:active {
+  transform: scale(0.96);
+}
+
+/* Primary Action (Save, Generate) */
+.btn-premium-primary {
+  background: var(--gradient-primary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 20px rgba(var(--primary-rgb), 0.2);
+}
+
+.btn-premium-primary:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 25px rgba(var(--primary-rgb), 0.4);
+  transform: translateY(-2px);
+}
+
+/* Secondary Action (Cancel, Again) */
+.btn-premium-secondary {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  backdrop-filter: blur(10px);
+}
+
+.btn-premium-secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Option Select Button (Settings, Choices) */
+.btn-select-option {
+  padding: 16px;
+  border-radius: 20px;
+  /* Slightly less rounded than pills, but still soft */
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+  font-weight: 600;
+}
+
+/* ===== Specialized Icon Glows ===== */
+.icon-glow-green {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  filter: drop-shadow(0 0 2px rgba(74, 222, 128, 0.3));
+}
+
+.btn-premium-base:hover .icon-glow-green,
+.btn-premium-base:active .icon-glow-green {
+  filter: drop-shadow(0 0 8px rgba(74, 222, 128, 1));
+  stroke: #4ade80;
+  /* Ensure vibrant green on hover */
+  transform: scale(1.15) rotate(-5deg);
+  /* Subtle pop animation */
+}
+
+/* Gold Glow (Lightning) */
+.icon-glow-gold {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.5));
+}
+
+.btn-premium-base:hover .icon-glow-gold,
+.btn-premium-base:active .icon-glow-gold {
+  filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
+  stroke: #FFD700;
+  animation: rhythmic-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes rhythmic-pulse {
+  0% {
+    transform: scale(1);
   }
 
-  .anim-header-import:hover .arrow-head,
-  .anim-header-import:active .arrow-head {
-    animation: arrow-light-match 1.5s ease-in-out infinite;
-    animation-delay: 0.15s;
+  15% {
+    transform: scale(1.15) rotate(-3deg);
   }
 
-  .anim-header-import:hover .icon-tray,
-  .anim-header-import:active .icon-tray {
-    animation: arrow-light-match 1.5s ease-in-out infinite;
-    animation-delay: 0.3s;
-    transition: none;
+  30% {
+    transform: scale(1.15) rotate(3deg);
   }
 
-  @keyframes download-elastic {
-    0% {
-      transform: translateY(-4px) scale(1, 1);
-      opacity: 0.8;
-    }
-
-    25% {
-      transform: translateY(0px) scale(0.8, 1.3);
-      opacity: 1;
-    }
-
-    35% {
-      transform: translateY(1px) scale(1.2, 0.8);
-    }
-
-    50% {
-      transform: translateY(0px) scale(0.9, 1.1);
-    }
-
-    65% {
-      transform: translateY(-1px) scale(1.05, 0.95);
-    }
-
-    100% {
-      transform: translateY(-4px) scale(1, 1);
-      opacity: 0.8;
-    }
+  45% {
+    transform: scale(1.15) rotate(-3deg);
   }
 
-  @keyframes arrow-light-match {
-    0% {
-      filter: brightness(1);
-      stroke: currentColor;
-    }
-
-    35% {
-      filter: brightness(1.5);
-      stroke: var(--accent-cyan);
-    }
-
-    50% {
-      filter: brightness(1.5);
-      stroke: var(--accent-cyan);
-    }
-
-    100% {
-      filter: brightness(1);
-      stroke: currentColor;
-    }
+  60% {
+    transform: scale(1);
   }
 
-  .btn-select-option:hover {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
+  100% {
+    transform: scale(1);
+  }
+}
+
+
+
+/* ===== Download Animation (Home Header) ===== */
+.anim-header-import:hover .arrow-group,
+.anim-header-import:active .arrow-group {
+  animation: download-elastic 1.5s cubic-bezier(0.28, 0.84, 0.42, 1) infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.anim-header-import:hover .arrow-shaft,
+.anim-header-import:active .arrow-shaft {
+  animation: arrow-light-match 1.5s ease-in-out infinite;
+}
+
+.anim-header-import:hover .arrow-head,
+.anim-header-import:active .arrow-head {
+  animation: arrow-light-match 1.5s ease-in-out infinite;
+  animation-delay: 0.15s;
+}
+
+.anim-header-import:hover .icon-tray,
+.anim-header-import:active .icon-tray {
+  animation: arrow-light-match 1.5s ease-in-out infinite;
+  animation-delay: 0.3s;
+  transition: none;
+}
+
+@keyframes download-elastic {
+  0% {
+    transform: translateY(-4px) scale(1, 1);
+    opacity: 0.8;
   }
 
-  .btn-select-option.active {
-    background: rgba(var(--primary-rgb), 0.15);
-    border: 1px solid var(--accent-cyan);
-    color: var(--text-primary);
-    box-shadow: 0 0 15px rgba(var(--primary-rgb), 0.2);
+  25% {
+    transform: translateY(0px) scale(0.8, 1.3);
+    opacity: 1;
   }
 
-  .btn-select-option .icon {
-    font-size: 1.2rem;
+  35% {
+    transform: translateY(1px) scale(1.2, 0.8);
   }
 
-  /* Loading Animation */
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-
-    to {
-      transform: rotate(360deg);
-    }
+  50% {
+    transform: translateY(0px) scale(0.9, 1.1);
   }
 
-  .loading {
-    display: inline-block;
-    animation: spin 2s linear infinite;
+  65% {
+    transform: translateY(-1px) scale(1.05, 0.95);
   }
 
-  /* ===== Blue Edit Button Animation ===== */
-  .anim-edit-blue {
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  100% {
+    transform: translateY(-4px) scale(1, 1);
+    opacity: 0.8;
+  }
+}
+
+@keyframes arrow-light-match {
+  0% {
+    filter: brightness(1);
+    stroke: currentColor;
   }
 
-  .anim-edit-blue:hover,
-  .anim-edit-blue:active {
-    box-shadow: 0 0 15px rgba(0, 217, 255, 0.5), inset 0 0 10px rgba(0, 217, 255, 0.1);
-    border-color: var(--accent-cyan) !important;
-    background: rgba(0, 217, 255, 0.1) !important;
-    transform: translateY(-2px);
-  }
-
-  .anim-edit-blue:hover svg,
-  .anim-edit-blue:active svg {
-    filter: drop-shadow(0 0 8px var(--accent-cyan));
-    transform: scale(1.1) rotate(-10deg);
-    /* Subtle writing tilt */
+  35% {
+    filter: brightness(1.5);
     stroke: var(--accent-cyan);
-    transition: all 0.3s ease;
   }
 
-  /* ===== Audio Button Animation (Progressive Waves) ===== */
-  @keyframes wave-appear {
-    0% {
-      opacity: 0;
-      transform: translateX(-2px);
-    }
-
-    50% {
-      opacity: 1;
-      transform: translateX(0);
-    }
-
-    100% {
-      opacity: 0;
-      transform: translateX(0);
-    }
+  50% {
+    filter: brightness(1.5);
+    stroke: var(--accent-cyan);
   }
 
-  .anim-audio-btn {
-    border-radius: 50% !important;
-    /* Strictly Circle */
-    width: 50px;
-    /* Fixed Gem Size */
-    height: 50px;
-    min-width: 50px !important;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    padding: 0 !important;
-    position: relative;
-    /* Context for pseudos */
-    overflow: visible;
-    /* Allow glow expansion */
+  100% {
+    filter: brightness(1);
+    stroke: currentColor;
+  }
+}
 
-    /* GEM BASE - CYAN */
-    background: radial-gradient(circle at 50% 120%,
-        rgb(0, 100, 120) 10%,
-        /* Dark Core */
-        rgb(0, 40, 50) 60%,
-        /* Deep Body */
-        rgb(0, 20, 30) 100%
-        /* Edge */
-      );
-    border: 1px solid rgba(0, 217, 255, 0.3);
-    /* Subtle glass border */
-    color: var(--accent-cyan);
+.btn-select-option:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
 
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.3),
-      /* Sharp Top Edge */
-      inset 0 -2px 5px rgba(0, 0, 0, 0.5),
-      /* Inner Depth */
-      0 10px 20px rgba(0, 0, 0, 0.3),
-      /* Drop Shadow */
-      0 4px 0 rgb(0, 30, 40);
-    /* 3D Extrusion */
+.btn-select-option.active {
+  background: rgba(var(--primary-rgb), 0.15);
+  border: 1px solid var(--accent-cyan);
+  color: var(--text-primary);
+  box-shadow: 0 0 15px rgba(var(--primary-rgb), 0.2);
+}
+
+.btn-select-option .icon {
+  font-size: 1.2rem;
+}
+
+/* Loading Animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
   }
 
-  /* 1. TOP REFLECTION (Glass Glint) */
-  .anim-audio-btn::after {
-    content: '';
-    position: absolute;
-    top: 2px;
-    left: 10%;
-    right: 10%;
-    height: 40%;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.1) 60%, transparent 100%);
-    border-radius: 50%;
-    opacity: 0.6;
-    pointer-events: none;
+  to {
+    transform: rotate(360deg);
   }
+}
 
-  /* 2. BOTTOM GLOW (Internal Refraction) */
-  .anim-audio-btn::before {
-    content: '';
-    position: absolute;
-    bottom: 5%;
-    left: 10%;
-    right: 10%;
-    height: 40%;
-    background: radial-gradient(ellipse at center bottom, rgba(0, 217, 255, 0.6) 0%, transparent 70%);
-    filter: blur(4px);
-    mix-blend-mode: screen;
-    pointer-events: none;
-    opacity: 0.5;
-  }
+.loading {
+  display: inline-block;
+  animation: spin 2s linear infinite;
+}
 
-  .anim-audio-btn:hover,
-  .anim-audio-btn:active,
-  .anim-audio-btn.playing {
-    transform: translateY(2px);
-    /* Press down effect */
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.4),
-      0 5px 15px rgba(0, 217, 255, 0.4),
-      /* Outer Glow */
-      0 2px 0 rgb(0, 30, 40);
-    /* Reduced Extrusion */
-    border-color: var(--accent-cyan);
-    background: radial-gradient(circle at 50% 120%, rgb(0, 150, 180) 10%, rgb(0, 60, 80) 60%, rgb(0, 30, 40) 100%);
-    /* Brighter */
-  }
+/* ===== Blue Edit Button Animation ===== */
+.anim-edit-blue {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
 
-  .anim-audio-btn:active {
-    transform: translateY(4px);
-    /* Full press */
-    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5), 0 0 10px rgba(0, 217, 255, 0.6);
-    /* Inner depth */
-  }
+.anim-edit-blue:hover,
+.anim-edit-blue:active {
+  box-shadow: 0 0 15px rgba(0, 217, 255, 0.5), inset 0 0 10px rgba(0, 217, 255, 0.1);
+  border-color: var(--accent-cyan) !important;
+  background: rgba(0, 217, 255, 0.1) !important;
+  transform: translateY(-2px);
+}
 
-  /* Maintain Wave Animation visibility inside the gem context */
-  .anim-audio-btn svg {
-    z-index: 2;
-    /* Float icon above reflections */
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
-  }
+.anim-edit-blue:hover svg,
+.anim-edit-blue:active svg {
+  filter: drop-shadow(0 0 8px var(--accent-cyan));
+  transform: scale(1.1) rotate(-10deg);
+  /* Subtle writing tilt */
+  stroke: var(--accent-cyan);
+  transition: all 0.3s ease;
+}
 
-  /* Base state: waves visible but dim */
-  .anim-audio-btn .wave-1,
-  .anim-audio-btn .wave-2 {
-    opacity: 0.4;
-    transition: opacity 0.3s;
-  }
-
-  /* Hover: Loop sequence */
-  .anim-audio-btn:hover .wave-1,
-  .anim-audio-btn:active .wave-1,
-  .anim-audio-btn.playing .wave-1 {
-    animation: wave-appear 1s infinite;
-    animation-delay: 0s;
-    opacity: 1;
-  }
-
-  .anim-audio-btn:hover .wave-2,
-  .anim-audio-btn:active .wave-2,
-  .anim-audio-btn.playing .wave-2 {
-    animation: wave-appear 1s infinite;
-    animation-delay: 0.3s;
-    /* Staggered */
-    opacity: 1;
-  }
-
-  .anim-audio-btn:hover .wave-2,
-  .anim-audio-btn:active .wave-2 {
-    animation: wave-appear 1s infinite;
-    animation-delay: 0.3s;
-    /* Staggered */
-    opacity: 1;
-  }
-
-  /* Audio Button Animation & Styles - Final Polish */
-  .anim-audio-btn {
-    width: 40px !important;
-    height: 40px !important;
-    min-width: 40px !important;
-    border-radius: 50% !important;
-    border: 1px solid rgba(0, 255, 255, 0.3);
-    /* Dim border by default */
-    background: rgba(0, 255, 255, 0.05);
-    /* Very subtle bg */
-    color: var(--accent-cyan);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    padding: 0 !important;
-    margin: 0 auto;
-    box-shadow: none;
-    /* NO shadow by default */
-    transition: all 0.2s ease;
-  }
-
-  .anim-audio-btn:hover {
-    background: rgba(0, 255, 255, 0.15);
-    border-color: var(--accent-cyan);
-  }
-
-  /* Active Playing State: Glows and Brighter */
-  .anim-audio-btn.playing {
-    background: rgba(0, 255, 255, 0.2);
-    border-color: var(--accent-cyan);
-    box-shadow: 0 0 15px var(--accent-cyan);
-    /* Glow ONLY when playing */
-    color: var(--accent-cyan);
-    /* Keep Neon Cyan color, do NOT turn white */
-  }
-
-  /* Wave Animation - Default State (Inactive) */
-  .wave-1,
-  .wave-2 {
-    transform-origin: center;
+/* ===== Audio Button Animation (Progressive Waves) ===== */
+@keyframes wave-appear {
+  0% {
     opacity: 0;
-    /* Completely hidden when idle to avoid confusion */
-    transition: opacity 0.2s;
+    transform: translateX(-2px);
   }
 
-  /* Playing State (Active) */
-  .playing .wave-1,
-  .playing .wave-2 {
+  50% {
     opacity: 1;
-    /* Bright when playing */
+    transform: translateX(0);
   }
 
-  .playing .wave-1 {
-    animation: wave-pulse 0.6s infinite alternate;
+  100% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+}
+
+.anim-audio-btn {
+  border-radius: 50% !important;
+  /* Strictly Circle */
+  width: 50px;
+  /* Fixed Gem Size */
+  height: 50px;
+  min-width: 50px !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  padding: 0 !important;
+  position: relative;
+  /* Context for pseudos */
+  overflow: visible;
+  /* Allow glow expansion */
+
+  /* GEM BASE - CYAN */
+  background: radial-gradient(circle at 50% 120%,
+      rgb(0, 100, 120) 10%,
+      /* Dark Core */
+      rgb(0, 40, 50) 60%,
+      /* Deep Body */
+      rgb(0, 20, 30) 100%
+      /* Edge */
+    );
+  border: 1px solid rgba(0, 217, 255, 0.3);
+  /* Subtle glass border */
+  color: var(--accent-cyan);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    /* Sharp Top Edge */
+    inset 0 -2px 5px rgba(0, 0, 0, 0.5),
+    /* Inner Depth */
+    0 10px 20px rgba(0, 0, 0, 0.3),
+    /* Drop Shadow */
+    0 4px 0 rgb(0, 30, 40);
+  /* 3D Extrusion */
+}
+
+/* 1. TOP REFLECTION (Glass Glint) */
+.anim-audio-btn::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 10%;
+  right: 10%;
+  height: 40%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.1) 60%, transparent 100%);
+  border-radius: 50%;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* 2. BOTTOM GLOW (Internal Refraction) */
+.anim-audio-btn::before {
+  content: '';
+  position: absolute;
+  bottom: 5%;
+  left: 10%;
+  right: 10%;
+  height: 40%;
+  background: radial-gradient(ellipse at center bottom, rgba(0, 217, 255, 0.6) 0%, transparent 70%);
+  filter: blur(4px);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.anim-audio-btn:hover,
+.anim-audio-btn:active,
+.anim-audio-btn.playing {
+  transform: translateY(2px);
+  /* Press down effect */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 5px 15px rgba(0, 217, 255, 0.4),
+    /* Outer Glow */
+    0 2px 0 rgb(0, 30, 40);
+  /* Reduced Extrusion */
+  border-color: var(--accent-cyan);
+  background: radial-gradient(circle at 50% 120%, rgb(0, 150, 180) 10%, rgb(0, 60, 80) 60%, rgb(0, 30, 40) 100%);
+  /* Brighter */
+}
+
+.anim-audio-btn:active {
+  transform: translateY(4px);
+  /* Full press */
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5), 0 0 10px rgba(0, 217, 255, 0.6);
+  /* Inner depth */
+}
+
+/* Maintain Wave Animation visibility inside the gem context */
+.anim-audio-btn svg {
+  z-index: 2;
+  /* Float icon above reflections */
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+/* Base state: waves visible but dim */
+.anim-audio-btn .wave-1,
+.anim-audio-btn .wave-2 {
+  opacity: 0.4;
+  transition: opacity 0.3s;
+}
+
+/* Hover: Loop sequence */
+.anim-audio-btn:hover .wave-1,
+.anim-audio-btn:active .wave-1,
+.anim-audio-btn.playing .wave-1 {
+  animation: wave-appear 1s infinite;
+  animation-delay: 0s;
+  opacity: 1;
+}
+
+.anim-audio-btn:hover .wave-2,
+.anim-audio-btn:active .wave-2,
+.anim-audio-btn.playing .wave-2 {
+  animation: wave-appear 1s infinite;
+  animation-delay: 0.3s;
+  /* Staggered */
+  opacity: 1;
+}
+
+.anim-audio-btn:hover .wave-2,
+.anim-audio-btn:active .wave-2 {
+  animation: wave-appear 1s infinite;
+  animation-delay: 0.3s;
+  /* Staggered */
+  opacity: 1;
+}
+
+/* Audio Button Animation & Styles - Final Polish */
+.anim-audio-btn {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  border-radius: 50% !important;
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  /* Dim border by default */
+  background: rgba(0, 255, 255, 0.05);
+  /* Very subtle bg */
+  color: var(--accent-cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0 !important;
+  margin: 0 auto;
+  box-shadow: none;
+  /* NO shadow by default */
+  transition: all 0.2s ease;
+}
+
+.anim-audio-btn:hover {
+  background: rgba(0, 255, 255, 0.15);
+  border-color: var(--accent-cyan);
+}
+
+/* Active Playing State: Glows and Brighter */
+.anim-audio-btn.playing {
+  background: rgba(0, 255, 255, 0.2);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 15px var(--accent-cyan);
+  /* Glow ONLY when playing */
+  color: var(--accent-cyan);
+  /* Keep Neon Cyan color, do NOT turn white */
+}
+
+/* Wave Animation - Default State (Inactive) */
+.wave-1,
+.wave-2 {
+  transform-origin: center;
+  opacity: 0;
+  /* Completely hidden when idle to avoid confusion */
+  transition: opacity 0.2s;
+}
+
+/* Playing State (Active) */
+.playing .wave-1,
+.playing .wave-2 {
+  opacity: 1;
+  /* Bright when playing */
+}
+
+.playing .wave-1 {
+  animation: wave-pulse 0.6s infinite alternate;
+}
+
+.playing .wave-2 {
+  animation: wave-pulse 0.6s infinite alternate 0.3s;
+}
+
+@keyframes wave-pulse {
+  from {
+    transform: scale(0.85);
   }
 
-  .playing .wave-2 {
-    animation: wave-pulse 0.6s infinite alternate 0.3s;
+  to {
+    transform: scale(1.15);
   }
+}
 
-  @keyframes wave-pulse {
-    from {
-      transform: scale(0.85);
-    }
+/* ===== STRICT UTILITIES FOR ICON BUTTONS ===== */
+/* These classes force icons to be circular/clean, overriding the aggressive global button styles */
 
-    to {
-      transform: scale(1.15);
-    }
-  }
+.btn-icon-reset {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  min-width: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  border-radius: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+}
 
-  /* ===== STRICT UTILITIES FOR ICON BUTTONS ===== */
-  /* These classes force icons to be circular/clean, overriding the aggressive global button styles */
+.btn-icon-reset:hover {
+  transform: none !important;
+  filter: none !important;
+}
 
-  .btn-icon-reset {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    min-width: 0 !important;
-    width: auto !important;
-    height: auto !important;
-    border-radius: 0 !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    line-height: 1 !important;
-  }
+.btn-icon-circular {
+  border-radius: 50% !important;
+  aspect-ratio: 1 !important;
+  flex-shrink: 0 !important;
+}
 
-  .btn-icon-reset:hover {
-    transform: none !important;
-    filter: none !important;
-  }
+/* Specific size enforcement helpers */
+.size-20 {
+  width: 20px !important;
+  height: 20px !important;
+}
 
-  .btn-icon-circular {
-    border-radius: 50% !important;
-    aspect-ratio: 1 !important;
-    flex-shrink: 0 !important;
-  }
+.size-24 {
+  width: 24px !important;
+  height: 24px !important;
+}
 
-  /* Specific size enforcement helpers */
-  .size-20 {
-    width: 20px !important;
-    height: 20px !important;
-  }
+.size-32 {
+  width: 32px !important;
+  height: 32px !important;
+}
 
-  .size-24 {
-    width: 24px !important;
-    height: 24px !important;
-  }
+.size-36 {
+  width: 36px !important;
+  height: 36px !important;
+}
 
-  .size-32 {
-    width: 32px !important;
-    height: 32px !important;
-  }
+.size-40 {
+  width: 40px !important;
+  height: 40px !important;
+}
 
-  .size-36 {
-    width: 36px !important;
-    height: 36px !important;
-  }
+/* Visibility helper for remove buttons */
+.btn-remove-media {
+  background-color: #ef4444 !important;
+  /* Tailwind Red 500 */
+  color: white !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5) !important;
+  transition: transform 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
 
-  .size-40 {
-    width: 40px !important;
-    height: 40px !important;
-  }
+.btn-remove-media:hover {
+  background-color: #dc2626 !important;
+  /* Tailwind Red 600 */
+  transform: scale(1.1) !important;
+}
 
-  /* Visibility helper for remove buttons */
-  .btn-remove-media {
-    background-color: #ef4444 !important;
-    /* Tailwind Red 500 */
-    color: white !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5) !important;
-    transition: transform 0.2s ease !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
+/* Eye Icon Specific Alignment Override */
+.btn-eye-toggle {
+  position: absolute !important;
+  right: 0px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  z-index: 10 !important;
+  width: 40px !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: var(--text-secondary) !important;
+  background: transparent !important;
+  min-width: 40px !important;
+  padding: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
 
-  .btn-remove-media:hover {
-    background-color: #dc2626 !important;
-    /* Tailwind Red 600 */
-    transform: scale(1.1) !important;
-  }
-
-  /* Eye Icon Specific Alignment Override */
-  .btn-eye-toggle {
-    position: absolute !important;
-    right: 0px !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    z-index: 10 !important;
-    width: 40px !important;
-    height: 100% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    color: var(--text-secondary) !important;
-    background: transparent !important;
-    min-width: 40px !important;
-    padding: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
-  }
-
-  .btn-eye-toggle:hover {
-    color: var(--text-primary) !important;
-    background: transparent !important;
-    transform: translateY(-50%) !important;
-    /* Prevent bounce */
-  }
+.btn-eye-toggle:hover {
+  color: var(--text-primary) !important;
+  background: transparent !important;
+  transform: translateY(-50%) !important;
+  /* Prevent bounce */
+}
