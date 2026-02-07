@@ -14,7 +14,7 @@ export class BasicNoteType implements INoteType {
         return [{
             ord: 0,
             front: `<div class="card-content">${front}</div>`,
-            back: `<div class="card-content">${front}</div><hr id=answer><div class="card-content">${back}</div>`,
+            back: `<div class="card-content">${back}</div>`,
             templateName: 'Card 1'
         }];
     }
