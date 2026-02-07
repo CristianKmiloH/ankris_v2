@@ -423,19 +423,38 @@ const EditCardModal: React.FC<EditCardModalProps> = ({ card, onClose, onSave }) 
     );
 };
 
-const MediaPreview: React.FC<{ item: MediaItem, onRemove: () => void }> = ({ item, onRemove }) => (
-    <div style={styles.previewItem}>
-        {item.type === 'image' && <img src={item.src} style={styles.thumb} />}
-        {item.type === 'video' && <video src={item.src} style={styles.thumb} />}
-        {item.type === 'audio' && <div style={styles.audioThumb}>🔊</div>}
+const MediaPreview: React.FC<{ item: MediaItem, onRemove: () => void }> = ({ item, onRemove }) => {
+    const isAudio = item.type === 'audio';
 
-        {/* Remove Button - Strictly Circular & High Contrast */}
-        <button onClick={onRemove} className="btn-icon-reset btn-icon-circular btn-remove-media size-22" style={{ position: 'absolute', top: '2px', right: '2px', zIndex: 20 }}>
-            <span style={{ marginTop: '-2px' }}>×</span>
-        </button>
-        {item.isNew && <span style={styles.newBadge}>NEW</span>}
-    </div>
-);
+    return (
+        <div style={isAudio ? styles.previewItemAudio : styles.previewItem}>
+            {item.type === 'image' && <img src={item.src} style={styles.thumb} />}
+            {item.type === 'video' && <video src={item.src} style={styles.thumb} />}
+            {item.type === 'audio' && (
+                <audio
+                    controls
+                    src={item.src}
+                    style={{ width: '100%', height: '32px' }}
+                />
+            )}
+
+            {/* Remove Button */}
+            <button
+                onClick={onRemove}
+                className="btn-icon-reset btn-icon-circular btn-remove-media size-22"
+                style={{
+                    position: 'absolute',
+                    top: isAudio ? '-8px' : '2px',
+                    right: isAudio ? '-8px' : '2px',
+                    zIndex: 20
+                }}
+            >
+                <span style={{ marginTop: '-2px' }}>×</span>
+            </button>
+            {item.isNew && <span style={styles.newBadge}>NEW</span>}
+        </div>
+    );
+};
 
 const styles: Record<string, React.CSSProperties> = {
     overlay: {
@@ -524,6 +543,15 @@ const styles: Record<string, React.CSSProperties> = {
         backgroundColor: '#2A2A30', // Lighter bg for visibility
         boxShadow: '0 2px 5px rgba(0,0,0,0.4)',
         display: 'flex', alignItems: 'center', justifyContent: 'center'
+    },
+    previewItemAudio: {
+        position: 'relative', width: '100%', height: 'auto',
+        borderRadius: '24px', overflow: 'visible', // Visible for remove button
+        backgroundColor: '#2A2A30',
+        border: '1px solid rgba(255,255,255,0.1)',
+        padding: '8px 12px',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        marginTop: '8px'
     },
     thumb: { width: '100%', height: '100%', objectFit: 'cover' },
     audioThumb: { width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.8rem' },
