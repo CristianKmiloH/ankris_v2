@@ -688,53 +688,64 @@ const DeckList: React.FC = () => {
                                         </div>
                                     </div>
 
-                                    <div style={styles.deckHeader}>
-                                        <div style={{ flex: 1, minWidth: 0, paddingLeft: '14px', paddingRight: '12px' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-                                                <h2 style={{
-                                                    ...styles.deckTitle,
-                                                    whiteSpace: 'nowrap',
-                                                    overflow: 'hidden',
-                                                    textOverflow: 'ellipsis',
-                                                    maxWidth: '100%',
-                                                    fontSize: '1.4rem',
-                                                    margin: 0
-                                                }} title={deck.name}>
-                                                    {deck.name}
-                                                </h2>
-                                            </div>
-                                            <p style={styles.deckCount}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '16px' }}>
+                                        {/* Top Row: Count + Actions */}
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                            {/* Card Count */}
+                                            <p style={{
+                                                margin: 0,
+                                                fontSize: '0.85rem',
+                                                color: 'var(--text-muted)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '6px'
+                                            }}>
                                                 {deck._count?.cards || 0} {deck._count?.cards === 1 ? t('cardCount') : t('cardsCount')}
                                             </p>
-                                        </div>
 
-                                        {/* Action Buttons (Edit/Delete) */}
-                                        {/* Action Buttons: Edit and (Delete + Favorite Column) */}
-                                        <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
-                                            {/* Edit Button */}
-                                            <button
-                                                onClick={(e) => openEditModal(deck, e)}
-                                                className="anim-edit-blue btn-icon-circular"
-                                                title={t('editDeck') || 'Editar'}
-                                                style={{
-                                                    ...styles.editButton,
-                                                    width: '36px', height: '36px',
-                                                    minWidth: '36px', padding: 0,
-                                                    borderColor: 'var(--accent-cyan)',
-                                                    color: 'var(--accent-cyan)',
-                                                    backgroundColor: 'rgba(0, 217, 255, 0.05)',
-                                                    zIndex: 100,
-                                                    position: 'relative',
-                                                    pointerEvents: 'auto',
-                                                }}
-                                            >
-                                                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18" style={{ overflow: 'visible' }}>
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                                </svg>
-                                            </button>
+                                            {/* Action Buttons (Row) */}
+                                            <div style={{ display: 'flex', gap: '8px' }}>
+                                                {/* Favorite Button */}
+                                                <button
+                                                    onClick={(e) => handleToggleFavorite(e, deck)}
+                                                    className="btn-icon-circular"
+                                                    style={{
+                                                        width: '32px', height: '32px', minWidth: '32px', padding: 0,
+                                                        borderRadius: '50%',
+                                                        background: deck.isFavorite ? 'rgba(255, 215, 0, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+                                                        border: deck.isFavorite ? '1px solid rgba(255, 215, 0, 0.6)' : 'none',
+                                                        color: deck.isFavorite ? '#FFD700' : 'rgba(255, 255, 255, 0.4)',
+                                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                        cursor: 'pointer',
+                                                        transition: 'all 0.2s ease',
+                                                        zIndex: 5
+                                                    }}
+                                                    title={deck.isFavorite ? t('removeFromFavorites' as any) : t('addToFavorites' as any)}
+                                                >
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill={deck.isFavorite ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                                    </svg>
+                                                </button>
 
-                                            {/* Delete and Favorite Column */}
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                                {/* Edit Button */}
+                                                <button
+                                                    onClick={(e) => openEditModal(deck, e)}
+                                                    className="anim-edit-blue btn-icon-circular"
+                                                    title={t('editDeck') || 'Editar'}
+                                                    style={{
+                                                        ...styles.editButton,
+                                                        width: '32px', height: '32px', minWidth: '32px', padding: 0,
+                                                        borderColor: 'var(--accent-cyan)',
+                                                        color: 'var(--accent-cyan)',
+                                                        backgroundColor: 'rgba(0, 217, 255, 0.05)',
+                                                        zIndex: 100, pointerEvents: 'auto',
+                                                    }}
+                                                >
+                                                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16" style={{ overflow: 'visible' }}>
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                    </svg>
+                                                </button>
+
                                                 {/* Delete Button */}
                                                 <button
                                                     onClick={(e) => openDeleteModal(deck.id, e)}
@@ -742,58 +753,40 @@ const DeckList: React.FC = () => {
                                                     title={t('deleteDeck')}
                                                     style={{
                                                         ...styles.deleteButton,
-                                                        width: '36px', height: '36px',
-                                                        minWidth: '36px', padding: 0,
-                                                        zIndex: 100,
-                                                        position: 'relative',
-                                                        pointerEvents: 'auto',
+                                                        width: '32px', height: '32px', minWidth: '32px', padding: 0,
+                                                        zIndex: 100, pointerEvents: 'auto',
                                                     }}
                                                 >
-                                                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18" className="trash-icon" style={{ overflow: 'visible', pointerEvents: 'none' }}>
+                                                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16" className="trash-icon" style={{ overflow: 'visible', pointerEvents: 'none' }}>
                                                         <defs>
-                                                            <radialGradient id="trashLight" cx="0.5" cy="0.5" r="0.5" fx="0.5" fy="0.5">
+                                                            <radialGradient id={`trashLight-${deck.id}`} cx="0.5" cy="0.5" r="0.5" fx="0.5" fy="0.5">
                                                                 <stop offset="0%" stopColor="#FFF" stopOpacity="0.9" />
                                                                 <stop offset="40%" stopColor="var(--accent-red)" stopOpacity="0.8" />
                                                                 <stop offset="100%" stopColor="var(--accent-red)" stopOpacity="0" />
                                                             </radialGradient>
                                                         </defs>
-                                                        <ellipse className="trash-glow" cx="12" cy="10" rx="4" ry="2" fill="url(#trashLight)" opacity="0" />
+                                                        <ellipse className="trash-glow" cx="12" cy="10" rx="4" ry="2" fill={`url(#trashLight-${deck.id})`} opacity="0" />
                                                         <path className="trash-can" fill="var(--bg-card)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7M10 11v6M14 11v6" />
                                                         <path className="trash-lid" fill="var(--bg-card)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7h16M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" />
                                                     </svg>
                                                 </button>
-
-                                                {/* Favorite Button (Below Delete) */}
-                                                <button
-                                                    onClick={(e) => handleToggleFavorite(e, deck)}
-                                                    className="btn-icon-circular"
-                                                    style={{
-                                                        width: '36px',
-                                                        height: '36px',
-                                                        minWidth: '36px',
-                                                        padding: 0,
-                                                        borderRadius: '50%',
-                                                        background: deck.isFavorite ? 'rgba(255, 215, 0, 0.15)' : 'rgba(255, 255, 255, 0.03)',
-                                                        border: deck.isFavorite ? '1px solid rgba(255, 215, 0, 0.6)' : '1px solid rgba(255, 255, 255, 0.1)',
-                                                        color: deck.isFavorite ? '#FFD700' : 'rgba(255, 255, 255, 0.4)',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        fontSize: '1.2rem',
-                                                        cursor: 'pointer',
-                                                        transition: 'all 0.2s ease',
-                                                        zIndex: 5,
-                                                        boxShadow: deck.isFavorite ? '0 0 12px rgba(255, 215, 0, 0.2)' : 'none',
-                                                        backdropFilter: 'blur(4px)'
-                                                    }}
-                                                    title={deck.isFavorite ? t('removeFromFavorites' as any) : t('addToFavorites' as any)}
-                                                >
-                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill={deck.isFavorite ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                                                    </svg>
-                                                </button>
                                             </div>
                                         </div>
+
+                                        {/* Deck Name (Full Width) */}
+                                        <h2 style={{
+                                            ...styles.deckTitle,
+                                            width: '100%',
+                                            display: 'block',
+                                            margin: 0,
+                                            fontSize: '1.5rem',
+                                            lineHeight: 1.2,
+                                            whiteSpace: 'normal', // Allow wrapping if needed, or keep nowrap for ellipsis
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis'
+                                        }} title={deck.name}>
+                                            {deck.name}
+                                        </h2>
                                     </div>
 
                                     <div style={styles.deckActions}>
