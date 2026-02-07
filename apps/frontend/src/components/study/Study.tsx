@@ -294,7 +294,8 @@ const Study: React.FC = () => {
                                                                 domNode.attribs.style = "display: block; width: 100%; margin: 10px 0;";
                                                             }
                                                         }
-                                                    })}
+                                                    }
+                                                })}
                                             </div>
                                         </div>
                                     </div>
