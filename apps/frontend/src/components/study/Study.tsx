@@ -313,6 +313,10 @@ const Study: React.FC = () => {
                             </button>
                         )}
                     </div>
+                    {/* DEBUG PANEL */}
+                    <div style={{ position: 'absolute', bottom: 160, left: 10, right: 10, background: 'rgba(0,0,0,0.8)', color: '#0f0', padding: 10, zIndex: 9999, fontSize: 12, maxHeight: 150, overflow: 'auto', pointerEvents: 'none' }}>
+                        <strong>RAW FRONT:</strong> {JSON.stringify(cards[currentCardIndex]?.front)}
+                    </div>
                 </div>
             )}
         </Layout>
