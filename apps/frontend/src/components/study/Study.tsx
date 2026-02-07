@@ -154,14 +154,34 @@ const Study: React.FC = () => {
 
                                                             if (soundMatch) {
                                                                 const filename = soundMatch[1];
-                                                                return (
-                                                                    <>
-                                                                        {cleanText}
-                                                                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', margin: '20px 0', position: 'relative', zIndex: 10 }} onClick={(e) => e.stopPropagation()}>
-                                                                            <audio controls src={`${MEDIA_BASE_URL}/${filename}`} style={{ width: '100%' }} />
-                                                                        </div>
-                                                                    </>
-                                                                );
+                                                                const finalSrc = (filename && (filename.startsWith('http') || filename.startsWith('blob:') || filename.startsWith('data:')))
+                                                                    ? filename
+                                                                    : `${MEDIA_BASE_URL}/${filename}`;
+
+                                                                const isVideo = /\.(mp4|webm|ogg|mov)$/i.test(filename);
+
+                                                                if (isVideo) {
+                                                                    return (
+                                                                        <>
+                                                                            {cleanText}
+                                                                            <video
+                                                                                src={finalSrc}
+                                                                                className="card-media"
+                                                                                controls
+                                                                                style={{ display: 'block', width: '100%', margin: '15px 0' }}
+                                                                            />
+                                                                        </>
+                                                                    );
+                                                                } else {
+                                                                    return (
+                                                                        <>
+                                                                            {cleanText}
+                                                                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', margin: '20px 0', position: 'relative', zIndex: 10 }} onClick={(e) => e.stopPropagation()}>
+                                                                                <audio controls src={finalSrc} style={{ width: '100%' }} />
+                                                                            </div>
+                                                                        </>
+                                                                    );
+                                                                }
                                                             }
                                                             return cleanText;
                                                         }
@@ -236,6 +256,10 @@ const Study: React.FC = () => {
 
                                                             if (soundMatch) {
                                                                 const filename = soundMatch[1];
+                                                                const finalSrc = (filename && (filename.startsWith('http') || filename.startsWith('blob:') || filename.startsWith('data:')))
+                                                                    ? filename
+                                                                    : `${MEDIA_BASE_URL}/${filename}`;
+
                                                                 const isVideo = /\.(mp4|webm|ogg|mov)$/i.test(filename);
 
                                                                 if (isVideo) {
@@ -243,7 +267,7 @@ const Study: React.FC = () => {
                                                                         <>
                                                                             {cleanText}
                                                                             <video
-                                                                                src={`${MEDIA_BASE_URL}/${filename}`}
+                                                                                src={finalSrc}
                                                                                 className="card-media"
                                                                                 controls
                                                                                 style={{ display: 'block', width: '100%', margin: '15px 0' }}
@@ -255,7 +279,7 @@ const Study: React.FC = () => {
                                                                         <>
                                                                             {cleanText}
                                                                             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', margin: '20px 0', position: 'relative', zIndex: 10 }} onClick={(e) => e.stopPropagation()}>
-                                                                                <audio controls src={`${MEDIA_BASE_URL}/${filename}`} style={{ width: '100%' }} />
+                                                                                <audio controls src={finalSrc} style={{ width: '100%' }} />
                                                                             </div>
                                                                         </>
                                                                     );
