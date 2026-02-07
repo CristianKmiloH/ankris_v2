@@ -2093,7 +2093,7 @@ button:active .icon-glow-green {
   text-decoration: none;
   color: var(--text-muted);
   gap: 4px;
-  flex: 1;
+  /* flex: 1; Removed to allow space-between to work */
   height: 100%;
   transition: all 0.3s ease;
   position: relative;

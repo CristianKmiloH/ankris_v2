@@ -126,7 +126,9 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab }) => {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        flexShrink: 0
+                        flexShrink: 0,
+                        color: 'var(--text-muted)', // Ensure visible color against dark bg
+                        fontSize: '0.7rem' // Match other nav items for alignment if needed
                     }}
                     title={t('settings')}
                 >
