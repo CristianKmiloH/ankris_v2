@@ -967,8 +967,8 @@ button.btn-glass:active {
   right: 0;
   background: var(--bg-card);
   border-top: 1px solid var(--bg-card-elevated);
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
   align-items: center;
   /* Force vertical centering of all items */
   /* Force vertical centering of all items */
@@ -976,7 +976,7 @@ button.btn-glass:active {
   height: 60px !important;
   min-height: 60px !important;
   max-height: 60px !important;
-  padding: 0 20px !important;
+  padding: 0 !important;
   padding-bottom: env(safe-area-inset-bottom) !important;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
 }
@@ -2068,12 +2068,12 @@ button:active .icon-glow-green {
   /* var(--bg-secondary) with opacity */
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
   align-items: center;
   z-index: 1000;
   /* Ensure above everything */
-  padding: 0 20px;
+  padding: 0;
   padding-bottom: env(safe-area-inset-bottom);
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
@@ -2093,18 +2093,18 @@ button:active .icon-glow-green {
   text-decoration: none;
   color: var(--text-muted);
   gap: 4px;
-  flex: 0 0 auto !important;
-  width: auto !important;
+  /* Grid handles width */
+  width: auto;
   height: 100%;
   transition: all 0.3s ease;
   position: relative;
 }
 
 .settings-button {
-  width: 40px !important;
-  min-width: 40px !important;
-  flex-shrink: 0 !important;
+  /* Flex items inside grid cell */
   display: flex !important;
+  align-items: center;
+  justify-content: center;
 }
 
 .nav-item span {

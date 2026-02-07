@@ -118,14 +118,12 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab }) => {
                         background: 'transparent',
                         border: 'none',
                         cursor: 'pointer',
-                        width: '40px',
-                        height: '40px',
-                        minWidth: '40px',
+                        width: '100%', // Fill grid cell
+                        height: '100%', // Fill grid cell
                         padding: '0',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        flexShrink: 0,
                         color: 'white', // Bright white to force visibility check
                         fontSize: '0.7rem'
                     }}
