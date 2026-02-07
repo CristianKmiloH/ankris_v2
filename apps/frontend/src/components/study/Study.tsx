@@ -158,7 +158,7 @@ const Study: React.FC = () => {
                                                                     ? filename
                                                                     : `${MEDIA_BASE_URL}/${filename}`;
 
-                                                                const isVideo = /\.(mp4|webm|ogg|mov)$/i.test(filename);
+                                                                const isVideo = /\.(mp4|mov|mkv|ogv)$/i.test(filename);
 
                                                                 if (isVideo) {
                                                                     return (
@@ -260,7 +260,7 @@ const Study: React.FC = () => {
                                                                     ? filename
                                                                     : `${MEDIA_BASE_URL}/${filename}`;
 
-                                                                const isVideo = /\.(mp4|webm|ogg|mov)$/i.test(filename);
+                                                                const isVideo = /\.(mp4|mov|mkv|ogv)$/i.test(filename);
 
                                                                 if (isVideo) {
                                                                     return (

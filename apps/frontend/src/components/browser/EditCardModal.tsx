@@ -186,7 +186,7 @@ const EditCardModal: React.FC<EditCardModalProps> = ({ card, onClose, onSave }) 
 
             mediaRecorder.onstop = () => {
                 const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-                const audioFile = new File([audioBlob], `recording_${Date.now()}.webm`, { type: 'audio/webm' });
+                const audioFile = new File([audioBlob], `recording_${Date.now()}.weba`, { type: 'audio/webm' });
 
                 // Reuse handleFileAdd logic
                 const fileList = {
