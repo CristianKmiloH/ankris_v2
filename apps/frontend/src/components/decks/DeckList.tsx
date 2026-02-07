@@ -1618,22 +1618,26 @@ const styles: { [key: string]: React.CSSProperties } = {
         marginBottom: '20px',
     },
     closeSearch: {
-        background: 'rgba(255, 255, 255, 0.1)',
-        border: '1px solid rgba(255, 255, 255, 0.2)', // Glass border
+        // defined as 'btn-icon-round' in CSS but overriding here for specific modal look
+        background: 'linear-gradient(145deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05))',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        borderTop: '1px solid rgba(255, 255, 255, 0.4)', // Highlight top
+        borderBottom: '1px solid rgba(0, 0, 0, 0.3)',    // Shadow bottom
         color: 'var(--text-primary)',
-        width: '36px', // Slightly larger for touch
-        height: '36px',
-        minWidth: '36px',
+        width: '38px',
+        height: '38px',
+        minWidth: '38px',
         borderRadius: '50%',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         cursor: 'pointer',
-        fontSize: '1rem',
+        fontSize: '1.2rem',
         padding: 0,
-        transition: 'all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1)',
-        backdropFilter: 'blur(8px)', // Glass effect
-        boxShadow: '0 4px 10px rgba(0,0,0,0.3)', // Depth
+        transition: 'all 0.2s ease',
+        backdropFilter: 'blur(12px)',
+        boxShadow: '0 6px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)',
+        textShadow: '0 2px 4px rgba(0,0,0,0.5)',
     },
     searchInput: {
         width: '100%',
