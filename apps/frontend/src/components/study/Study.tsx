@@ -6,7 +6,7 @@ import LoadingScreen from '../common/LoadingScreen';
 import { getDueCards, getAllDueCards, answerCard, type Card } from '../../services/noteService';
 import { useTranslation } from '../../i18n/useTranslation';
 import parse from 'html-react-parser';
-import AudioButton from '../common/AudioButton';
+
 
 const Study: React.FC = () => {
     const { deckId } = useParams();
@@ -157,9 +157,13 @@ const Study: React.FC = () => {
                                                                 return (
                                                                     <>
                                                                         {cleanText}
-                                                                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', margin: '20px 0', position: 'relative', zIndex: 10 }} onClick={(e) => e.stopPropagation()}>
-                                                                            <AudioButton filename={filename} />
-                                                                        </div>
+                                                                        <audio
+                                                                            controls
+                                                                            src={`${MEDIA_BASE_URL}/${filename}`}
+                                                                            className="card-media"
+                                                                            style={{ display: 'block', width: '100%', margin: '20px 0', zIndex: 10, position: 'relative' }}
+                                                                            onClick={(e) => e.stopPropagation()}
+                                                                        />
                                                                     </>
                                                                 );
                                                             }
@@ -243,9 +247,13 @@ const Study: React.FC = () => {
                                                                     return (
                                                                         <>
                                                                             {cleanText}
-                                                                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', margin: '20px 0', position: 'relative', zIndex: 10 }} onClick={(e) => e.stopPropagation()}>
-                                                                                <AudioButton filename={filename} />
-                                                                            </div>
+                                                                            <audio
+                                                                                controls
+                                                                                src={`${MEDIA_BASE_URL}/${filename}`}
+                                                                                className="card-media"
+                                                                                style={{ display: 'block', width: '100%', margin: '20px 0', zIndex: 10, position: 'relative' }}
+                                                                                onClick={(e) => e.stopPropagation()}
+                                                                            />
                                                                         </>
                                                                     );
                                                                 }
