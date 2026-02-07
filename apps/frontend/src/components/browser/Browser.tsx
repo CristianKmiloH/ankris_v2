@@ -106,17 +106,34 @@ const Browser: React.FC = () => {
         }
     };
 
-    const filteredCards = cards.filter(card => {
-        const matchesSearch = (card.front.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            card.back.toLowerCase().includes(searchTerm.toLowerCase()));
+    const filteredCards = React.useMemo(() => {
+        return cards.filter(card => {
+            const matchesSearch = (card.front.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                card.back.toLowerCase().includes(searchTerm.toLowerCase()));
 
-        // Ensure accurate deck ID matching (string comparison)
-        const matchesDeck = selectedDeck === 'all' || String(card.deckId) === String(selectedDeck);
+            // Ensure accurate deck ID matching (string comparison)
+            const matchesDeck = selectedDeck === 'all' || String(card.deckId) === String(selectedDeck);
 
-        return matchesSearch && matchesDeck;
-    });
+            return matchesSearch && matchesDeck;
+        });
+    }, [cards, searchTerm, selectedDeck]);
 
     const getDeckName = (id: string) => decks.find(d => d.id === id)?.name || 'Unknown Deck';
+
+    const handleDeckSelect = async (deckId: string) => {
+        setIsLoading(true);
+        // 1. Artificial delay for visual feedback (user sees loading)
+        await new Promise(resolve => setTimeout(resolve, 600));
+
+        // 2. Set the deck (Triggers heavy filter/render)
+        setSelectedDeck(deckId);
+
+        // 3. Defer removing loading state to allow the UI to paint the spinner 
+        // while the heavy filter operation runs. Breaking the batch.
+        setTimeout(() => {
+            setIsLoading(false);
+        }, 100);
+    };
 
     const renderCardContent = (html: string) => {
         if (!html) return null;
@@ -234,7 +251,7 @@ const Browser: React.FC = () => {
                 {isLoading && (
                     <div style={styles.modalOverlay}>
                         <div style={styles.loadingBox}>
-                            <span className="loading" style={{ fontSize: '3rem' }}>⏳</span>
+                            <span className="loading-spin" style={{ fontSize: '3rem' }}>⏳</span>
                             <p style={styles.loadingText}>{t('loadingCards') || 'Cargando tarjetas...'}</p>
                         </div>
                     </div>
@@ -260,7 +277,7 @@ const Browser: React.FC = () => {
                                 width: '100%',
                                 marginBottom: '8px',
                             }}
-                            onClick={() => setSelectedDeck('all')}
+                            onClick={() => handleDeckSelect('all')}
                         >
                             {t('allDecks')}
                         </button>
@@ -271,7 +288,7 @@ const Browser: React.FC = () => {
                                     key={deck.id}
                                     className={selectedDeck === deck.id ? 'btn-primary' : 'btn-glass'}
                                     style={styles.deckButton}
-                                    onClick={() => setSelectedDeck(deck.id)}
+                                    onClick={() => handleDeckSelect(deck.id)}
                                 >
                                     {deck.name}
                                 </button>
