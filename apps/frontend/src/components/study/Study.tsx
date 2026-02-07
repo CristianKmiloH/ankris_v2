@@ -129,11 +129,6 @@ const Study: React.FC = () => {
                 </div>
             ) : (
                 <div style={styles.container}>
-                    {/* Progress Counter - Top Right */}
-                    <div className="progress-counter" style={styles.progressCounter}>
-                        {currentCardIndex + 1} / {cards.length}
-                    </div>
-
                     {/* Main Study Card */}
                     <div style={styles.cardContainer}>
                         <div style={styles.card} className={`study-card ${isFlipped ? 'flipped' : ''}`} onClick={() => setIsFlipped(!isFlipped)}>
@@ -141,9 +136,9 @@ const Study: React.FC = () => {
                                 {/* Front */}
                                 <div className="card-front">
                                     <div style={styles.cardHeader}>
+                                        <div style={{ width: '40px' }}></div> {/* Spacer for Flip Icon */}
                                         <span className="badge">{t('question')}</span>
-                                        {/* Deck name requires fetching decks, omitting for now */}
-                                        <h3 style={styles.deckName}>Ankris</h3>
+                                        <div style={{ width: '40px' }}></div> {/* Spacer for Counter */}
                                     </div>
                                     <div style={styles.cardContent} ref={frontContentRef}>
                                         <div style={styles.scrollableInner}>
@@ -152,20 +147,17 @@ const Study: React.FC = () => {
                                                     replace: (domNode) => {
                                                         if (domNode.type === 'text') {
                                                             const text = domNode.data;
-                                                            // Check for [sound:file.mp3] pattern
                                                             const soundMatch = text.match(/\[sound:(.*?)\]/);
-
-                                                            // Aggressive clean for the reported "d" artifact everywhere
                                                             let cleanText = text.replace(/\[sound:.*?\]/g, '');
                                                             if (cleanText.trim() === 'd') cleanText = '';
-                                                            else cleanText = cleanText.replace(/\s+d\s*$/, ''); // Remove trailing d
+                                                            else cleanText = cleanText.replace(/\s+d\s*$/, '');
 
                                                             if (soundMatch) {
                                                                 const filename = soundMatch[1];
                                                                 return (
                                                                     <>
                                                                         {cleanText}
-                                                                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', marginTop: '20px' }} onClick={(e) => e.stopPropagation()}>
+                                                                        <div style={{ display: 'block', width: '100%', margin: '20px 0', position: 'relative', zIndex: 10 }} onClick={(e) => e.stopPropagation()}>
                                                                             <AudioButton filename={filename} />
                                                                         </div>
                                                                     </>
@@ -173,28 +165,24 @@ const Study: React.FC = () => {
                                                             }
                                                             return cleanText;
                                                         }
-                                                        // Handle Images - Fix src relative path
                                                         if (domNode.type === 'tag') {
                                                             if (domNode.name === 'img') {
                                                                 const src = domNode.attribs.src;
                                                                 if (src && !src.startsWith('http') && !src.startsWith('data:')) {
                                                                     domNode.attribs.src = `${MEDIA_BASE_URL}/${src}`;
                                                                     domNode.attribs.class = (domNode.attribs.class || '') + ' card-media';
-                                                                    // Only apply inline if class isn't enough, but class is better.
-                                                                    // Removing inline style to let CSS handle it via .card-media
                                                                     delete domNode.attribs.style;
                                                                 }
                                                             }
-                                                            if (domNode.name === 'video') {
+                                                            if (domNode.name === 'video' || domNode.name === 'audio') {
                                                                 const src = domNode.attribs.src;
-                                                                // Some videos might be in <source> children, but Anki usually puts src on video or inside.
-                                                                // Simple check for main src
                                                                 if (src && !src.startsWith('http') && !src.startsWith('data:')) {
                                                                     domNode.attribs.src = `${MEDIA_BASE_URL}/${src}`;
                                                                 }
                                                                 domNode.attribs.class = (domNode.attribs.class || '') + ' card-media';
-                                                                domNode.attribs.controls = "true"; // Ensure controls
-                                                                delete domNode.attribs.style; // Reset styles
+                                                                domNode.attribs.controls = "true";
+                                                                // Force block display via inline style to be safe against global CSS
+                                                                domNode.attribs.style = "display: block; width: 100%; margin: 10px 0;";
                                                             }
                                                         }
                                                     }
@@ -202,18 +190,26 @@ const Study: React.FC = () => {
                                             </h1>
                                         </div>
                                     </div>
-                                    {/* Animated Corner Flip Icon - Moved to Top Right - Matches Library Style */}
-                                    <div className="flip-icon" style={{ position: 'absolute', top: '12px', right: '12px', color: 'var(--accent-cyan)', opacity: 0.8 }}>
+
+                                    {/* Flip Icon - Moved to Top Left */}
+                                    <div className="flip-icon" style={{ position: 'absolute', top: '16px', left: '16px', color: 'var(--accent-cyan)', opacity: 0.8 }}>
                                         <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                         </svg>
+                                    </div>
+
+                                    {/* Card Counter - Top Right (Inside Card) */}
+                                    <div className="card-counter" style={{ position: 'absolute', top: '16px', right: '16px', fontWeight: 'bold', color: 'var(--text-muted)', fontSize: '0.9rem', zIndex: 5 }}>
+                                        {currentCardIndex + 1} / {cards.length}
                                     </div>
                                 </div>
 
                                 {/* Back */}
                                 <div className="card-back">
                                     <div style={styles.cardHeader}>
+                                        <div style={{ width: '40px' }}></div>
                                         <span className="badge badge-accent">{t('answer')}</span>
+                                        <div style={{ width: '40px' }}></div>
                                     </div>
                                     <div style={styles.cardContent} ref={backContentRef}>
                                         <div style={styles.scrollableInner}>
@@ -222,9 +218,7 @@ const Study: React.FC = () => {
                                                     replace: (domNode) => {
                                                         if (domNode.type === 'text') {
                                                             const text = domNode.data;
-                                                            // Check for [sound:file.ext] pattern
                                                             const soundMatch = text.match(/\[sound:(.*?)\]/);
-
                                                             let cleanText = text.replace(/\[sound:.*?\]/g, '');
                                                             if (cleanText.trim() === 'd') cleanText = '';
                                                             else cleanText = cleanText.replace(/\s+d\s*$/, '');
@@ -241,6 +235,7 @@ const Study: React.FC = () => {
                                                                                 src={`${MEDIA_BASE_URL}/${filename}`}
                                                                                 className="card-media"
                                                                                 controls
+                                                                                style={{ display: 'block', width: '100%', margin: '15px 0' }}
                                                                             />
                                                                         </>
                                                                     );
@@ -248,14 +243,15 @@ const Study: React.FC = () => {
                                                                     return (
                                                                         <>
                                                                             {cleanText}
-                                                                            <AudioButton filename={filename} />
+                                                                            <div style={{ display: 'block', width: '100%', margin: '20px 0', position: 'relative', zIndex: 10 }} onClick={(e) => e.stopPropagation()}>
+                                                                                <AudioButton filename={filename} />
+                                                                            </div>
                                                                         </>
                                                                     );
                                                                 }
                                                             }
                                                             return cleanText;
                                                         }
-                                                        // Handle Images & Videos (HTML tags)
                                                         if (domNode.type === 'tag') {
                                                             if (domNode.name === 'img') {
                                                                 const src = domNode.attribs.src;
@@ -265,14 +261,14 @@ const Study: React.FC = () => {
                                                                     delete domNode.attribs.style;
                                                                 }
                                                             }
-                                                            if (domNode.name === 'video') {
+                                                            if (domNode.name === 'video' || domNode.name === 'audio') {
                                                                 const src = domNode.attribs.src;
                                                                 if (src && !src.startsWith('http') && !src.startsWith('data:')) {
                                                                     domNode.attribs.src = `${MEDIA_BASE_URL}/${src}`;
                                                                 }
                                                                 domNode.attribs.class = (domNode.attribs.class || '') + ' card-media';
                                                                 domNode.attribs.controls = "true";
-                                                                delete domNode.attribs.style;
+                                                                domNode.attribs.style = "display: block; width: 100%; margin: 10px 0;";
                                                             }
                                                         }
                                                     }
@@ -280,11 +276,17 @@ const Study: React.FC = () => {
                                             </div>
                                         </div>
                                     </div>
-                                    {/* Animated Corner Flip Icon - Back */}
-                                    <div className="flip-icon" style={{ position: 'absolute', top: '12px', right: '12px', color: 'var(--accent-cyan)', opacity: 0.8 }}>
+
+                                    {/* Flip Icon - Top Left */}
+                                    <div className="flip-icon" style={{ position: 'absolute', top: '16px', left: '16px', color: 'var(--accent-cyan)', opacity: 0.8 }}>
                                         <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                         </svg>
+                                    </div>
+
+                                    {/* Card Counter - Top Right (Inside Card) */}
+                                    <div className="card-counter" style={{ position: 'absolute', top: '16px', right: '16px', fontWeight: 'bold', color: 'var(--text-muted)', fontSize: '0.9rem', zIndex: 5 }}>
+                                        {currentCardIndex + 1} / {cards.length}
                                     </div>
                                 </div>
                             </div>
@@ -351,29 +353,20 @@ const styles: { [key: string]: React.CSSProperties } = {
         maxWidth: '400px',
         lineHeight: '1.5',
     },
-    // New Absolute Layout Strategy
-    progressCounter: {
-        position: 'absolute',
-        top: '16px',
-        right: '24px',
-        zIndex: 5,
-        fontWeight: '600',
-        color: 'var(--text-muted)',
-        fontSize: '0.9rem',
-    },
+    // Removed absolute progressCounter style
     cardContainer: {
         position: 'absolute',
         top: 0,
-        left: 0, // Ensure it spans full width
+        left: 0,
         right: 0,
         bottom: 0,
         zIndex: 1,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center', // Center vertically within the available space
-        padding: '40px 16px 140px 16px', // Top padding for counter, Bottom for buttons/nav
-        pointerEvents: 'none', // Let clicks pass through to background/buttons if needed, but inner card will catch them
+        justifyContent: 'center',
+        padding: '20px 16px 140px 16px', // Reduced top padding since counter is inside
+        pointerEvents: 'none',
     },
     card: {
         width: '100%',
@@ -382,11 +375,15 @@ const styles: { [key: string]: React.CSSProperties } = {
         maxHeight: '100%',
         display: 'flex',
         flexDirection: 'column',
-        pointerEvents: 'auto', // Re-enable pointer events for the card itself
+        pointerEvents: 'auto',
     },
     cardHeader: {
         marginBottom: '16px',
         flexShrink: 0,
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        height: '40px', // Fixed height to guard against overlap/shift
     },
     cardContent: {
         flex: 1,
