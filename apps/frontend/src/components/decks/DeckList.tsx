@@ -5,7 +5,10 @@ import GeneratorModal from '../ai/GeneratorModal';
 import Layout from '../layout/Layout';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { API_BASE_URL } from '../../config';
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 
 interface AnkiWebResult {
     id: string;
@@ -840,290 +843,292 @@ const DeckList: React.FC = () => {
                                             </svg>
                                         </button>
                                     </div>
-                                </div>
+                                </motion.div>
                             ))}
-                    </div>      {fetchError && !isLoading && (
-                        <div style={{
-                            gridColumn: '1 / -1',
-                            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                            padding: '40px', gap: '16px', color: '#ff4d4d', opacity: 0.8
-                        }}>
-                            <span style={{ fontSize: '2rem' }}>⚠️</span>
-                            <p style={{ fontSize: '1.1rem', margin: 0 }}>{t('connectionError') || 'Connection Error'}</p>
-                            <button
-                                onClick={loadDecks}
-                                className="btn-primary"
-                                style={{ padding: '8px 24px', borderRadius: '20px', background: 'rgba(255,255,255,0.1)' }}
-                            >
-                                {t('retry') || 'Retry'}
-                            </button>
-                        </div>
-                    )}
+                    </AnimatePresence>
+                </LayoutGroup>
+            </div>      {fetchError && !isLoading && (
+                <div style={{
+                    gridColumn: '1 / -1',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                    padding: '40px', gap: '16px', color: '#ff4d4d', opacity: 0.8
+                }}>
+                    <span style={{ fontSize: '2rem' }}>⚠️</span>
+                    <p style={{ fontSize: '1.1rem', margin: 0 }}>{t('connectionError') || 'Connection Error'}</p>
+                    <button
+                        onClick={loadDecks}
+                        className="btn-primary"
+                        style={{ padding: '8px 24px', borderRadius: '20px', background: 'rgba(255,255,255,0.1)' }}
+                    >
+                        {t('retry') || 'Retry'}
+                    </button>
+                </div>
+            )}
 
-                    {!fetchError && decks.length === 0 && !isLoading && (
-                        <div style={styles.emptyState}>
-                            <p style={styles.emptyText}>{t('noDecksYet')}</p>
+            {!fetchError && decks.length === 0 && !isLoading && (
+                <div style={styles.emptyState}>
+                    <p style={styles.emptyText}>{t('noDecksYet')}</p>
+                </div>
+            )}
+        </div>
+            </div >
+
+
+    {/* Import Loading Modal (Placed here to be on top of others) */ }
+{
+    isImporting && (
+        <div style={styles.modalOverlay}>
+            <div style={styles.loadingBox}>
+                <span className="loading" style={{ fontSize: '3rem' }}>⏳</span>
+                <p style={styles.loadingText}>{t('importing') || 'Importing Deck...'}</p>
+            </div>
+        </div>
+    )
+}
+
+{/* Delete Confirmation Modal */ }
+{
+    showDeleteModal && (
+        <div style={styles.modalOverlay}>
+            <div style={styles.deleteModal}>
+                <h3 style={styles.deleteTitle}>{t('deleteDeck')}?</h3>
+                <p style={styles.deleteMessage}>{t('deleteConfirm') || "¿Estás seguro de eliminar este mazo?"}</p>
+                <div style={styles.deleteActions}>
+                    <button onClick={() => setShowDeleteModal(false)} style={styles.cancelButton}>
+                        {t('cancel')}
+                    </button>
+                    <button onClick={confirmDelete} style={styles.confirmButton}>
+                        {t('delete')}
+                    </button>
+                </div>
+            </div>
+        </div>
+    )
+}
+{/* Edit Deck Modal */ }
+{
+    showEditModal && (
+        <div style={styles.modalOverlay} onClick={() => setShowEditModal(false)}>
+            <div style={styles.searchModalContent} onClick={(e) => e.stopPropagation()}>
+                <div style={styles.searchHeader}>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>
+                        {t('editDeck') || 'Editar Mazo'}
+                    </h2>
+                    <button onClick={() => setShowEditModal(false)} style={styles.closeSearch}>✕</button>
+                </div>
+
+                <form onSubmit={handleUpdateDeck} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <label style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{t('deckName') || 'Nombre del Mazo'}</label>
+                        <input
+                            autoFocus
+                            type="text"
+                            value={editName}
+                            onChange={(e) => setEditName(e.target.value)}
+                            style={styles.searchInput} // Reuse input style
+                            placeholder="Nombre del mazo"
+                        />
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                        <button type="button" onClick={() => setShowEditModal(false)} style={styles.cancelButton}>
+                            {t('cancel')}
+                        </button>
+                        <button type="submit" className="btn-primary" style={{ ...styles.createButton, height: '40px', minWidth: '100px' }}>
+                            {t('save') || 'Guardar'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    )
+}
+
+{/* Search Modal - Premium Redesign */ }
+{
+    isSearchOpen && (
+        <div
+            className="glass-overlay"
+            style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                zIndex: 9999,
+                background: 'rgba(0,0,0,0.6)',
+                backdropFilter: 'blur(8px)',
+                display: 'flex',
+                alignItems: 'flex-start',
+                justifyContent: 'center',
+                paddingTop: '100px', // Push down from top
+                animation: 'fadeIn 0.2s ease-out'
+            }}
+            onClick={() => setIsSearchOpen(false)}
+        >
+            <div
+                className="glass-panel"
+                style={{
+                    width: '90%',
+                    maxWidth: '500px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '16px',
+                    padding: '24px',
+                    borderRadius: '28px', // More rounded card look
+                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    transform: 'translateY(10px)',
+                    animation: 'slideUp 0.3s ease-out'
+                }}
+                onClick={(e) => e.stopPropagation()}
+            >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h2 className="text-cyan" style={{ margin: 0, fontSize: '1.5rem', fontWeight: '800', letterSpacing: '0.5px' }}>
+                        {t('searchDecks') || 'Search Decks'}
+                    </h2>
+                    <button
+                        onClick={() => setIsSearchOpen(false)}
+                        className="btn-icon-round"
+                        style={{
+                            width: '36px',
+                            height: '36px',
+                            minWidth: '36px', // Force circle
+                            padding: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: 'rgba(255,255,255,0.1)',
+                            color: 'var(--text-primary)'
+                        }}
+                    >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div style={{ position: 'relative', width: '100%' }}>
+                    <input
+                        autoFocus
+                        type="text"
+                        placeholder={t('searchPlaceholder') || "Type to filter..."}
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        style={{
+                            width: '100%',
+                            padding: '18px 24px',
+                            paddingLeft: '56px',
+                            borderRadius: '24px',
+                            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%)',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            color: 'white',
+                            fontSize: '1.2rem',
+                            outline: 'none',
+                            boxShadow: 'inset 0 4px 10px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.05)',
+                            transition: 'all 0.3s ease'
+                        }}
+                        onFocus={(e) => {
+                            e.target.style.background = 'linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.06) 100%)';
+                            e.target.style.borderColor = 'var(--accent-cyan)';
+                            e.target.style.boxShadow = '0 0 20px rgba(0, 242, 255, 0.2), inset 0 2px 5px rgba(0,0,0,0.2)';
+                        }}
+                        onBlur={(e) => {
+                            e.target.style.background = 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%)';
+                            e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                            e.target.style.boxShadow = 'inset 0 4px 10px rgba(0,0,0,0.2)';
+                        }}
+                    />
+                    <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        style={{
+                            position: 'absolute',
+                            left: '20px',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            color: 'var(--accent-cyan)', // Highlight icon
+                            pointerEvents: 'none',
+                            filter: 'drop-shadow(0 0 5px rgba(0, 242, 255, 0.5))'
+                        }}
+                    >
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </div>
+
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '8px',
+                    maxHeight: '300px',
+                    overflowY: 'auto',
+                    paddingRight: '4px' // Space for scrollbar
+                }}>
+                    {decks.filter(d => d.name.toLowerCase().includes(searchQuery.toLowerCase())).length > 0 ? (
+                        decks
+                            .filter(d => d.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                            .map(deck => (
+                                <div
+                                    key={deck.id}
+                                    onClick={() => {
+                                        setActiveFilterId(deck.id);
+                                        setIsSearchOpen(false);
+                                        setSearchQuery('');
+                                    }}
+                                    className="search-item"
+                                    style={{
+                                        padding: '16px',
+                                        borderRadius: '12px',
+                                        background: 'rgba(255, 255, 255, 0.05)',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        border: '1px solid transparent',
+                                        transition: 'all 0.2s ease'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                                        e.currentTarget.style.borderColor = 'transparent';
+                                    }}
+                                >
+                                    <span style={{ fontWeight: '600', fontSize: '1rem' }}>{deck.name}</span>
+                                    <span style={{
+                                        fontSize: '0.8rem',
+                                        background: 'rgba(255,255,255,0.1)',
+                                        padding: '4px 10px',
+                                        borderRadius: '99px',
+                                        color: 'rgba(255,255,255,0.7)'
+                                    }}>{deck._count?.cards || 0}</span>
+                                </div>
+                            ))
+                    ) : (
+                        <div style={{ padding: '40px', textAlign: 'center', opacity: 0.5 }}>
+                            No matching decks found
                         </div>
                     )}
                 </div>
             </div>
+        </div>
+    )
+}
 
-
-            {/* Import Loading Modal (Placed here to be on top of others) */}
-            {
-                isImporting && (
-                    <div style={styles.modalOverlay}>
-                        <div style={styles.loadingBox}>
-                            <span className="loading" style={{ fontSize: '3rem' }}>⏳</span>
-                            <p style={styles.loadingText}>{t('importing') || 'Importing Deck...'}</p>
-                        </div>
-                    </div>
-                )
-            }
-
-            {/* Delete Confirmation Modal */}
-            {
-                showDeleteModal && (
-                    <div style={styles.modalOverlay}>
-                        <div style={styles.deleteModal}>
-                            <h3 style={styles.deleteTitle}>{t('deleteDeck')}?</h3>
-                            <p style={styles.deleteMessage}>{t('deleteConfirm') || "¿Estás seguro de eliminar este mazo?"}</p>
-                            <div style={styles.deleteActions}>
-                                <button onClick={() => setShowDeleteModal(false)} style={styles.cancelButton}>
-                                    {t('cancel')}
-                                </button>
-                                <button onClick={confirmDelete} style={styles.confirmButton}>
-                                    {t('delete')}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )
-            }
-            {/* Edit Deck Modal */}
-            {
-                showEditModal && (
-                    <div style={styles.modalOverlay} onClick={() => setShowEditModal(false)}>
-                        <div style={styles.searchModalContent} onClick={(e) => e.stopPropagation()}>
-                            <div style={styles.searchHeader}>
-                                <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>
-                                    {t('editDeck') || 'Editar Mazo'}
-                                </h2>
-                                <button onClick={() => setShowEditModal(false)} style={styles.closeSearch}>✕</button>
-                            </div>
-
-                            <form onSubmit={handleUpdateDeck} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                    <label style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{t('deckName') || 'Nombre del Mazo'}</label>
-                                    <input
-                                        autoFocus
-                                        type="text"
-                                        value={editName}
-                                        onChange={(e) => setEditName(e.target.value)}
-                                        style={styles.searchInput} // Reuse input style
-                                        placeholder="Nombre del mazo"
-                                    />
-                                </div>
-
-                                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-                                    <button type="button" onClick={() => setShowEditModal(false)} style={styles.cancelButton}>
-                                        {t('cancel')}
-                                    </button>
-                                    <button type="submit" className="btn-primary" style={{ ...styles.createButton, height: '40px', minWidth: '100px' }}>
-                                        {t('save') || 'Guardar'}
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                )
-            }
-
-            {/* Search Modal - Premium Redesign */}
-            {
-                isSearchOpen && (
-                    <div
-                        className="glass-overlay"
-                        style={{
-                            position: 'fixed',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            zIndex: 9999,
-                            background: 'rgba(0,0,0,0.6)',
-                            backdropFilter: 'blur(8px)',
-                            display: 'flex',
-                            alignItems: 'flex-start',
-                            justifyContent: 'center',
-                            paddingTop: '100px', // Push down from top
-                            animation: 'fadeIn 0.2s ease-out'
-                        }}
-                        onClick={() => setIsSearchOpen(false)}
-                    >
-                        <div
-                            className="glass-panel"
-                            style={{
-                                width: '90%',
-                                maxWidth: '500px',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: '16px',
-                                padding: '24px',
-                                borderRadius: '28px', // More rounded card look
-                                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-                                border: '1px solid rgba(255, 255, 255, 0.1)',
-                                transform: 'translateY(10px)',
-                                animation: 'slideUp 0.3s ease-out'
-                            }}
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <h2 className="text-cyan" style={{ margin: 0, fontSize: '1.5rem', fontWeight: '800', letterSpacing: '0.5px' }}>
-                                    {t('searchDecks') || 'Search Decks'}
-                                </h2>
-                                <button
-                                    onClick={() => setIsSearchOpen(false)}
-                                    className="btn-icon-round"
-                                    style={{
-                                        width: '36px',
-                                        height: '36px',
-                                        minWidth: '36px', // Force circle
-                                        padding: 0,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        background: 'rgba(255,255,255,0.1)',
-                                        color: 'var(--text-primary)'
-                                    }}
-                                >
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                        <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                </button>
-                            </div>
-
-                            <div style={{ position: 'relative', width: '100%' }}>
-                                <input
-                                    autoFocus
-                                    type="text"
-                                    placeholder={t('searchPlaceholder') || "Type to filter..."}
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    style={{
-                                        width: '100%',
-                                        padding: '18px 24px',
-                                        paddingLeft: '56px',
-                                        borderRadius: '24px',
-                                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%)',
-                                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                                        color: 'white',
-                                        fontSize: '1.2rem',
-                                        outline: 'none',
-                                        boxShadow: 'inset 0 4px 10px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.05)',
-                                        transition: 'all 0.3s ease'
-                                    }}
-                                    onFocus={(e) => {
-                                        e.target.style.background = 'linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.06) 100%)';
-                                        e.target.style.borderColor = 'var(--accent-cyan)';
-                                        e.target.style.boxShadow = '0 0 20px rgba(0, 242, 255, 0.2), inset 0 2px 5px rgba(0,0,0,0.2)';
-                                    }}
-                                    onBlur={(e) => {
-                                        e.target.style.background = 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%)';
-                                        e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                                        e.target.style.boxShadow = 'inset 0 4px 10px rgba(0,0,0,0.2)';
-                                    }}
-                                />
-                                <svg
-                                    width="24"
-                                    height="24"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2.5"
-                                    style={{
-                                        position: 'absolute',
-                                        left: '20px',
-                                        top: '50%',
-                                        transform: 'translateY(-50%)',
-                                        color: 'var(--accent-cyan)', // Highlight icon
-                                        pointerEvents: 'none',
-                                        filter: 'drop-shadow(0 0 5px rgba(0, 242, 255, 0.5))'
-                                    }}
-                                >
-                                    <circle cx="11" cy="11" r="8"></circle>
-                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                                </svg>
-                            </div>
-
-                            <div style={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: '8px',
-                                maxHeight: '300px',
-                                overflowY: 'auto',
-                                paddingRight: '4px' // Space for scrollbar
-                            }}>
-                                {decks.filter(d => d.name.toLowerCase().includes(searchQuery.toLowerCase())).length > 0 ? (
-                                    decks
-                                        .filter(d => d.name.toLowerCase().includes(searchQuery.toLowerCase()))
-                                        .map(deck => (
-                                            <div
-                                                key={deck.id}
-                                                onClick={() => {
-                                                    setActiveFilterId(deck.id);
-                                                    setIsSearchOpen(false);
-                                                    setSearchQuery('');
-                                                }}
-                                                className="search-item"
-                                                style={{
-                                                    padding: '16px',
-                                                    borderRadius: '12px',
-                                                    background: 'rgba(255, 255, 255, 0.05)',
-                                                    cursor: 'pointer',
-                                                    display: 'flex',
-                                                    justifyContent: 'space-between',
-                                                    alignItems: 'center',
-                                                    border: '1px solid transparent',
-                                                    transition: 'all 0.2s ease'
-                                                }}
-                                                onMouseEnter={(e) => {
-                                                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                                                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                                                }}
-                                                onMouseLeave={(e) => {
-                                                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-                                                    e.currentTarget.style.borderColor = 'transparent';
-                                                }}
-                                            >
-                                                <span style={{ fontWeight: '600', fontSize: '1rem' }}>{deck.name}</span>
-                                                <span style={{
-                                                    fontSize: '0.8rem',
-                                                    background: 'rgba(255,255,255,0.1)',
-                                                    padding: '4px 10px',
-                                                    borderRadius: '99px',
-                                                    color: 'rgba(255,255,255,0.7)'
-                                                }}>{deck._count?.cards || 0}</span>
-                                            </div>
-                                        ))
-                                ) : (
-                                    <div style={{ padding: '40px', textAlign: 'center', opacity: 0.5 }}>
-                                        No matching decks found
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                )
-            }
-
-            {/* Error Modal */}
-            <ErrorModal
-                isOpen={errorModalOpen}
-                title={errorTitle}
-                message={errorMessage}
-                onClose={() => setErrorModalOpen(false)}
-            />
+{/* Error Modal */ }
+<ErrorModal
+    isOpen={errorModalOpen}
+    title={errorTitle}
+    message={errorMessage}
+    onClose={() => setErrorModalOpen(false)}
+/>
 
         </Layout >
     );
