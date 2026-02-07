@@ -286,14 +286,43 @@ const EditCardModal: React.FC<EditCardModalProps> = ({ card, onClose, onSave }) 
                     <div style={styles.section}>
                         <div style={styles.labelRow}>
                             <label style={styles.label}>{t('question')} (Front)</label>
-                            <div style={{ display: 'flex', gap: '8px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                {/* Recording Timer (Visible only when recording this side) */}
+                                {isRecording && activeSide === 'front' && (
+                                    <span style={{
+                                        color: '#ef4444',
+                                        fontWeight: 'bold',
+                                        fontFamily: 'monospace',
+                                        fontSize: '0.9rem',
+                                        animation: 'pulse 1s infinite'
+                                    }}>
+                                        ● {formatTime(recordingTime)}
+                                    </span>
+                                )}
+
+                                {/* Circular Mic/Stop Button */}
                                 <button
                                     onClick={() => isRecording && activeSide === 'front' ? stopRecording() : startRecording('front')}
                                     style={isRecording && activeSide === 'front' ? styles.recordingBtnActive : styles.recordingBtn}
                                     disabled={isRecording && activeSide !== 'front'}
+                                    title={isRecording ? "Stop Recording" : "Start Voice Recording"}
                                 >
-                                    {isRecording && activeSide === 'front' ? `⏹ ${formatTime(recordingTime)}` : '🎤 Rec'}
+                                    {isRecording && activeSide === 'front' ? (
+                                        // Stop Icon
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                            <rect x="6" y="6" width="12" height="12" rx="2" />
+                                        </svg>
+                                    ) : (
+                                        // Mic Icon
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                            <line x1="12" y1="19" x2="12" y2="23"></line>
+                                            <line x1="8" y1="23" x2="16" y2="23"></line>
+                                        </svg>
+                                    )}
                                 </button>
+
                                 <label style={styles.uploadBtn}>
                                     <span style={{ fontSize: '1.2em', marginRight: '4px' }}>+</span> Media
                                     <input
@@ -324,13 +353,38 @@ const EditCardModal: React.FC<EditCardModalProps> = ({ card, onClose, onSave }) 
                     <div style={styles.section}>
                         <div style={styles.labelRow}>
                             <label style={styles.label}>{t('answer')} (Back)</label>
-                            <div style={{ display: 'flex', gap: '8px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                {/* Recording Timer (Back) */}
+                                {isRecording && activeSide === 'back' && (
+                                    <span style={{
+                                        color: '#ef4444',
+                                        fontWeight: 'bold',
+                                        fontFamily: 'monospace',
+                                        fontSize: '0.9rem',
+                                        animation: 'pulse 1s infinite'
+                                    }}>
+                                        ● {formatTime(recordingTime)}
+                                    </span>
+                                )}
+
                                 <button
                                     onClick={() => isRecording && activeSide === 'back' ? stopRecording() : startRecording('back')}
                                     style={isRecording && activeSide === 'back' ? styles.recordingBtnActive : styles.recordingBtn}
                                     disabled={isRecording && activeSide !== 'back'}
+                                    title={isRecording ? "Stop Recording" : "Start Voice Recording"}
                                 >
-                                    {isRecording && activeSide === 'back' ? `⏹ ${formatTime(recordingTime)}` : '🎤 Rec'}
+                                    {isRecording && activeSide === 'back' ? (
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                            <rect x="6" y="6" width="12" height="12" rx="2" />
+                                        </svg>
+                                    ) : (
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                            <line x1="12" y1="19" x2="12" y2="23"></line>
+                                            <line x1="8" y1="23" x2="16" y2="23"></line>
+                                        </svg>
+                                    )}
                                 </button>
                                 <label style={styles.uploadBtn}>
                                     <span style={{ fontSize: '1.2em', marginRight: '4px' }}>+</span> Media
@@ -437,17 +491,22 @@ const styles: Record<string, React.CSSProperties> = {
         border: '1px solid rgba(255,255,255,0.05)'
     },
     recordingBtn: {
-        fontSize: '0.75rem', color: '#fff', cursor: 'pointer',
-        backgroundColor: 'rgba(239, 68, 68, 0.1)', // Red tint
-        padding: '6px 14px', borderRadius: '20px', border: '1px solid rgba(239, 68, 68, 0.2)',
-        display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '600', transition: 'all 0.2s',
+        width: '40px', height: '40px', borderRadius: '50%',
+        backgroundColor: '#ef4444', // Red Background (Per user request)
+        color: '#fff', cursor: 'pointer',
+        border: '3px solid rgba(255,255,255,0.2)', // Nice border
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        transition: 'all 0.2s',
+        boxShadow: '0 4px 6px rgba(0,0,0,0.3)'
     },
     recordingBtnActive: {
-        fontSize: '0.75rem', color: '#fff', cursor: 'pointer',
-        backgroundColor: 'rgba(239, 68, 68, 0.8)', // Solid Red
-        padding: '6px 14px', borderRadius: '20px', border: '1px solid rgba(239, 68, 68, 1)',
-        display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '600', transition: 'all 0.2s',
-        animation: 'pulse 1.5s infinite'
+        width: '40px', height: '40px', borderRadius: '50%',
+        backgroundColor: 'transparent',
+        border: '3px solid #ef4444', // Ring border when recording
+        color: '#ef4444', cursor: 'pointer',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        transition: 'all 0.2s',
+        boxShadow: '0 0 15px rgba(239, 68, 68, 0.4)'
     },
     textArea: {
         width: '100%', minHeight: '90px',
