@@ -111,27 +111,42 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab }) => {
                     <span>DATOS</span>
                 </Link>
                 <div
-                    onClick={() => setOpenSettings(true)}
+                    onClick={() => {
+                        setTriggerAnim(true); // Re-use this for simplicity or add specific state
+                        setOpenSettings(true);
+                    }}
                     role="button"
                     className="nav-item settings-button"
                     style={{
                         background: 'transparent',
                         border: 'none',
                         cursor: 'pointer',
-                        width: '100%', // Fill grid cell
-                        height: '100%', // Fill grid cell
+                        width: '100%',
+                        height: '100%',
                         padding: '0',
                         display: 'flex',
-                        flexDirection: 'column', // Stack icon and text like others
+                        flexDirection: 'column',
                         alignItems: 'center',
-                        justifyContent: 'center', // Revert to center
-                        gap: '2px', // Match .nav-item gap
-                        color: 'white', // Bright white to force visibility check
-                        fontSize: '0.7rem'
+                        justifyContent: 'center',
+                        gap: '2px',
+                        color: 'white',
+                        fontSize: '0.7rem',
+                        WebkitTapHighlightColor: 'transparent', // REMOVED THE BLUE BOX
+                        outline: 'none'
                     }}
                     title={t('settings')}
                 >
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ width: '24px', height: '24px' }}>
+                    <svg
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        style={{
+                            width: '24px',
+                            height: '24px',
+                            transition: 'transform 0.5s ease',
+                            transform: openSettings ? 'rotate(90deg)' : 'rotate(0deg)' // Rotate when open
+                        }}
+                    >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
