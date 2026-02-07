@@ -120,11 +120,11 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab }) => {
                         cursor: 'pointer',
                         width: '100%', // Fill grid cell
                         height: '100%', // Fill grid cell
-                        padding: '0',
+                        padding: '16px 0 0 0', // Top padding matches .nav-item
                         display: 'flex',
                         flexDirection: 'column', // Stack icon and text like others
                         alignItems: 'center',
-                        justifyContent: 'center',
+                        justifyContent: 'flex-start', // Anchor to top
                         gap: '2px', // Match .nav-item gap
                         color: 'white', // Bright white to force visibility check
                         fontSize: '0.7rem'
