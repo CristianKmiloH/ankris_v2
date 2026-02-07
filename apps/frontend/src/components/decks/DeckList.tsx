@@ -33,6 +33,7 @@ const DeckList: React.FC = () => {
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const [isImportHovered, setIsImportHovered] = useState(false);
     const [hoveredDeckId, setHoveredDeckId] = useState<string | null>(null); // Track hovered study button
+    const [draggedDeckId, setDraggedDeckId] = useState<string | null>(null); // Track dragged deck for live reordering
     const searchInputRef = React.useRef<HTMLInputElement>(null);
 
 
@@ -622,45 +623,42 @@ const DeckList: React.FC = () => {
                                         transition: 'transform 0.2s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.2s',
                                     }}
                                     className="card-large deck-item"
-                                    draggable={!activeFilterId && !showFavoritesOnly} // Only draggable if not filtered
+                                    draggable={!activeFilterId && !showFavoritesOnly}
                                     onDragStart={(e) => {
-                                        e.dataTransfer.setData('text/plain', deck.id);
+                                        setDraggedDeckId(deck.id);
                                         e.dataTransfer.effectAllowed = 'move';
-                                        e.currentTarget.style.opacity = '0.5';
-                                        e.currentTarget.style.transform = 'scale(0.98)';
+                                        // Slight delay to allow ghost image to be captured before opacity change
+                                        setTimeout(() => {
+                                            if (e.currentTarget) e.currentTarget.style.opacity = '0.4';
+                                        }, 0);
                                     }}
-                                    onDragEnd={(e) => {
-                                        e.currentTarget.style.opacity = '1';
-                                        e.currentTarget.style.transform = 'scale(1)';
-                                    }}
-                                    onDragOver={(e) => {
-                                        e.preventDefault(); // Necessary for onDrop to fire
-                                        e.dataTransfer.dropEffect = 'move';
-                                    }}
-                                    onDrop={async (e) => {
+                                    onDragEnter={(e) => {
                                         e.preventDefault();
-                                        const draggedDeckId = e.dataTransfer.getData('text/plain');
-                                        if (draggedDeckId === deck.id) return;
+                                        if (!draggedDeckId || draggedDeckId === deck.id) return;
 
                                         const sourceIndex = decks.findIndex(d => d.id === draggedDeckId);
                                         const targetIndex = decks.findIndex(d => d.id === deck.id);
 
                                         if (sourceIndex === -1 || targetIndex === -1) return;
 
-                                        // Reorder locally
+                                        // Live Reordering: Swap immediately in state
                                         const newDecks = [...decks];
                                         const [removed] = newDecks.splice(sourceIndex, 1);
                                         newDecks.splice(targetIndex, 0, removed);
-
-                                        // Update order indices
-                                        newDecks.forEach((d, i) => d.orderIndex = i);
                                         setDecks(newDecks);
-
-                                        // Backend update logic would go here. 
-                                        // Since we are simulating DnD without full backend support yet, we rely on local state.
-                                        // If the user drags only 1 step, we could call 'reorderDeck'. 
-                                        // If jump > 1, it's harder. We'll skip backend for now to satisfy UI first.
                                     }}
+                                    onDragEnd={(e) => {
+                                        setDraggedDeckId(null);
+                                        e.currentTarget.style.opacity = '1';
+                                        // Here you would typically save the final order to the backend
+                                        // saveDeckOrder(decks.map(d => d.id));
+                                    }}
+                                    onDragOver={(e) => {
+                                        e.preventDefault(); // Necessary for onDrop to fire
+                                        e.dataTransfer.dropEffect = 'move';
+                                    }}
+                                // onDrop not strictly needed for live reordering as state is already updated
+                                // but can be used for final commit if logic differs
                                 >
                                     {/* Drag Handle - Subtle hint */}
                                     {/* Drag Handle - Top Center */}
