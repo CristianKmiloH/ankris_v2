@@ -622,12 +622,18 @@ const DeckList: React.FC = () => {
                                             initial={{ opacity: 0, scale: 0.9 }}
                                             animate={{ opacity: 1, scale: 1 }}
                                             exit={{ opacity: 0, scale: 0.9 }}
-                                            transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                                            transition={{
+                                                layout: { type: 'spring', stiffness: 250, damping: 20, mass: 0.8 }, // Fluid reordering
+                                                opacity: { duration: 0.2 }
+                                            }}
                                             key={deck.id}
                                             style={{
                                                 ...styles.deckCard,
                                                 cursor: (!activeFilterId && !showFavoritesOnly) ? 'grab' : 'default',
                                                 position: 'relative',
+                                                zIndex: draggedDeckId === deck.id ? 10 : 1, // Ensure dragged item stays on top if visible
+                                                transform: draggedDeckId === deck.id ? 'scale(1.02)' : 'scale(1)', // Subtle lift hint
+                                                boxShadow: draggedDeckId === deck.id ? '0 10px 20px rgba(0,0,0,0.3)' : 'none',
                                             }}
                                             className="card-large deck-item"
                                             draggable={!activeFilterId && !showFavoritesOnly}
