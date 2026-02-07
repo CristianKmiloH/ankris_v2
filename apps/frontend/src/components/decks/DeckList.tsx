@@ -663,28 +663,29 @@ const DeckList: React.FC = () => {
                                     }}
                                 >
                                     {/* Drag Handle - Subtle hint */}
+                                    {/* Drag Handle - Top Center */}
                                     <div style={{
                                         position: 'absolute',
-                                        left: '8px',
-                                        top: '50%',
-                                        transform: 'translateY(-50%)',
+                                        left: '50%',
+                                        top: '6px',
+                                        transform: 'translateX(-50%)',
                                         display: 'flex',
-                                        flexDirection: 'column',
                                         gap: '3px',
-                                        opacity: 0.2, // Very subtle
-                                        pointerEvents: 'none'
+                                        opacity: 0.3,
+                                        pointerEvents: 'none',
+                                        cursor: 'grab'
                                     }}>
-                                        <div style={{ display: 'flex', gap: '3px' }}>
-                                            <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: '#fff' }}></div>
-                                            <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: '#fff' }}></div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                                            <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.5)' }}></div>
+                                            <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.5)' }}></div>
                                         </div>
-                                        <div style={{ display: 'flex', gap: '3px' }}>
-                                            <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: '#fff' }}></div>
-                                            <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: '#fff' }}></div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                                            <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.5)' }}></div>
+                                            <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.5)' }}></div>
                                         </div>
-                                        <div style={{ display: 'flex', gap: '3px' }}>
-                                            <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: '#fff' }}></div>
-                                            <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: '#fff' }}></div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                                            <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.5)' }}></div>
+                                            <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.5)' }}></div>
                                         </div>
                                     </div>
 
@@ -1618,11 +1619,11 @@ const styles: { [key: string]: React.CSSProperties } = {
     },
     closeSearch: {
         background: 'rgba(255, 255, 255, 0.1)',
-        border: 'none',
+        border: '1px solid rgba(255, 255, 255, 0.2)', // Glass border
         color: 'var(--text-primary)',
-        width: '32px',
-        height: '32px',
-        minWidth: '32px', // Force circle
+        width: '36px', // Slightly larger for touch
+        height: '36px',
+        minWidth: '36px',
         borderRadius: '50%',
         display: 'flex',
         alignItems: 'center',
@@ -1630,7 +1631,9 @@ const styles: { [key: string]: React.CSSProperties } = {
         cursor: 'pointer',
         fontSize: '1rem',
         padding: 0,
-        transition: 'background 0.2s',
+        transition: 'all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1)',
+        backdropFilter: 'blur(8px)', // Glass effect
+        boxShadow: '0 4px 10px rgba(0,0,0,0.3)', // Depth
     },
     searchInput: {
         width: '100%',
