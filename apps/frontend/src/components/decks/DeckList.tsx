@@ -313,9 +313,9 @@ const DeckList: React.FC = () => {
             className="btn-icon-round"
             title={showFavoritesOnly ? "Show All Decks" : "Show Favorites Only"}
             style={{
-                width: '40px',
-                height: '40px',
-                minWidth: '40px',
+                width: '48px',
+                height: '48px',
+                minWidth: '48px',
                 padding: 0,
                 display: 'flex',
                 alignItems: 'center',
@@ -837,9 +837,9 @@ const DeckList: React.FC = () => {
                                             className="btn-glass btn-icon-round"
                                             style={{
                                                 ...styles.addButton,
-                                                width: '40px', // Slightly larger for main action
-                                                height: '40px',
-                                                minWidth: '40px',
+                                                width: '48px',
+                                                height: '48px',
+                                                minWidth: '48px',
                                                 borderRadius: '50%',
                                                 padding: 0,
                                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
