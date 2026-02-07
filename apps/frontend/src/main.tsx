@@ -1,9 +1,10 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './index.css'
 import App from './App.tsx'
+import './index.css' // MOVED to bottom for priority override
 
-console.log('Mounting Main...');
+// Cache Buster: Strict UI Overrides applied
+console.log('Mounting Main (Strict UI Patch v2)...');
 const root = createRoot(document.getElementById('root')!);
 try {
   root.render(

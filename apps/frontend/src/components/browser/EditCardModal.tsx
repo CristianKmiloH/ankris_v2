@@ -285,8 +285,10 @@ const MediaPreview: React.FC<{ item: MediaItem, onRemove: () => void }> = ({ ite
         {item.type === 'video' && <video src={item.src} style={styles.thumb} />}
         {item.type === 'audio' && <div style={styles.audioThumb}>🔊</div>}
 
-        {/* Remove Button with high z-index and flex positioning */}
-        <button onClick={onRemove} style={styles.removeBtn}>×</button>
+        {/* Remove Button - Strictly Circular & High Contrast */}
+        <button onClick={onRemove} className="btn-icon-reset btn-icon-circular btn-remove-media size-22" style={{ position: 'absolute', top: '2px', right: '2px', zIndex: 20 }}>
+            <span style={{ marginTop: '-2px' }}>×</span>
+        </button>
         {item.isNew && <span style={styles.newBadge}>NEW</span>}
     </div>
 );
@@ -298,30 +300,37 @@ const styles: Record<string, React.CSSProperties> = {
         backdropFilter: 'blur(8px)',
         zIndex: 1000,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '16px' // Reduce padding for small screens
+        padding: '16px'
     },
     modal: {
         backgroundColor: '#1E1E24',
-        width: '100%', maxWidth: '440px', // Slightly narrower for better proportion
+        width: '100%', maxWidth: '440px',
         maxHeight: '85vh',
-        borderRadius: '28px', // More modern curve
+        borderRadius: '28px',
         display: 'flex', flexDirection: 'column',
         boxShadow: '0 40px 80px -12px rgba(0, 0, 0, 0.9)',
         border: '1px solid rgba(255,255,255,0.08)',
         overflow: 'hidden'
     },
     header: {
-        padding: '24px 28px 16px', // Balanced padding
+        padding: '24px 28px 16px',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        background: 'transparent' // Cleaner look without separator line
+        background: 'transparent'
     },
     title: { margin: 0, color: '#fff', fontSize: '1.4rem', fontWeight: '800', letterSpacing: '-0.02em' },
     closeBtn: {
-        background: 'rgba(255,255,255,0.08)', border: 'none', color: '#fff',
-        width: '36px', height: '36px', minWidth: '36px', borderRadius: '50%', // Strict circle
+        background: 'rgba(255,255,255,0.1)',
+        border: 'none', color: '#fff',
+        width: '36px', height: '36px',
+        minWidth: '36px', // Strict override
+        minHeight: '36px',
+        borderRadius: '50%', // Perfect circle
+        padding: 0, // Remove global padding
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontSize: '20px', cursor: 'pointer', transition: 'all 0.2s',
-        lineHeight: 1, padding: 0, flexShrink: 0, aspectRatio: '1'
+        lineHeight: 1, flexShrink: 0,
+        boxShadow: 'none', // Remove global shadow
+        aspectRatio: '1'
     },
     content: {
         padding: '0 28px 28px',
@@ -348,22 +357,15 @@ const styles: Record<string, React.CSSProperties> = {
         display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '6px'
     },
     previewItem: {
-        position: 'relative', width: '64px', height: '64px',
+        position: 'relative', width: '70px', height: '70px',
         borderRadius: '14px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)',
-        backgroundColor: '#000', boxShadow: '0 2px 5px rgba(0,0,0,0.4)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center' // Center audio icon
+        backgroundColor: '#2A2A30', // Lighter bg for visibility
+        boxShadow: '0 2px 5px rgba(0,0,0,0.4)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center'
     },
     thumb: { width: '100%', height: '100%', objectFit: 'cover' },
     audioThumb: { width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.8rem' },
-    removeBtn: {
-        position: 'absolute', top: 2, right: 2,
-        width: '20px', height: '20px', borderRadius: '50%',
-        backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
-        color: '#fff', border: 'none',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '14px', padding: 0,
-        boxShadow: '0 2px 4px rgba(0,0,0,0.5)',
-        zIndex: 10, flexShrink: 0
-    },
+
     newBadge: {
         position: 'absolute', bottom: 0, left: 0, right: 0,
         background: 'linear-gradient(to top, rgba(16, 185, 129, 0.9), rgba(16, 185, 129, 0.7))',
@@ -378,13 +380,15 @@ const styles: Record<string, React.CSSProperties> = {
     cancelBtn: {
         padding: '14px 0', borderRadius: '30px', border: '1px solid rgba(255,255,255,0.1)',
         backgroundColor: 'rgba(255,255,255,0.03)', color: '#ccc', cursor: 'pointer',
-        flex: 1, fontWeight: '700', fontSize: '0.9rem', transition: 'background 0.2s'
+        flex: 1, fontWeight: '700', fontSize: '0.9rem', transition: 'background 0.2s',
+        minWidth: 'auto' // Allow shrink
     },
     saveBtn: {
         padding: '14px 0', borderRadius: '30px', border: 'none',
         backgroundColor: 'var(--accent-cyan)', color: '#09090b', fontWeight: '800', cursor: 'pointer',
         flex: 1, fontSize: '0.9rem', boxShadow: '0 8px 20px -6px rgba(var(--accent-cyan-rgb), 0.5)',
-        letterSpacing: '0.03em'
+        letterSpacing: '0.03em',
+        minWidth: 'auto' // Allow shrink
     }
 };
 

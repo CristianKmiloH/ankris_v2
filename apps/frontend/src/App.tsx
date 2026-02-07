@@ -11,6 +11,80 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { SettingsProvider } from './context/SettingsContext';
 import './anki-types.css'; // Cloze, Type Answer, etc.
 
+// NUCLEAR OPTION: Inject styles directly to bypass CSS file caching/bundling issues
+const StrictStyles = () => (
+  <style>{`
+    /* ===== STRICT UTILITIES FOR ICON BUTTONS (INJECTED) ===== */
+    .btn-icon-reset {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      min-width: 0 !important;
+      width: auto !important;
+      height: auto !important;
+      border-radius: 0 !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      line-height: 1 !important;
+    }
+    .btn-icon-reset:hover {
+      transform: none !important;
+      filter: none !important;
+    }
+    .btn-icon-circular {
+      border-radius: 50% !important;
+      aspect-ratio: 1/1 !important;
+      flex-shrink: 0 !important;
+    }
+    .size-20 { width: 20px !important; height: 20px !important; }
+    .size-22 { width: 22px !important; height: 22px !important; }
+    .size-24 { width: 24px !important; height: 24px !important; }
+    
+    .btn-remove-media {
+      background-color: #ef4444 !important;
+      color: white !important;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.5) !important;
+      transition: transform 0.2s ease !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+    .btn-remove-media:hover {
+      background-color: #dc2626 !important;
+      transform: scale(1.1) !important;
+    }
+
+    /* Eye Icon Fix */
+    .btn-eye-toggle {
+        position: absolute !important;
+        right: 0px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        z-index: 10 !important;
+        width: 40px !important;
+        height: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        color: var(--text-secondary) !important;
+        background: transparent !important;
+        min-width: 40px !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+    .btn-eye-toggle:hover {
+        color: var(--text-primary) !important;
+        background: transparent !important;
+        transform: translateY(-50%) !important;
+    }
+  `}</style>
+);
+
+
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
@@ -134,6 +208,7 @@ function App() {
   console.log('Rendering Full App');
   return (
     <SettingsProvider>
+      <StrictStyles />
       <AuthProvider>
         <AppContent />
       </AuthProvider>
