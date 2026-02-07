@@ -2093,10 +2093,18 @@ button:active .icon-glow-green {
   text-decoration: none;
   color: var(--text-muted);
   gap: 4px;
-  /* flex: 1; Removed to allow space-between to work */
+  flex: 0 0 auto !important;
+  width: auto !important;
   height: 100%;
   transition: all 0.3s ease;
   position: relative;
+}
+
+.settings-button {
+  width: 40px !important;
+  min-width: 40px !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
 }
 
 .nav-item span {
