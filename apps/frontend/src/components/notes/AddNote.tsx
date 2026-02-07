@@ -425,7 +425,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     // Layout
     container: { display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden', position: 'relative' },
     header: { display: 'flex', alignItems: 'center', gap: '20px', padding: '20px 24px', flexShrink: 0, zIndex: 10 },
-    backButton: { width: '48px', height: '48px', minWidth: '48px', padding: 0, borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' },
+    backButton: { width: '48px', height: '48px', minWidth: '48px', padding: 0, borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 },
     pageTitle: { fontSize: '2rem', fontWeight: '900', color: 'var(--text-primary)', margin: 0, lineHeight: '1.1' },
     subtitle: { color: 'var(--accent-cyan)', fontSize: '0.85rem', fontWeight: '700', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: '6px' },
 
