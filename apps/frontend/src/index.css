@@ -976,7 +976,7 @@ button.btn-glass:active {
   height: 60px !important;
   min-height: 60px !important;
   max-height: 60px !important;
-  padding: 0 40px !important;
+  padding: 0 20px !important;
   padding-bottom: env(safe-area-inset-bottom) !important;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
 }
@@ -2073,7 +2073,7 @@ button:active .icon-glow-green {
   align-items: center;
   z-index: 1000;
   /* Ensure above everything */
-  padding: 0 40px;
+  padding: 0 20px;
   padding-bottom: env(safe-area-inset-bottom);
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);

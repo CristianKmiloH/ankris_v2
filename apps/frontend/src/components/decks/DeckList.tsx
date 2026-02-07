@@ -834,7 +834,7 @@ const DeckList: React.FC = () => {
                                                 e.stopPropagation();
                                                 navigate(`/decks/${deck.id}/add`);
                                             }}
-                                            className="magic-button"
+                                            className="btn-glass"
                                             style={{
                                                 ...styles.magicButton,
                                                 background: 'rgba(255, 255, 255, 0.05)',
@@ -843,7 +843,7 @@ const DeckList: React.FC = () => {
                                             }}
                                             title={t('addCards')}
                                         >
-                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ color: 'var(--text-inverse)' }}>
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" style={{ color: 'var(--text-inverse)' }}>
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                                             </svg>
                                         </button>
