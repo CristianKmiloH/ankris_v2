@@ -4,8 +4,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -74,6 +74,7 @@ model Card {
   reps          Int       @default(0)
   lapses        Int       @default(0)
   state         Int       @default(0)
+  isFavorite    Boolean   @default(false)
   lastReview    DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt

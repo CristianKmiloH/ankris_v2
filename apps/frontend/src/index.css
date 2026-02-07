@@ -2801,3 +2801,25 @@ button:active .icon-glow-green {
   transform: translateY(-50%) !important;
   /* Prevent bounce */
 }
+
+/* Loading Animation */
+@keyframes spin-slow {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  50% {
+    transform: rotate(180deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-spin {
+  display: inline-block !important;
+  /* Force visibility */
+  animation: spin-slow 2s infinite ease-in-out;
+  transform-origin: center;
+}

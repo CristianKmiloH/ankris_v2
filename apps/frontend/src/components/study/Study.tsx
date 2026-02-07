@@ -3,7 +3,7 @@ import { MEDIA_BASE_URL } from '../../config';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../layout/Layout';
 import LoadingScreen from '../common/LoadingScreen';
-import { getDueCards, getAllDueCards, answerCard, type Card } from '../../services/noteService';
+import { getDueCards, getAllDueCards, answerCard, toggleFavorite, getFavoriteCards, type Card } from '../../services/noteService';
 import { useTranslation } from '../../i18n/useTranslation';
 import parse from 'html-react-parser';
 
@@ -47,16 +47,55 @@ const Study: React.FC = () => {
         loadCards(deckId);
     }, [deckId, navigate]);
 
-    const loadCards = async (id?: string, forceAll: boolean = false) => {
-        setLoading(true); // Ensure loading state resets
+    const loadCards = async (id?: string, typeOverride?: string) => {
+        setLoading(true);
         try {
-            const data = id ? await getDueCards(id, forceAll) : await getAllDueCards();
+            const searchParams = new URLSearchParams(window.location.search);
+            const type = typeOverride || searchParams.get('type');
+
+            let data;
+            if (type === 'favorites' && id) {
+                // Fetch favorites
+                data = await getFavoriteCards(id);
+            } else if (type === 'all' && id) {
+                // Fetch all/cram
+                data = await getDueCards(id, true); // forceAll=true maps to 'type=all'
+            } else if (id) {
+                // Fetch all/cram
+                data = await getDueCards(id, true); // forceAll=true maps to 'all' in getDueCards wrapper
+            } else if (id) {
+                // Standard due cards
+                data = await getDueCards(id);
+            } else {
+                // Fallback for no ID? (Shouldn't happen with routes)
+                data = await getAllDueCards();
+            }
+
             setCards(data);
-            setCurrentCardIndex(0); // Reset index on load
+            setCurrentCardIndex(0);
         } catch (err) {
             console.error(err);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleToggleFavorite = async () => {
+        if (!cards.length) return;
+        const card = cards[currentCardIndex];
+
+        // Optimistic update
+        const updatedCards = [...cards];
+        updatedCards[currentCardIndex] = { ...card, isFavorite: !card.isFavorite };
+        setCards(updatedCards);
+
+        try {
+            await toggleFavorite(card.id);
+        } catch (err) {
+            console.error('Error toggling favorite:', err);
+            // Revert on error
+            updatedCards[currentCardIndex] = card;
+            setCards([...updatedCards]);
         }
     };
 
@@ -120,7 +159,7 @@ const Study: React.FC = () => {
                             {t('backToDecks')}
                         </button>
                         <button
-                            onClick={() => loadCards(deckId, true)}
+                            onClick={() => loadCards(deckId, 'all')}
                             className="btn-secondary"
                         >
                             Estudiar Todo de Nuevo
@@ -226,6 +265,31 @@ const Study: React.FC = () => {
                                     <div className="flip-icon" style={{ position: 'absolute', top: '16px', left: '16px', color: 'var(--accent-cyan)', opacity: 0.8 }}>
                                         <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
+                                    </div>
+
+                                    {/* Favorite Heart - Top Right (Left of Counter) */}
+                                    <div
+                                        className="favorite-icon"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleToggleFavorite();
+                                        }}
+                                        style={{
+                                            position: 'absolute',
+                                            top: '16px',
+                                            right: '60px', // Spaced to left of counter
+                                            cursor: 'pointer',
+                                            zIndex: 6,
+                                            color: cards[currentCardIndex].isFavorite ? '#ff4081' : 'var(--text-muted)',
+                                            transition: 'transform 0.2s',
+                                        }}
+                                        onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.9)'}
+                                        onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                    >
+                                        <svg width="24" height="24" fill={cards[currentCardIndex].isFavorite ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                         </svg>
                                     </div>
 

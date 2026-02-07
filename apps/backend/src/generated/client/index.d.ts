@@ -2220,6 +2220,7 @@ export namespace Prisma {
      * The data used to create many Users.
      */
     data: UserCreateManyInput | UserCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -2234,6 +2235,7 @@ export namespace Prisma {
      * The data used to create many Users.
      */
     data: UserCreateManyInput | UserCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -3329,6 +3331,7 @@ export namespace Prisma {
      * The data used to create many Decks.
      */
     data: DeckCreateManyInput | DeckCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -3343,6 +3346,7 @@ export namespace Prisma {
      * The data used to create many Decks.
      */
     data: DeckCreateManyInput | DeckCreateManyInput[]
+    skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -4383,6 +4387,7 @@ export namespace Prisma {
      * The data used to create many Notes.
      */
     data: NoteCreateManyInput | NoteCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -4397,6 +4402,7 @@ export namespace Prisma {
      * The data used to create many Notes.
      */
     data: NoteCreateManyInput | NoteCreateManyInput[]
+    skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -4578,6 +4584,7 @@ export namespace Prisma {
     reps: number | null
     lapses: number | null
     state: number | null
+    isFavorite: boolean | null
     lastReview: Date | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -4599,6 +4606,7 @@ export namespace Prisma {
     reps: number | null
     lapses: number | null
     state: number | null
+    isFavorite: boolean | null
     lastReview: Date | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -4620,6 +4628,7 @@ export namespace Prisma {
     reps: number
     lapses: number
     state: number
+    isFavorite: number
     lastReview: number
     createdAt: number
     updatedAt: number
@@ -4665,6 +4674,7 @@ export namespace Prisma {
     reps?: true
     lapses?: true
     state?: true
+    isFavorite?: true
     lastReview?: true
     createdAt?: true
     updatedAt?: true
@@ -4686,6 +4696,7 @@ export namespace Prisma {
     reps?: true
     lapses?: true
     state?: true
+    isFavorite?: true
     lastReview?: true
     createdAt?: true
     updatedAt?: true
@@ -4707,6 +4718,7 @@ export namespace Prisma {
     reps?: true
     lapses?: true
     state?: true
+    isFavorite?: true
     lastReview?: true
     createdAt?: true
     updatedAt?: true
@@ -4815,6 +4827,7 @@ export namespace Prisma {
     reps: number
     lapses: number
     state: number
+    isFavorite: boolean
     lastReview: Date | null
     createdAt: Date
     updatedAt: Date
@@ -4855,6 +4868,7 @@ export namespace Prisma {
     reps?: boolean
     lapses?: boolean
     state?: boolean
+    isFavorite?: boolean
     lastReview?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -4881,6 +4895,7 @@ export namespace Prisma {
     reps?: boolean
     lapses?: boolean
     state?: boolean
+    isFavorite?: boolean
     lastReview?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -4905,6 +4920,7 @@ export namespace Prisma {
     reps?: boolean
     lapses?: boolean
     state?: boolean
+    isFavorite?: boolean
     lastReview?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -4947,6 +4963,7 @@ export namespace Prisma {
       reps: number
       lapses: number
       state: number
+      isFavorite: boolean
       lastReview: Date | null
       createdAt: Date
       updatedAt: Date
@@ -5362,6 +5379,7 @@ export namespace Prisma {
     readonly reps: FieldRef<"Card", 'Int'>
     readonly lapses: FieldRef<"Card", 'Int'>
     readonly state: FieldRef<"Card", 'Int'>
+    readonly isFavorite: FieldRef<"Card", 'Boolean'>
     readonly lastReview: FieldRef<"Card", 'DateTime'>
     readonly createdAt: FieldRef<"Card", 'DateTime'>
     readonly updatedAt: FieldRef<"Card", 'DateTime'>
@@ -5570,6 +5588,7 @@ export namespace Prisma {
      * The data used to create many Cards.
      */
     data: CardCreateManyInput | CardCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -5584,6 +5603,7 @@ export namespace Prisma {
      * The data used to create many Cards.
      */
     data: CardCreateManyInput | CardCreateManyInput[]
+    skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -6625,6 +6645,7 @@ export namespace Prisma {
      * The data used to create many ReviewLogs.
      */
     data: ReviewLogCreateManyInput | ReviewLogCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -6639,6 +6660,7 @@ export namespace Prisma {
      * The data used to create many ReviewLogs.
      */
     data: ReviewLogCreateManyInput | ReviewLogCreateManyInput[]
+    skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -6755,6 +6777,9 @@ export namespace Prisma {
    */
 
   export const TransactionIsolationLevel: {
+    ReadUncommitted: 'ReadUncommitted',
+    ReadCommitted: 'ReadCommitted',
+    RepeatableRead: 'RepeatableRead',
     Serializable: 'Serializable'
   };
 
@@ -6821,6 +6846,7 @@ export namespace Prisma {
     reps: 'reps',
     lapses: 'lapses',
     state: 'state',
+    isFavorite: 'isFavorite',
     lastReview: 'lastReview',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -6852,6 +6878,14 @@ export namespace Prisma {
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+  export const QueryMode: {
+    default: 'default',
+    insensitive: 'insensitive'
+  };
+
+  export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
   export const NullsOrder: {
     first: 'first',
     last: 'last'
@@ -6873,9 +6907,23 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'String[]'
+   */
+  export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>
+    
+
+
+  /**
    * Reference to a field of type 'DateTime'
    */
   export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+    
+
+
+  /**
+   * Reference to a field of type 'DateTime[]'
+   */
+  export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
     
 
 
@@ -6894,9 +6942,23 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Int[]'
+   */
+  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float[]'
+   */
+  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
   /**
    * Deep Input Types
@@ -7171,6 +7233,7 @@ export namespace Prisma {
     reps?: IntFilter<"Card"> | number
     lapses?: IntFilter<"Card"> | number
     state?: IntFilter<"Card"> | number
+    isFavorite?: BoolFilter<"Card"> | boolean
     lastReview?: DateTimeNullableFilter<"Card"> | Date | string | null
     createdAt?: DateTimeFilter<"Card"> | Date | string
     updatedAt?: DateTimeFilter<"Card"> | Date | string
@@ -7196,6 +7259,7 @@ export namespace Prisma {
     reps?: SortOrder
     lapses?: SortOrder
     state?: SortOrder
+    isFavorite?: SortOrder
     lastReview?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -7224,6 +7288,7 @@ export namespace Prisma {
     reps?: IntFilter<"Card"> | number
     lapses?: IntFilter<"Card"> | number
     state?: IntFilter<"Card"> | number
+    isFavorite?: BoolFilter<"Card"> | boolean
     lastReview?: DateTimeNullableFilter<"Card"> | Date | string | null
     createdAt?: DateTimeFilter<"Card"> | Date | string
     updatedAt?: DateTimeFilter<"Card"> | Date | string
@@ -7249,6 +7314,7 @@ export namespace Prisma {
     reps?: SortOrder
     lapses?: SortOrder
     state?: SortOrder
+    isFavorite?: SortOrder
     lastReview?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -7278,6 +7344,7 @@ export namespace Prisma {
     reps?: IntWithAggregatesFilter<"Card"> | number
     lapses?: IntWithAggregatesFilter<"Card"> | number
     state?: IntWithAggregatesFilter<"Card"> | number
+    isFavorite?: BoolWithAggregatesFilter<"Card"> | boolean
     lastReview?: DateTimeNullableWithAggregatesFilter<"Card"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Card"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Card"> | Date | string
@@ -7649,6 +7716,7 @@ export namespace Prisma {
     reps?: number
     lapses?: number
     state?: number
+    isFavorite?: boolean
     lastReview?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -7674,6 +7742,7 @@ export namespace Prisma {
     reps?: number
     lapses?: number
     state?: number
+    isFavorite?: boolean
     lastReview?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -7693,6 +7762,7 @@ export namespace Prisma {
     reps?: IntFieldUpdateOperationsInput | number
     lapses?: IntFieldUpdateOperationsInput | number
     state?: IntFieldUpdateOperationsInput | number
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
     lastReview?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7718,6 +7788,7 @@ export namespace Prisma {
     reps?: IntFieldUpdateOperationsInput | number
     lapses?: IntFieldUpdateOperationsInput | number
     state?: IntFieldUpdateOperationsInput | number
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
     lastReview?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7740,6 +7811,7 @@ export namespace Prisma {
     reps?: number
     lapses?: number
     state?: number
+    isFavorite?: boolean
     lastReview?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -7758,6 +7830,7 @@ export namespace Prisma {
     reps?: IntFieldUpdateOperationsInput | number
     lapses?: IntFieldUpdateOperationsInput | number
     state?: IntFieldUpdateOperationsInput | number
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
     lastReview?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7779,6 +7852,7 @@ export namespace Prisma {
     reps?: IntFieldUpdateOperationsInput | number
     lapses?: IntFieldUpdateOperationsInput | number
     state?: IntFieldUpdateOperationsInput | number
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
     lastReview?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7868,8 +7942,8 @@ export namespace Prisma {
 
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[]
-    notIn?: string[]
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -7877,13 +7951,14 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
     not?: NestedStringFilter<$PrismaModel> | string
   }
 
   export type StringNullableFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -7891,13 +7966,14 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -7993,8 +8069,8 @@ export namespace Prisma {
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[]
-    notIn?: string[]
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -8002,6 +8078,7 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
     not?: NestedStringWithAggregatesFilter<$PrismaModel> | string
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedStringFilter<$PrismaModel>
@@ -8010,8 +8087,8 @@ export namespace Prisma {
 
   export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -8019,6 +8096,7 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
     not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
@@ -8027,8 +8105,8 @@ export namespace Prisma {
 
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -8049,8 +8127,8 @@ export namespace Prisma {
 
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
@@ -8114,8 +8192,8 @@ export namespace Prisma {
 
   export type IntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
@@ -8168,8 +8246,8 @@ export namespace Prisma {
 
   export type FloatFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
     lt?: number | FloatFieldRefInput<$PrismaModel>
     lte?: number | FloatFieldRefInput<$PrismaModel>
     gt?: number | FloatFieldRefInput<$PrismaModel>
@@ -8179,8 +8257,8 @@ export namespace Prisma {
 
   export type DateTimeNullableFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -8209,6 +8287,7 @@ export namespace Prisma {
     reps?: SortOrder
     lapses?: SortOrder
     state?: SortOrder
+    isFavorite?: SortOrder
     lastReview?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -8241,6 +8320,7 @@ export namespace Prisma {
     reps?: SortOrder
     lapses?: SortOrder
     state?: SortOrder
+    isFavorite?: SortOrder
     lastReview?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -8262,6 +8342,7 @@ export namespace Prisma {
     reps?: SortOrder
     lapses?: SortOrder
     state?: SortOrder
+    isFavorite?: SortOrder
     lastReview?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -8280,8 +8361,8 @@ export namespace Prisma {
 
   export type FloatWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
     lt?: number | FloatFieldRefInput<$PrismaModel>
     lte?: number | FloatFieldRefInput<$PrismaModel>
     gt?: number | FloatFieldRefInput<$PrismaModel>
@@ -8296,8 +8377,8 @@ export namespace Prisma {
 
   export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -8909,8 +8990,8 @@ export namespace Prisma {
 
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[]
-    notIn?: string[]
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -8923,8 +9004,8 @@ export namespace Prisma {
 
   export type NestedStringNullableFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -8937,8 +9018,8 @@ export namespace Prisma {
 
   export type NestedDateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -8953,8 +9034,8 @@ export namespace Prisma {
 
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[]
-    notIn?: string[]
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -8970,8 +9051,8 @@ export namespace Prisma {
 
   export type NestedIntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
@@ -8981,8 +9062,8 @@ export namespace Prisma {
 
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -8998,8 +9079,8 @@ export namespace Prisma {
 
   export type NestedIntNullableFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
@@ -9009,8 +9090,8 @@ export namespace Prisma {
 
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -9031,8 +9112,8 @@ export namespace Prisma {
 
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
@@ -9047,8 +9128,8 @@ export namespace Prisma {
 
   export type NestedFloatFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
     lt?: number | FloatFieldRefInput<$PrismaModel>
     lte?: number | FloatFieldRefInput<$PrismaModel>
     gt?: number | FloatFieldRefInput<$PrismaModel>
@@ -9058,8 +9139,8 @@ export namespace Prisma {
 
   export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -9069,8 +9150,8 @@ export namespace Prisma {
 
   export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
     lt?: number | FloatFieldRefInput<$PrismaModel>
     lte?: number | FloatFieldRefInput<$PrismaModel>
     gt?: number | FloatFieldRefInput<$PrismaModel>
@@ -9085,8 +9166,8 @@ export namespace Prisma {
 
   export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -9132,6 +9213,7 @@ export namespace Prisma {
 
   export type DeckCreateManyUserInputEnvelope = {
     data: DeckCreateManyUserInput | DeckCreateManyUserInput[]
+    skipDuplicates?: boolean
   }
 
   export type NoteCreateWithoutUserInput = {
@@ -9163,6 +9245,7 @@ export namespace Prisma {
 
   export type NoteCreateManyUserInputEnvelope = {
     data: NoteCreateManyUserInput | NoteCreateManyUserInput[]
+    skipDuplicates?: boolean
   }
 
   export type CardCreateWithoutUserInput = {
@@ -9178,6 +9261,7 @@ export namespace Prisma {
     reps?: number
     lapses?: number
     state?: number
+    isFavorite?: boolean
     lastReview?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -9201,6 +9285,7 @@ export namespace Prisma {
     reps?: number
     lapses?: number
     state?: number
+    isFavorite?: boolean
     lastReview?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -9214,6 +9299,7 @@ export namespace Prisma {
 
   export type CardCreateManyUserInputEnvelope = {
     data: CardCreateManyUserInput | CardCreateManyUserInput[]
+    skipDuplicates?: boolean
   }
 
   export type ReviewLogCreateWithoutUserInput = {
@@ -9245,6 +9331,7 @@ export namespace Prisma {
 
   export type ReviewLogCreateManyUserInputEnvelope = {
     data: ReviewLogCreateManyUserInput | ReviewLogCreateManyUserInput[]
+    skipDuplicates?: boolean
   }
 
   export type DeckUpsertWithWhereUniqueWithoutUserInput = {
@@ -9343,6 +9430,7 @@ export namespace Prisma {
     reps?: IntFilter<"Card"> | number
     lapses?: IntFilter<"Card"> | number
     state?: IntFilter<"Card"> | number
+    isFavorite?: BoolFilter<"Card"> | boolean
     lastReview?: DateTimeNullableFilter<"Card"> | Date | string | null
     createdAt?: DateTimeFilter<"Card"> | Date | string
     updatedAt?: DateTimeFilter<"Card"> | Date | string
@@ -9482,6 +9570,7 @@ export namespace Prisma {
 
   export type DeckCreateManyParentInputEnvelope = {
     data: DeckCreateManyParentInput | DeckCreateManyParentInput[]
+    skipDuplicates?: boolean
   }
 
   export type NoteCreateWithoutDeckInput = {
@@ -9513,6 +9602,7 @@ export namespace Prisma {
 
   export type NoteCreateManyDeckInputEnvelope = {
     data: NoteCreateManyDeckInput | NoteCreateManyDeckInput[]
+    skipDuplicates?: boolean
   }
 
   export type CardCreateWithoutDeckInput = {
@@ -9528,6 +9618,7 @@ export namespace Prisma {
     reps?: number
     lapses?: number
     state?: number
+    isFavorite?: boolean
     lastReview?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -9551,6 +9642,7 @@ export namespace Prisma {
     reps?: number
     lapses?: number
     state?: number
+    isFavorite?: boolean
     lastReview?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -9564,6 +9656,7 @@ export namespace Prisma {
 
   export type CardCreateManyDeckInputEnvelope = {
     data: CardCreateManyDeckInput | CardCreateManyDeckInput[]
+    skipDuplicates?: boolean
   }
 
   export type UserUpsertWithoutDecksInput = {
@@ -9775,6 +9868,7 @@ export namespace Prisma {
     reps?: number
     lapses?: number
     state?: number
+    isFavorite?: boolean
     lastReview?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -9798,6 +9892,7 @@ export namespace Prisma {
     reps?: number
     lapses?: number
     state?: number
+    isFavorite?: boolean
     lastReview?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -9811,6 +9906,7 @@ export namespace Prisma {
 
   export type CardCreateManyNoteInputEnvelope = {
     data: CardCreateManyNoteInput | CardCreateManyNoteInput[]
+    skipDuplicates?: boolean
   }
 
   export type UserUpsertWithoutNotesInput = {
@@ -10033,6 +10129,7 @@ export namespace Prisma {
 
   export type ReviewLogCreateManyCardInputEnvelope = {
     data: ReviewLogCreateManyCardInput | ReviewLogCreateManyCardInput[]
+    skipDuplicates?: boolean
   }
 
   export type NoteUpsertWithoutCardsInput = {
@@ -10177,6 +10274,7 @@ export namespace Prisma {
     reps?: number
     lapses?: number
     state?: number
+    isFavorite?: boolean
     lastReview?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -10201,6 +10299,7 @@ export namespace Prisma {
     reps?: number
     lapses?: number
     state?: number
+    isFavorite?: boolean
     lastReview?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -10270,6 +10369,7 @@ export namespace Prisma {
     reps?: IntFieldUpdateOperationsInput | number
     lapses?: IntFieldUpdateOperationsInput | number
     state?: IntFieldUpdateOperationsInput | number
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
     lastReview?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10294,6 +10394,7 @@ export namespace Prisma {
     reps?: IntFieldUpdateOperationsInput | number
     lapses?: IntFieldUpdateOperationsInput | number
     state?: IntFieldUpdateOperationsInput | number
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
     lastReview?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10376,6 +10477,7 @@ export namespace Prisma {
     reps?: number
     lapses?: number
     state?: number
+    isFavorite?: boolean
     lastReview?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -10476,6 +10578,7 @@ export namespace Prisma {
     reps?: IntFieldUpdateOperationsInput | number
     lapses?: IntFieldUpdateOperationsInput | number
     state?: IntFieldUpdateOperationsInput | number
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
     lastReview?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10499,6 +10602,7 @@ export namespace Prisma {
     reps?: IntFieldUpdateOperationsInput | number
     lapses?: IntFieldUpdateOperationsInput | number
     state?: IntFieldUpdateOperationsInput | number
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
     lastReview?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10520,6 +10624,7 @@ export namespace Prisma {
     reps?: IntFieldUpdateOperationsInput | number
     lapses?: IntFieldUpdateOperationsInput | number
     state?: IntFieldUpdateOperationsInput | number
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
     lastReview?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10594,6 +10699,7 @@ export namespace Prisma {
     reps?: number
     lapses?: number
     state?: number
+    isFavorite?: boolean
     lastReview?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -10683,6 +10789,7 @@ export namespace Prisma {
     reps?: IntFieldUpdateOperationsInput | number
     lapses?: IntFieldUpdateOperationsInput | number
     state?: IntFieldUpdateOperationsInput | number
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
     lastReview?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10706,6 +10813,7 @@ export namespace Prisma {
     reps?: IntFieldUpdateOperationsInput | number
     lapses?: IntFieldUpdateOperationsInput | number
     state?: IntFieldUpdateOperationsInput | number
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
     lastReview?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10727,6 +10835,7 @@ export namespace Prisma {
     reps?: IntFieldUpdateOperationsInput | number
     lapses?: IntFieldUpdateOperationsInput | number
     state?: IntFieldUpdateOperationsInput | number
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
     lastReview?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10747,6 +10856,7 @@ export namespace Prisma {
     reps?: number
     lapses?: number
     state?: number
+    isFavorite?: boolean
     lastReview?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -10765,6 +10875,7 @@ export namespace Prisma {
     reps?: IntFieldUpdateOperationsInput | number
     lapses?: IntFieldUpdateOperationsInput | number
     state?: IntFieldUpdateOperationsInput | number
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
     lastReview?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10788,6 +10899,7 @@ export namespace Prisma {
     reps?: IntFieldUpdateOperationsInput | number
     lapses?: IntFieldUpdateOperationsInput | number
     state?: IntFieldUpdateOperationsInput | number
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
     lastReview?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10809,6 +10921,7 @@ export namespace Prisma {
     reps?: IntFieldUpdateOperationsInput | number
     lapses?: IntFieldUpdateOperationsInput | number
     state?: IntFieldUpdateOperationsInput | number
+    isFavorite?: BoolFieldUpdateOperationsInput | boolean
     lastReview?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

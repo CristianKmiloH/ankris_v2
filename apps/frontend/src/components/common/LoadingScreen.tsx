@@ -6,7 +6,7 @@ const LoadingScreen: React.FC = () => {
 
     return (
         <div style={styles.container} className="fade-in">
-            <span className="loading">⏳</span>
+            <span className="loading-spin" style={{ fontSize: '3rem' }}>⏳</span>
             <p style={styles.text}>{t('loading')}</p>
         </div>
     );

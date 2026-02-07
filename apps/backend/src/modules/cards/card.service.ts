@@ -15,6 +15,7 @@ export interface Card {
     lastReview: Date | null; // Prisma can return null
     due: Date;
     state: number; // 0=New, 1=Learning, 2=Review, 3=Relearning
+    isFavorite: boolean;
     stability: number;
     difficulty: number;
     elapsedDays: number;
@@ -76,6 +77,27 @@ export const getCardsForStudy = async (userId: string, deckId: string) => {
         },
         orderBy: {
             due: 'asc'
+        }
+    });
+};
+
+export const getFavoriteCards = async (userId: string, deckId?: string) => {
+    const where: any = { userId, isFavorite: true };
+    if (deckId && deckId !== 'all') {
+        where.deckId = deckId;
+    }
+
+    return await prisma.card.findMany({
+        where,
+        orderBy: { due: 'asc' }
+    });
+};
+
+export const getCardsByIds = async (userId: string, cardIds: string[]) => {
+    return await prisma.card.findMany({
+        where: {
+            userId,
+            id: { in: cardIds }
         }
     });
 };
@@ -204,4 +226,20 @@ export const deleteCardsByDeckId = async (deckId: string) => {
         where: { deckId }
     });
     console.log(`[SERVICE] Deleted ${count} cards for deckId: ${deckId}`);
+};
+
+export const toggleFavorite = async (userId: string, cardId: string) => {
+    const card = await prisma.card.findFirst({
+        where: { id: cardId, userId }
+    });
+
+    if (!card) throw new Error('Card not found');
+
+    return await prisma.card.update({
+        where: { id: cardId },
+        data: {
+            isFavorite: !card.isFavorite,
+            updatedAt: new Date()
+        }
+    });
 };

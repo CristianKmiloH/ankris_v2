@@ -116,13 +116,35 @@ router.post('/notes', cpUpload, async (req: AuthRequest, res) => {
 router.get('/decks/:deckId/due', async (req: AuthRequest, res) => {
     try {
         const userId = req.user!.userId;
-        const type = req.query.type as string;
+        const deckId = req.params.deckId;
+        const type = req.query.type as string; // 'standard', 'all' (cram), 'favorites'
 
-        // If type is 'all', return all cards sorted by due date for study
-        const cards = type === 'all'
-            ? await CardService.getCardsForStudy(userId, req.params.deckId)
-            : await CardService.getDueCards(userId, req.params.deckId);
+        let cards;
+        if (type === 'favorites') {
+            cards = await CardService.getFavoriteCards(userId, deckId);
+        } else if (type === 'all') {
+            cards = await CardService.getCardsForStudy(userId, deckId);
+        } else {
+            // standard / due
+            cards = await CardService.getDueCards(userId, deckId);
+        }
 
+        res.json(cards);
+    } catch (error: any) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.post('/custom-session', async (req: AuthRequest, res) => {
+    try {
+        const userId = req.user!.userId;
+        const { cardIds } = req.body;
+
+        if (!cardIds || !Array.isArray(cardIds)) {
+            return res.status(400).json({ error: "Invalid cardIds" });
+        }
+
+        const cards = await CardService.getCardsByIds(userId, cardIds);
         res.json(cards);
     } catch (error: any) {
         res.status(500).json({ error: error.message });

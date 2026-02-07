@@ -74,6 +74,7 @@ model Card {
   reps           Int         @default(0)
   lapses         Int         @default(0)
   state          Int         @default(0)
+  isFavorite     Boolean     @default(false)
   lastReview     DateTime?
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt

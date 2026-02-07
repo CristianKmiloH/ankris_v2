@@ -99,4 +99,16 @@ router.delete('/:id', async (req: AuthRequest, res) => {
     }
 });
 
+// PUT /api/cards/:id/favorite -> Toggle favorite status
+router.put('/:id/favorite', async (req: AuthRequest, res) => {
+    try {
+        const userId = req.user!.userId;
+        const cardId = req.params.id;
+        const updatedCard = await CardService.toggleFavorite(userId, cardId);
+        res.json(updatedCard);
+    } catch (error: any) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 export default router;

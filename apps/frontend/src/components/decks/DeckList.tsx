@@ -18,6 +18,7 @@ interface AnkiWebResult {
 
 // Import Modal
 import ErrorModal from '../common/ErrorModal';
+import CustomStudyModal from '../study/CustomStudyModal';
 
 const DeckList: React.FC = () => {
     const [decks, setDecks] = useState<Deck[]>([]);
@@ -139,6 +140,17 @@ const DeckList: React.FC = () => {
         setDeckToEdit(deck);
         setEditName(deck.name);
         setShowEditModal(true);
+    };
+
+    // --- Custom Study Modal ---
+    const [showCustomStudyModal, setShowCustomStudyModal] = useState(false);
+    const [customStudyDeck, setCustomStudyDeck] = useState<{ id: string, name: string } | null>(null);
+
+    const openCustomStudyModal = (deck: Deck, e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setCustomStudyDeck({ id: deck.id, name: deck.name });
+        setShowCustomStudyModal(true);
     };
 
     const handleUpdateDeck = async (e: React.FormEvent) => {
@@ -797,10 +809,35 @@ const DeckList: React.FC = () => {
                                                         transform: hoveredDeckId === deck.id ? 'scale(1.02)' : 'scale(1)',
                                                         boxShadow: hoveredDeckId === deck.id
                                                             ? '0 0 25px rgba(0, 255, 128, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.1)'
-                                                            : '0 4px 15px rgba(0,0,0,0.3)'
+                                                            : '0 4px 15px rgba(0,0,0,0.3)',
+                                                        flex: 1, // Grow to fill space
                                                     }}
                                                 >
+                                                    <span style={{ fontSize: '1.1rem', marginRight: '8px' }}>▶️</span>
                                                     {t('study')}
+                                                </button>
+
+                                                <button
+                                                    onClick={(e) => openCustomStudyModal(deck, e)}
+                                                    className="btn-glass"
+                                                    title={t('customStudy') || 'Custom Study'}
+                                                    style={{
+                                                        padding: '0',
+                                                        width: '44px',
+                                                        height: '44px',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        borderRadius: '12px',
+                                                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                                                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                                                        color: 'var(--text-primary)',
+                                                        cursor: 'pointer',
+                                                    }}
+                                                >
+                                                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                                                    </svg>
                                                 </button>
 
                                                 <button
@@ -841,6 +878,15 @@ const DeckList: React.FC = () => {
                         </LayoutGroup>
                     </div>
                 </div>
+
+                {/* Custom Study Modal */}
+                {showCustomStudyModal && customStudyDeck && (
+                    <CustomStudyModal
+                        deckId={customStudyDeck.id}
+                        deckName={customStudyDeck.name}
+                        onClose={() => setShowCustomStudyModal(false)}
+                    />
+                )}
                 {fetchError && !isLoading && (
                     <div style={{
                         gridColumn: '1 / -1',
@@ -859,12 +905,14 @@ const DeckList: React.FC = () => {
                     </div>
                 )}
 
-                {!fetchError && decks.length === 0 && !isLoading && (
-                    <div style={styles.emptyState}>
-                        <p style={styles.emptyText}>{t('noDecksYet')}</p>
-                    </div>
-                )}
-            </div>
+                {
+                    !fetchError && decks.length === 0 && !isLoading && (
+                        <div style={styles.emptyState}>
+                            <p style={styles.emptyText}>{t('noDecksYet')}</p>
+                        </div>
+                    )
+                }
+            </div >
 
 
             {/* Import Loading Modal (Placed here to be on top of others) */}
@@ -1123,7 +1171,7 @@ const DeckList: React.FC = () => {
                 onClose={() => setErrorModalOpen(false)}
             />
 
-        </Layout>
+        </Layout >
     );
 };
 
@@ -1412,6 +1460,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     },
     deckActions: {
         display: 'flex',
+        flexWrap: 'wrap', // Allow wrapping
         gap: '10px',
         width: '100%',
         marginTop: 'auto', // Push to bottom if height varies

@@ -12,6 +12,8 @@ export interface Card {
     front: string;
     back: string;
     due: string;
+    state: number;
+    isFavorite: boolean;
 }
 
 export const createNote = async (
@@ -57,11 +59,37 @@ export const createNote = async (
 
 export const getDueCards = async (deckId: string, forceAll: boolean = false): Promise<Card[]> => {
     const token = localStorage.getItem('token');
-    const url = `${API_BASE_URL}/api/decks/${deckId}/due${forceAll ? '?type=all' : ''}`;
+    // forceAll maps to 'type=all' which is now handled by backend as 'getCardsForStudy'
+    const query = forceAll ? '?type=all' : '';
+    const url = `${API_BASE_URL}/api/decks/${deckId}/due${query}`;
     const response = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` }
     });
     if (!response.ok) throw new Error('Failed to fetch due cards');
+    return response.json();
+};
+
+export const getFavoriteCards = async (deckId: string): Promise<Card[]> => {
+    const token = localStorage.getItem('token');
+    const url = `${API_BASE_URL}/api/decks/${deckId}/due?type=favorites`;
+    const response = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!response.ok) throw new Error('Failed to fetch favorite cards');
+    return response.json();
+};
+
+export const getCardsByCustomSession = async (cardIds: string[]): Promise<Card[]> => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/api/custom-session`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ cardIds })
+    });
+    if (!response.ok) throw new Error('Failed to fetch custom session cards');
     return response.json();
 };
 
@@ -85,5 +113,17 @@ export const answerCard = async (cardId: string, grade: number) => {
         body: JSON.stringify({ grade })
     });
     if (!response.ok) throw new Error('Failed to answer card');
+    return response.json();
+};
+
+export const toggleFavorite = async (cardId: string): Promise<Card> => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/api/cards/${cardId}/favorite`, {
+        method: 'PUT',
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
+    if (!response.ok) throw new Error('Failed to toggle favorite');
     return response.json();
 };

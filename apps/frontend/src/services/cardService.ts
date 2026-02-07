@@ -5,6 +5,7 @@ export interface Card {
     deckId: string;
     due: string;
     state: number;
+    isFavorite: boolean;
 }
 
 import { API_BASE_URL } from '../config';
@@ -82,4 +83,19 @@ export const deleteCard = async (id: string): Promise<void> => {
         console.error('Failed to delete card:', response.statusText);
         throw new Error('Failed to delete card');
     }
+};
+
+export const toggleFavorite = async (id: string): Promise<Card> => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_URL}/cards/${id}/favorite`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` }
+    });
+
+    if (!response.ok) {
+        console.error('Failed to toggle favorite:', response.statusText);
+        throw new Error('Failed to toggle favorite');
+    }
+
+    return response.json();
 };

@@ -146,6 +146,12 @@ export const translations = {
         removeFromFavorites: 'Remove from favorites',
         connectionError: 'Connection Error. Please check your internet.',
         retry: 'Retry',
+
+        // Custom Study
+        customStudy: 'Custom Study',
+        studyDue: 'Study Due Cards',
+        studyFavorites: 'Study Favorites',
+        cramAll: 'Cram All Cards',
     },
     es: {
         // Auth
@@ -294,6 +300,12 @@ export const translations = {
         removeFromFavorites: 'Quitar de favoritos',
         connectionError: 'Error de conexión. Por favor verifica tu internet.',
         retry: 'Reintentar',
+
+        // Custom Study
+        customStudy: 'Estudio Personalizado',
+        studyDue: 'Estudiar Pendientes',
+        studyFavorites: 'Estudiar Favoritos',
+        cramAll: 'Repasar Todo (Cram)',
     }
 };
 
