@@ -157,7 +157,7 @@ const Study: React.FC = () => {
                                                                 return (
                                                                     <>
                                                                         {cleanText}
-                                                                        <div style={{ display: 'block', width: '100%', margin: '20px 0', position: 'relative', zIndex: 10 }} onClick={(e) => e.stopPropagation()}>
+                                                                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', margin: '20px 0', position: 'relative', zIndex: 10 }} onClick={(e) => e.stopPropagation()}>
                                                                             <AudioButton filename={filename} />
                                                                         </div>
                                                                     </>
@@ -243,7 +243,7 @@ const Study: React.FC = () => {
                                                                     return (
                                                                         <>
                                                                             {cleanText}
-                                                                            <div style={{ display: 'block', width: '100%', margin: '20px 0', position: 'relative', zIndex: 10 }} onClick={(e) => e.stopPropagation()}>
+                                                                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', margin: '20px 0', position: 'relative', zIndex: 10 }} onClick={(e) => e.stopPropagation()}>
                                                                                 <AudioButton filename={filename} />
                                                                             </div>
                                                                         </>
