@@ -2072,11 +2072,6 @@ button:active .anim-shake-glow {
 
 
 
-button:hover .anim-shake-glow,
-button:active .anim-shake-glow {
-  animation: shake-glow 0.5s ease-in-out both;
-}
-
 /* ===== Check Glow Animation ===== */
 .icon-glow-green {
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
