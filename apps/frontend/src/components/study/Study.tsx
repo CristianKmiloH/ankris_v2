@@ -157,13 +157,9 @@ const Study: React.FC = () => {
                                                                 return (
                                                                     <>
                                                                         {cleanText}
-                                                                        <audio
-                                                                            controls
-                                                                            src={`${MEDIA_BASE_URL}/${filename}`}
-                                                                            className="card-media"
-                                                                            style={{ display: 'block', width: '100%', margin: '20px 0', zIndex: 10, position: 'relative' }}
-                                                                            onClick={(e) => e.stopPropagation()}
-                                                                        />
+                                                                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', minHeight: '60px', margin: '20px 0', border: '1px dashed red', position: 'relative', zIndex: 10 }} onClick={(e) => e.stopPropagation()}>
+                                                                            <AudioButton filename={filename} size={48} />
+                                                                        </div>
                                                                     </>
                                                                 );
                                                             }
@@ -247,13 +243,9 @@ const Study: React.FC = () => {
                                                                     return (
                                                                         <>
                                                                             {cleanText}
-                                                                            <audio
-                                                                                controls
-                                                                                src={`${MEDIA_BASE_URL}/${filename}`}
-                                                                                className="card-media"
-                                                                                style={{ display: 'block', width: '100%', margin: '20px 0', zIndex: 10, position: 'relative' }}
-                                                                                onClick={(e) => e.stopPropagation()}
-                                                                            />
+                                                                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', minHeight: '60px', margin: '20px 0', border: '1px dashed red', position: 'relative', zIndex: 10 }} onClick={(e) => e.stopPropagation()}>
+                                                                                <AudioButton filename={filename} size={48} />
+                                                                            </div>
                                                                         </>
                                                                     );
                                                                 }
