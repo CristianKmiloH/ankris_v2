@@ -2130,6 +2130,8 @@ button:active .icon-glow-green {
   padding: 0 8px;
   padding-bottom: env(safe-area-inset-bottom);
   border-top: 1px solid rgba(255, 255, 255, 0.05);
+  box-sizing: border-box;
+  /* Ensure padding doesn't add to width */
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
 }
 
