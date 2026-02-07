@@ -2040,6 +2040,8 @@ button:active .anim-shake-glow {
 
 
 
+
+/* verified clean */
 /* Unified Top Reflection (Same as Study/Add buttons) */
 .magic-button::after {
   content: '';
