@@ -132,6 +132,8 @@ const AddNote: React.FC = () => {
     // --- Submission ---
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        console.log("Submitting note...", { deckId, noteType, front, back });
+
         try {
             if (deckId) {
                 let processedFront = '';
@@ -148,6 +150,8 @@ const AddNote: React.FC = () => {
                 const frontFiles = frontMedia.map(m => m.file);
                 const backFiles = backMedia.map(m => m.file);
 
+                console.log("Payload prepared:", { processedFront, processedBack, frontFiles: frontFiles.length, backFiles: backFiles.length });
+
                 await createNote(
                     deckId,
                     processedFront,
@@ -157,12 +161,16 @@ const AddNote: React.FC = () => {
                     { addReverse, extra }
                 );
 
+                console.log("Note created successfully!");
                 setShowSuccess(true);
                 setTimeout(() => navigate('/'), 1500);
+            } else {
+                console.error("Missing Deck ID!");
+                alert("Error: Missing Deck ID");
             }
         } catch (err) {
-            console.error(err);
-            alert("Error saving note");
+            console.error("Error saving note:", err);
+            alert("Error saving note: " + (err as Error).message);
         }
     };
 
@@ -419,7 +427,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     header: { display: 'flex', alignItems: 'center', gap: '20px', padding: '20px 24px', flexShrink: 0, zIndex: 10 },
     backButton: { width: '48px', height: '48px', borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' },
     pageTitle: { fontSize: '2rem', fontWeight: '900', color: 'var(--text-primary)', margin: 0, lineHeight: '1.1' },
-    subtitle: { color: 'var(--accent-cyan)', fontSize: '0.85rem', fontWeight: '700', letterSpacing: '0.1em', uppercase: 'true', marginTop: '6px' },
+    subtitle: { color: 'var(--accent-cyan)', fontSize: '0.85rem', fontWeight: '700', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: '6px' },
 
     // Content
     scrollContainer: { flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', width: '100%', padding: '10px 24px' },

@@ -1,6 +1,6 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { useTranslation } from '../../i18n/useTranslation';
-import { getDecks, createDeck, deleteDeck, importDeck, updateDeck, toggleFavorite, reorderDeck, type Deck } from '../../services/deckService';
+import { getDecks, createDeck, deleteDeck, importDeck, updateDeck, toggleFavorite, type Deck } from '../../services/deckService';
 import GeneratorModal from '../ai/GeneratorModal';
 import Layout from '../layout/Layout';
 import { useNavigate } from 'react-router-dom';
@@ -713,61 +713,69 @@ const DeckList: React.FC = () => {
                                         </div>
 
                                         {/* Action Buttons (Edit/Delete) */}
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
-                                            <div style={{ display: 'flex', gap: '8px' }}>
-                                                <button
-                                                    onClick={(e) => openEditModal(deck, e)}
-                                                    className="anim-edit-blue btn-icon-round"
-                                                    title={t('editDeck') || 'Editar'}
-                                                    style={{
-                                                        ...styles.editButton,
-                                                        width: '36px', height: '36px',
-                                                        borderColor: 'var(--accent-cyan)',
-                                                        color: 'var(--accent-cyan)',
-                                                        backgroundColor: 'rgba(0, 217, 255, 0.05)',
-                                                        zIndex: 100,
-                                                        position: 'relative',
-                                                        pointerEvents: 'auto',
-                                                    }}
-                                                >
-                                                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18" style={{ overflow: 'visible' }}>
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                                    </svg>
-                                                </button>
-                                                <button
-                                                    onClick={(e) => openDeleteModal(deck.id, e)}
-                                                    className="anim-trash btn-icon-round"
-                                                    title={t('deleteDeck')}
-                                                    style={{
-                                                        ...styles.deleteButton,
-                                                        width: '36px', height: '36px',
-                                                        zIndex: 100,
-                                                        position: 'relative',
-                                                        pointerEvents: 'auto',
-                                                    }}
-                                                >
-                                                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18" className="trash-icon" style={{ overflow: 'visible', pointerEvents: 'none' }}>
-                                                        <defs>
-                                                            <radialGradient id="trashLight" cx="0.5" cy="0.5" r="0.5" fx="0.5" fy="0.5">
-                                                                <stop offset="0%" stopColor="#FFF" stopOpacity="0.9" />
-                                                                <stop offset="40%" stopColor="var(--accent-red)" stopOpacity="0.8" />
-                                                                <stop offset="100%" stopColor="var(--accent-red)" stopOpacity="0" />
-                                                            </radialGradient>
-                                                        </defs>
-                                                        <ellipse className="trash-glow" cx="12" cy="10" rx="4" ry="2" fill="url(#trashLight)" opacity="0" />
-                                                        <path className="trash-can" fill="var(--bg-card)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7M10 11v6M14 11v6" />
-                                                        <path className="trash-lid" fill="var(--bg-card)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7h16M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" />
-                                                    </svg>
-                                                </button>
-                                            </div>
+                                        {/* Action Buttons Grid (2x2) */}
+                                        <div style={{
+                                            display: 'grid',
+                                            gridTemplateColumns: '1fr 1fr',
+                                            gap: '8px',
+                                            alignItems: 'center'
+                                        }}>
+                                            {/* Top Left: Edit (Statistics?) */}
+                                            <button
+                                                onClick={(e) => openEditModal(deck, e)}
+                                                className="anim-edit-blue btn-icon-circular"
+                                                title={t('editDeck') || 'Editar'}
+                                                style={{
+                                                    ...styles.editButton,
+                                                    width: '36px', height: '36px',
+                                                    borderColor: 'var(--accent-cyan)',
+                                                    color: 'var(--accent-cyan)',
+                                                    backgroundColor: 'rgba(0, 217, 255, 0.05)',
+                                                    zIndex: 100,
+                                                    position: 'relative',
+                                                    pointerEvents: 'auto',
+                                                }}
+                                            >
+                                                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18" style={{ overflow: 'visible' }}>
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                </svg>
+                                            </button>
 
-                                            {/* Favorite Toggle inside card - Moved below edit/delete */}
+                                            {/* Top Right: Delete */}
+                                            <button
+                                                onClick={(e) => openDeleteModal(deck.id, e)}
+                                                className="anim-trash btn-icon-circular"
+                                                title={t('deleteDeck')}
+                                                style={{
+                                                    ...styles.deleteButton,
+                                                    width: '36px', height: '36px',
+                                                    zIndex: 100,
+                                                    position: 'relative',
+                                                    pointerEvents: 'auto',
+                                                }}
+                                            >
+                                                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18" className="trash-icon" style={{ overflow: 'visible', pointerEvents: 'none' }}>
+                                                    <defs>
+                                                        <radialGradient id="trashLight" cx="0.5" cy="0.5" r="0.5" fx="0.5" fy="0.5">
+                                                            <stop offset="0%" stopColor="#FFF" stopOpacity="0.9" />
+                                                            <stop offset="40%" stopColor="var(--accent-red)" stopOpacity="0.8" />
+                                                            <stop offset="100%" stopColor="var(--accent-red)" stopOpacity="0" />
+                                                        </radialGradient>
+                                                    </defs>
+                                                    <ellipse className="trash-glow" cx="12" cy="10" rx="4" ry="2" fill="url(#trashLight)" opacity="0" />
+                                                    <path className="trash-can" fill="var(--bg-card)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7M10 11v6M14 11v6" />
+                                                    <path className="trash-lid" fill="var(--bg-card)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7h16M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" />
+                                                </svg>
+                                            </button>
+
+                                            {/* Bottom Left: Favorite (Below Edit) */}
                                             <button
                                                 onClick={(e) => handleToggleFavorite(e, deck)}
+                                                className="btn-icon-circular"
                                                 style={{
-                                                    width: '32px',
-                                                    height: '32px',
-                                                    minWidth: '32px',
+                                                    width: '36px',
+                                                    height: '36px',
+                                                    minWidth: '36px',
                                                     borderRadius: '50%',
                                                     background: deck.isFavorite ? 'rgba(255, 215, 0, 0.15)' : 'rgba(255, 255, 255, 0.03)',
                                                     border: deck.isFavorite ? '1px solid rgba(255, 215, 0, 0.6)' : '1px solid rgba(255, 255, 255, 0.1)',
@@ -775,7 +783,7 @@ const DeckList: React.FC = () => {
                                                     display: 'flex',
                                                     alignItems: 'center',
                                                     justifyContent: 'center',
-                                                    fontSize: '1rem',
+                                                    fontSize: '1.2rem',
                                                     cursor: 'pointer',
                                                     transition: 'all 0.2s ease',
                                                     zIndex: 5,
@@ -785,6 +793,27 @@ const DeckList: React.FC = () => {
                                                 title={deck.isFavorite ? t('removeFromFavorites' as any) : t('addToFavorites' as any)}
                                             >
                                                 {deck.isFavorite ? '★' : '☆'}
+                                            </button>
+
+                                            {/* Bottom Right: Add Cards (Below Delete) */}
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    navigate(`/decks/${deck.id}/add`);
+                                                }}
+                                                className="btn-glass btn-icon-circular"
+                                                style={{
+                                                    ...styles.addButton,
+                                                    width: '36px',
+                                                    height: '36px',
+                                                    borderRadius: '50%',
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                                }}
+                                                title={t('addCards')}
+                                            >
+                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ color: 'var(--text-primary)' }}>
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                                                </svg>
                                             </button>
                                         </div>
                                     </div>
@@ -818,17 +847,6 @@ const DeckList: React.FC = () => {
                                                 <path className="star-1" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" />
                                                 <path className="star-2" d="M18 2L19 6L23 7L19 8L18 12L17 8L13 7L17 6L18 2Z" />
                                                 <path className="star-3" d="M6 16L7 19L10 20L7 21L6 24L5 21L2 20L5 19L6 16Z" />
-                                            </svg>
-                                        </button>
-
-                                        <button
-                                            onClick={() => navigate(`/decks/${deck.id}/add`)}
-                                            className="btn-glass"
-                                            style={styles.addButton}
-                                            title={t('addCards')}
-                                        >
-                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ color: 'var(--text-primary)' }}>
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                                             </svg>
                                         </button>
                                     </div>
