@@ -303,7 +303,7 @@ const EditCardModal: React.FC<EditCardModalProps> = ({ card, onClose, onSave }) 
                                 {/* Circular Mic/Stop Button */}
                                 <button
                                     onClick={() => isRecording && activeSide === 'front' ? stopRecording() : startRecording('front')}
-                                    style={isRecording && activeSide === 'front' ? styles.recordingBtnActive : styles.recordingBtn}
+                                    className={`btn-icon-reset btn-icon-circular size-40 ${isRecording && activeSide === 'front' ? 'btn-recording-active' : 'btn-recording-red'}`}
                                     disabled={isRecording && activeSide !== 'front'}
                                     title={isRecording ? "Stop Recording" : "Start Voice Recording"}
                                 >
@@ -369,7 +369,7 @@ const EditCardModal: React.FC<EditCardModalProps> = ({ card, onClose, onSave }) 
 
                                 <button
                                     onClick={() => isRecording && activeSide === 'back' ? stopRecording() : startRecording('back')}
-                                    style={isRecording && activeSide === 'back' ? styles.recordingBtnActive : styles.recordingBtn}
+                                    className={`btn-icon-reset btn-icon-circular size-40 ${isRecording && activeSide === 'back' ? 'btn-recording-active' : 'btn-recording-red'}`}
                                     disabled={isRecording && activeSide !== 'back'}
                                     title={isRecording ? "Stop Recording" : "Start Voice Recording"}
                                 >
@@ -508,24 +508,6 @@ const styles: Record<string, React.CSSProperties> = {
         backgroundColor: 'rgba(255,255,255,0.06)', padding: '6px 14px', borderRadius: '20px',
         display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '600', transition: 'background 0.2s',
         border: '1px solid rgba(255,255,255,0.05)'
-    },
-    recordingBtn: {
-        width: '40px', height: '40px', borderRadius: '50%',
-        backgroundColor: '#ef4444', // Red Background (Per user request)
-        color: '#fff', cursor: 'pointer',
-        border: '3px solid rgba(255,255,255,0.2)', // Nice border
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        transition: 'all 0.2s',
-        boxShadow: '0 4px 6px rgba(0,0,0,0.3)'
-    },
-    recordingBtnActive: {
-        width: '40px', height: '40px', borderRadius: '50%',
-        backgroundColor: 'transparent',
-        border: '3px solid #ef4444', // Ring border when recording
-        color: '#ef4444', cursor: 'pointer',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        transition: 'all 0.2s',
-        boxShadow: '0 0 15px rgba(239, 68, 68, 0.4)'
     },
     textArea: {
         width: '100%', minHeight: '90px',

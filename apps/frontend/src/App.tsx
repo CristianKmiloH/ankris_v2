@@ -42,6 +42,27 @@ const StrictStyles = () => (
     .size-20 { width: 20px !important; height: 20px !important; }
     .size-22 { width: 22px !important; height: 22px !important; }
     .size-24 { width: 24px !important; height: 24px !important; }
+    .size-40 { 
+      width: 40px !important; 
+      height: 40px !important; 
+      min-width: 40px !important; 
+      max-width: 40px !important; 
+      min-height: 40px !important;
+      max-height: 40px !important;
+    }
+    
+    .btn-recording-red {
+      background-color: #ef4444 !important;
+      color: white !important;
+      border: 3px solid rgba(255,255,255,0.2) !important;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3) !important;
+    }
+    .btn-recording-active {
+      background-color: transparent !important;
+      border: 3px solid #ef4444 !important;
+      color: #ef4444 !important;
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.4) !important;
+    }
     
     .btn-remove-media {
       background-color: #ef4444 !important;
