@@ -2069,8 +2069,7 @@ button:active .anim-shake-glow {
   pointer-events: none;
 }
 
-transform-origin: center;
-}
+
 
 button:hover .anim-shake-glow,
 button:active .anim-shake-glow {
