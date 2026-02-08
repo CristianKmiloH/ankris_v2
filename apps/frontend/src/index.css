@@ -2856,47 +2856,28 @@ button:active .icon-glow-green {
   color: var(--text-secondary);
 }
 
-/* 2. Two-Way Flip Animation - Smoother, Cyan Only */
-@keyframes spin-open {
-  0% {
-    transform: rotate(0deg);
-    filter: drop-shadow(0 0 0 transparent);
-    color: var(--accent-cyan);
-    opacity: 0.8;
-  }
+/* 2. Two-Way Flip Animation - CSS Timing */
+.flip-icon {
+  /* 
+     Delay 0.6s (wait for card flip). 
+     Duration 0.8s (smooth rotation). 
+  */
+  transition:
+    transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s,
+    filter 0.8s ease 0.6s,
+    opacity 0.8s ease 0.6s;
 
-  100% {
-    transform: rotate(360deg);
-    filter: drop-shadow(0 0 8px var(--accent-cyan));
-    color: var(--accent-cyan);
-    opacity: 1;
-  }
-}
-
-@keyframes spin-close {
-  0% {
-    transform: rotate(360deg);
-    filter: drop-shadow(0 0 8px var(--accent-cyan));
-    color: var(--accent-cyan);
-    opacity: 1;
-  }
-
-  100% {
-    transform: rotate(0deg);
-    filter: drop-shadow(0 0 0 transparent);
-    color: var(--accent-cyan);
-    opacity: 0.8;
-  }
-}
-
-.anim-spin-open {
-  animation: spin-open 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   transform-origin: center center;
+  transform: rotate(0deg);
+  pointer-events: none;
+  filter: drop-shadow(0 0 0 rgba(0, 255, 255, 0));
 }
 
-.anim-spin-close {
-  animation: spin-close 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  transform-origin: center center;
+.flip-icon-active {
+  transform: rotate(360deg);
+  filter: drop-shadow(0 0 8px rgba(0, 255, 255, 1));
+  color: var(--accent-cyan);
+  opacity: 1 !important;
 }
 
 /* 3. Heart Beat / Flash Animation */
