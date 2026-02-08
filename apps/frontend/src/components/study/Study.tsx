@@ -229,6 +229,12 @@ const Study: React.FC = () => {
                     {/* Main Study Card */}
                     <div style={styles.cardContainer}>
                         <div style={styles.card} className={`study-card ${isFlipped ? 'flipped' : ''}`} onClick={() => setIsFlipped(!isFlipped)}>
+                            {/* Flip Icon - Top Left (Static relative to card container) */}
+                            <div className={`flip-icon ${activeIcon ? 'flip-icon-active' : ''}`} style={{ position: 'absolute', top: '10px', left: '10px', color: 'var(--accent-cyan)', opacity: 0.8, zIndex: 20 }}>
+                                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                            </div>
                             <div className="card-inner">
                                 {/* Front */}
                                 <div className="card-front">
@@ -319,12 +325,7 @@ const Study: React.FC = () => {
                                         </div>
                                     </div>
 
-                                    {/* Flip Icon - Top Left */}
-                                    <div className={`flip-icon ${activeIcon ? 'flip-icon-active' : ''}`} style={{ position: 'absolute', top: '10px', left: '10px', color: 'var(--accent-cyan)', opacity: 0.8, zIndex: 10 }}>
-                                        <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                        </svg>
-                                    </div>
+
 
                                     {/* Favorite Heart - Top Right (Left of Counter) */}
                                     <div
