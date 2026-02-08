@@ -2856,16 +2856,16 @@ button:active .icon-glow-green {
   color: var(--text-secondary);
 }
 
-/* 2. Two-Way Flip Animation - CSS Timing */
+/* 2. Two-Way Flip Animation - OSC Phase 10: Sync Mode */
 .flip-icon {
   /* 
-     Delay 0.6s (wait for card flip). 
-     Duration 0.8s (smooth rotation). 
+     Synced with card flip (0.6s). 
+     No delay to ensure visibility during rotation. 
   */
   transition:
-    transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s,
-    filter 0.8s ease 0.6s,
-    opacity 0.8s ease 0.6s;
+    transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
+    filter 0.6s ease,
+    opacity 0.6s ease;
 
   transform-origin: center center;
   transform: rotate(0deg);
