@@ -32,7 +32,10 @@ const Layout: React.FC<LayoutProps> = ({
             <div className={className} style={styles.fadeWrapper}>
                 {/* Header Section */}
                 {(title || showBackButton || headerAction) && (
-                    <div style={styles.header}>
+                    <div style={{
+                        ...styles.header,
+                        ...((!title && !showBackButton && headerAction) ? styles.compactHeader : {})
+                    }}>
                         {showBackButton && (
                             <button
                                 onClick={() => navigate(-1)}
@@ -96,6 +99,11 @@ const styles = {
         alignItems: 'center',
         gap: '16px',
         flexShrink: 0,
+    },
+    compactHeader: {
+        padding: '8px 16px 0 16px',
+        marginBottom: '4px',
+        minHeight: '40px',
     },
     backButton: {
         marginRight: '16px',

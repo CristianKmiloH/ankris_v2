@@ -501,7 +501,7 @@ const styles: { [key: string]: React.CSSProperties } = {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '20px 16px 140px 16px', // Reduced top padding since counter is inside
+        padding: '0px 16px 140px 16px', // Reduced top padding since counter is inside
         pointerEvents: 'none',
     },
     card: {
