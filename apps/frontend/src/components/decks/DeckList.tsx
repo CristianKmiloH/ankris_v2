@@ -1344,7 +1344,7 @@ const styles: { [key: string]: React.CSSProperties } = {
         marginTop: 'auto', // Push to bottom if height varies
     },
     studyButton: {
-        flex: 2,
+        flex: 1, // Take remaining space
         minWidth: '120px',
         height: '50px',
         padding: '0',
@@ -1353,7 +1353,8 @@ const styles: { [key: string]: React.CSSProperties } = {
         justifyContent: 'center',
     },
     addButton: {
-        flex: 1,
+        flex: '0 0 50px', // Fixed width
+        width: '50px',
         minWidth: '50px',
         height: '50px',
         padding: 0,
@@ -1367,7 +1368,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     },
 
     magicButton: {
-        flex: 1,
+        flex: '0 0 50px', // Fixed width
+        width: '50px',
         minWidth: '50px',
         height: '50px',
         padding: 0,
