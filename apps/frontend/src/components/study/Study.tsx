@@ -24,18 +24,27 @@ const Study: React.FC = () => {
     const [animClass, setAnimClass] = useState('');
 
     useEffect(() => {
+        let timer: any;
+
         if (isFlipped) {
-            setAnimClass('anim-spin-open');
+            // Wait for card flip (600ms) then start open animation
+            timer = setTimeout(() => {
+                setAnimClass('anim-spin-open');
+            }, 600);
         } else {
-            // Only trigger close animation if we were previously open (to avoid animation on initial load)
-            // But checking simplisticly:
+            // Wait for card flip back (600ms) then start close animation
+            // Only if we were previously open
             if (animClass === 'anim-spin-open') {
-                setAnimClass('anim-spin-close');
-                // Optional: clear class after animation if needed, but keeping it ensures state matches
-                const timer = setTimeout(() => setAnimClass(''), 600);
-                return () => clearTimeout(timer);
+                timer = setTimeout(() => {
+                    setAnimClass('anim-spin-close');
+                    // Optional: remove class after animation finishes (0.8s) to be clean
+                    setTimeout(() => setAnimClass(''), 800);
+                }, 600);
+            } else {
+                setAnimClass('');
             }
         }
+        return () => clearTimeout(timer);
     }, [isFlipped]);
 
     // Refs for scrolling containers

@@ -2830,8 +2830,8 @@ button:active .icon-glow-green {
 .btn-icon-study {
   height: 30px !important;
   width: 30px !important;
-  min-height: 0 !important;
-  min-width: 0 !important;
+  min-height: 30px !important;
+  min-width: 30px !important;
   padding: 0 !important;
   border-radius: 50% !important;
   display: flex !important;
@@ -2842,6 +2842,7 @@ button:active .icon-glow-green {
   backdrop-filter: blur(4px);
   -webkit-tap-highlight-color: transparent;
   transition: all 0.2s ease;
+  box-sizing: border-box !important;
 }
 
 .btn-icon-study:active {
@@ -2855,7 +2856,7 @@ button:active .icon-glow-green {
   color: var(--text-secondary);
 }
 
-/* 2. Two-Way Flip Animation */
+/* 2. Two-Way Flip Animation - Smoother, Cyan Only */
 @keyframes spin-open {
   0% {
     transform: rotate(0deg);
@@ -2864,33 +2865,19 @@ button:active .icon-glow-green {
     opacity: 0.8;
   }
 
-  50% {
-    transform: rotate(180deg);
-    filter: drop-shadow(0 0 15px var(--accent-cyan));
-    color: #fff;
-    opacity: 1;
-  }
-
   100% {
     transform: rotate(360deg);
-    filter: drop-shadow(0 0 0 transparent);
+    filter: drop-shadow(0 0 8px var(--accent-cyan));
     color: var(--accent-cyan);
-    opacity: 0.8;
+    opacity: 1;
   }
 }
 
 @keyframes spin-close {
   0% {
     transform: rotate(360deg);
-    filter: drop-shadow(0 0 0 transparent);
+    filter: drop-shadow(0 0 8px var(--accent-cyan));
     color: var(--accent-cyan);
-    opacity: 0.8;
-  }
-
-  50% {
-    transform: rotate(180deg);
-    filter: drop-shadow(0 0 15px var(--accent-cyan));
-    color: #fff;
     opacity: 1;
   }
 
@@ -2903,11 +2890,13 @@ button:active .icon-glow-green {
 }
 
 .anim-spin-open {
-  animation: spin-open 0.6s ease-in-out forwards;
+  animation: spin-open 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  transform-origin: center center;
 }
 
 .anim-spin-close {
-  animation: spin-close 0.6s ease-in-out forwards;
+  animation: spin-close 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  transform-origin: center center;
 }
 
 /* 3. Heart Beat / Flash Animation */
@@ -2942,7 +2931,8 @@ button:active .icon-glow-green {
 
 .capsule-counter {
   background-color: rgba(255, 255, 255, 0.1);
-  padding: 4px 12px;
+  padding: 0 12px;
+  height: 30px;
   border-radius: 12px;
   font-size: 0.85rem;
   font-weight: bold;
@@ -2955,4 +2945,5 @@ button:active .icon-glow-green {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   width: fit-content;
   /* Ensure it doesn't stretch */
+  box-sizing: border-box;
 }
