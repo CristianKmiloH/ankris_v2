@@ -31,7 +31,7 @@ const Layout: React.FC<LayoutProps> = ({
             {/* Content Wrapper for Fade In */}
             <div className={className} style={styles.fadeWrapper}>
                 {/* Header Section */}
-                {(title || showBackButton) && (
+                {(title || showBackButton || headerAction) && (
                     <div style={styles.header}>
                         {showBackButton && (
                             <button
