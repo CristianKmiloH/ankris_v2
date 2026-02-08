@@ -11,6 +11,7 @@ interface LayoutProps {
     headerAction?: ReactNode;
     className?: string; // For explicit fade-in or other classes
     disableScroll?: boolean; // New prop to disable Layout's internal scroll
+    headerStyle?: React.CSSProperties; // New prop for custom header styles
 }
 
 const Layout: React.FC<LayoutProps> = ({
@@ -21,7 +22,8 @@ const Layout: React.FC<LayoutProps> = ({
     showBackButton = false,
     headerAction,
     className = "fade-in",
-    disableScroll = false
+    disableScroll = false,
+    headerStyle = {}
 }) => {
     const navigate = useNavigate();
 
@@ -34,7 +36,8 @@ const Layout: React.FC<LayoutProps> = ({
                 {(title || showBackButton || headerAction) && (
                     <div style={{
                         ...styles.header,
-                        ...((!title && !showBackButton && headerAction) ? styles.compactHeader : {})
+                        ...((!title && !showBackButton && headerAction) ? styles.compactHeader : {}),
+                        ...headerStyle
                     }}>
                         {showBackButton && (
                             <button

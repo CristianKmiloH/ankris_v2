@@ -2855,8 +2855,8 @@ button:active .icon-glow-green {
   color: var(--text-secondary);
 }
 
-/* 2. Progressive Spin Glow - Ramps up then down */
-@keyframes spin-glow-progressive {
+/* 2. Two-Way Flip Animation */
+@keyframes spin-open {
   0% {
     transform: rotate(0deg);
     filter: drop-shadow(0 0 0 transparent);
@@ -2868,7 +2868,6 @@ button:active .icon-glow-green {
     transform: rotate(180deg);
     filter: drop-shadow(0 0 15px var(--accent-cyan));
     color: #fff;
-    /* White hot center */
     opacity: 1;
   }
 
@@ -2880,8 +2879,35 @@ button:active .icon-glow-green {
   }
 }
 
-.anim-spin-glow {
-  animation: spin-glow-progressive 0.6s ease-in-out forwards;
+@keyframes spin-close {
+  0% {
+    transform: rotate(360deg);
+    filter: drop-shadow(0 0 0 transparent);
+    color: var(--accent-cyan);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: rotate(180deg);
+    filter: drop-shadow(0 0 15px var(--accent-cyan));
+    color: #fff;
+    opacity: 1;
+  }
+
+  100% {
+    transform: rotate(0deg);
+    filter: drop-shadow(0 0 0 transparent);
+    color: var(--accent-cyan);
+    opacity: 0.8;
+  }
+}
+
+.anim-spin-open {
+  animation: spin-open 0.6s ease-in-out forwards;
+}
+
+.anim-spin-close {
+  animation: spin-close 0.6s ease-in-out forwards;
 }
 
 /* 3. Heart Beat / Flash Animation */
@@ -2912,4 +2938,21 @@ button:active .icon-glow-green {
 .flip-icon,
 .favorite-icon {
   -webkit-tap-highlight-color: transparent;
+}
+
+.capsule-counter {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--text-secondary);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: fit-content;
+  /* Ensure it doesn't stretch */
 }
