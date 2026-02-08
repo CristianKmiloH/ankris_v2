@@ -19,6 +19,15 @@ const Study: React.FC = () => {
     const [isFlipped, setIsFlipped] = useState(false);
     const [loading, setLoading] = useState(true);
     const [showCustomStudyModal, setShowCustomStudyModal] = useState(false);
+    const [triggerSpin, setTriggerSpin] = useState(false);
+
+    useEffect(() => {
+        if (isFlipped) {
+            setTriggerSpin(true);
+            const timer = setTimeout(() => setTriggerSpin(false), 600);
+            return () => clearTimeout(timer);
+        }
+    }, [isFlipped]);
 
     // Refs for scrolling containers
     const frontContentRef = React.useRef<HTMLDivElement>(null);
@@ -150,6 +159,13 @@ const Study: React.FC = () => {
     return (
         <Layout
             activeTab="study"
+            title={
+                cards.length > 0 ? (
+                    <div className="capsule-counter">
+                        {currentCardIndex + 1} / {cards.length}
+                    </div>
+                ) : null
+            }
             disableScroll={true}
             headerAction={
                 <button
@@ -201,7 +217,7 @@ const Study: React.FC = () => {
                                     <div style={styles.cardHeader}>
                                         <div style={{ width: '40px' }}></div> {/* Spacer for Flip Icon */}
                                         <span className="badge">{t('question')}</span>
-                                        <div style={{ width: '40px' }}></div> {/* Spacer for Counter */}
+                                        <div style={{ width: '40px' }}></div> {/* Spacer to balance */}
                                     </div>
                                     <div style={styles.cardContent} ref={frontContentRef}>
                                         <div style={styles.scrollableInner}>
@@ -285,8 +301,8 @@ const Study: React.FC = () => {
                                         </div>
                                     </div>
 
-                                    {/* Flip Icon - Moved to Top Left */}
-                                    <div className="flip-icon" style={{ position: 'absolute', top: '16px', left: '16px', color: 'var(--accent-cyan)', opacity: 0.8 }}>
+                                    {/* Flip Icon - Top Left */}
+                                    <div className={`flip-icon ${triggerSpin ? 'anim-spin-glow' : ''}`} style={{ position: 'absolute', top: '16px', left: '16px', color: 'var(--accent-cyan)', opacity: 0.8 }}>
                                         <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                         </svg>
@@ -302,7 +318,7 @@ const Study: React.FC = () => {
                                         style={{
                                             position: 'absolute',
                                             top: '16px',
-                                            right: '60px', // Spaced to left of counter
+                                            right: '16px', // Moved to Top Right corner
                                             cursor: 'pointer',
                                             zIndex: 6,
                                             color: cards[currentCardIndex].isFavorite ? '#ff4081' : 'var(--text-muted)',
@@ -317,10 +333,7 @@ const Study: React.FC = () => {
                                         </svg>
                                     </div>
 
-                                    {/* Card Counter - Top Right (Inside Card) */}
-                                    <div className="card-counter" style={{ position: 'absolute', top: '16px', right: '16px', fontWeight: 'bold', color: 'var(--text-muted)', fontSize: '0.9rem', zIndex: 5 }}>
-                                        {currentCardIndex + 1} / {cards.length}
-                                    </div>
+                                    {/* Card Counter Removed from here */}
                                 </div>
 
                                 {/* Back */}
