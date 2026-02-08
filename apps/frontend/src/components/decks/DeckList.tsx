@@ -18,7 +18,6 @@ interface AnkiWebResult {
 
 // Import Modal
 import ErrorModal from '../common/ErrorModal';
-// CustomStudyModal removed from here
 
 const DeckList: React.FC = () => {
     const [decks, setDecks] = useState<Deck[]>([]);
@@ -30,7 +29,7 @@ const DeckList: React.FC = () => {
     const [hasSearched, setHasSearched] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
-    // activeFilterId removed
+    const [activeFilterId, setActiveFilterId] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const [isImportHovered, setIsImportHovered] = useState(false);
@@ -111,7 +110,7 @@ const DeckList: React.FC = () => {
         }
     };
 
-    // showFavoritesOnly removed
+    const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
     const handleToggleFavorite = async (e: React.MouseEvent, deck: Deck) => {
         e.stopPropagation();
@@ -141,8 +140,6 @@ const DeckList: React.FC = () => {
         setEditName(deck.name);
         setShowEditModal(true);
     };
-
-    // CustomStudyModal logic removed
 
     const handleUpdateDeck = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -294,21 +291,56 @@ const DeckList: React.FC = () => {
                 </svg>
             </button>
 
-            <button
-                onClick={() => navigate('/stats')}
-                className="btn-icon-round anim-header-stats"
-                title={t('statistics')}
-            >
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ overflow: 'visible' }}>
-                    <path className="bar-1" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2z" />
-                    <path className="bar-2" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19V9a2 2 0 00-2-2h-2a2 2 0 00-2 2v10a2 2 0 002 2h2a2 2 0 002-2z" />
-                    <path className="bar-3" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 19V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14a2 2 0 002 2h2a2 2 0 002-2z" />
-                </svg>
-            </button>
+            {/* Stats and Filter Column */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                <button
+                    onClick={() => navigate('/stats')}
+                    className="btn-icon-round anim-header-stats"
+                    title={t('statistics')}
+                >
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ overflow: 'visible' }}>
+                        <path className="bar-1" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2z" />
+                        <path className="bar-2" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19V9a2 2 0 00-2-2h-2a2 2 0 00-2 2v10a2 2 0 002 2h2a2 2 0 002-2z" />
+                        <path className="bar-3" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 19V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14a2 2 0 002 2h2a2 2 0 002-2z" />
+                    </svg>
+                </button>
+                <FilterToggle />
+            </div>
         </div>
     );
 
-    // FilterToggle component removed
+    const FilterToggle = () => (
+        <button
+            onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+            className="btn-icon-round"
+            title={showFavoritesOnly ? "Show All Decks" : "Show Favorites Only"}
+            style={{
+                width: '54px',
+                height: '54px',
+                minWidth: '54px',
+                padding: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: showFavoritesOnly
+                    ? 'radial-gradient(circle at 50% 50%, rgba(255, 223, 0, 0.25) 0%, rgba(0, 0, 0, 0.4) 100%)'
+                    : 'rgba(255,255,255,0.05)',
+                border: showFavoritesOnly
+                    ? '1px solid rgba(255, 215, 0, 0.5)'
+                    : '1px solid rgba(255, 255, 255, 0.1)',
+                color: showFavoritesOnly ? '#FFD700' : 'rgba(255, 255, 255, 0.4)',
+                boxShadow: showFavoritesOnly
+                    ? '0 0 10px rgba(255, 215, 0, 0.2)'
+                    : 'none',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+            }}
+        >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill={showFavoritesOnly ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+        </button>
+    );
 
     return (
         <Layout
@@ -524,254 +556,292 @@ const DeckList: React.FC = () => {
                 {/* Scrollable Content */}
                 <div style={styles.scrollableContent}>
 
-                    {decks.length > 0 ? (
+                    {/* Active Filter Indicator - Floating Action Style */}
+                    {activeFilterId && (
+                        <div style={{
+                            position: 'relative',
+                            width: '100%',
+                            marginBottom: '16px',
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                            animation: 'fadeIn 0.3s ease'
+                        }}>
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                                background: 'rgba(0, 242, 255, 0.1)',
+                                padding: '6px 6px 6px 16px',
+                                borderRadius: '99px',
+                                border: '1px solid rgba(0, 242, 255, 0.3)'
+                            }}>
+                                <span style={{
+                                    color: 'var(--accent-cyan)',
+                                    fontSize: '0.9rem',
+                                    fontWeight: '600',
+                                    maxWidth: '150px',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis'
+                                }}>
+                                    {decks.find(d => d.id === activeFilterId)?.name}
+                                </span>
+                                <button
+                                    onClick={() => setActiveFilterId(null)}
+                                    className="btn-icon-round"
+                                    style={{
+                                        width: '28px',
+                                        height: '28px',
+                                        minWidth: '28px',
+                                        background: 'rgba(0, 0, 0, 0.2)',
+                                        color: '#fff',
+                                        border: 'none',
+                                        fontSize: '0.8rem',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        cursor: 'pointer'
+                                    }}
+                                    title="Clear Filter"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    <div style={styles.deckGrid}>
                         <LayoutGroup>
                             <AnimatePresence mode="popLayout">
-                                {decks.map((deck) => (
-                                    <motion.div
-                                        layout
-                                        initial={{ opacity: 0, scale: 0.9 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        exit={{ opacity: 0, scale: 0.9 }}
-                                        transition={{
-                                            layout: { type: 'spring', stiffness: 250, damping: 20, mass: 0.8 }, // Fluid reordering
-                                            opacity: { duration: 0.2 }
-                                        }}
-                                        key={deck.id}
-                                        style={{
-                                            ...styles.deckCard,
-                                            cursor: 'grab',
-                                            position: 'relative',
-                                            zIndex: draggedDeckId === deck.id ? 10 : 1, // Ensure dragged item stays on top if visible
-                                            transform: draggedDeckId === deck.id ? 'scale(1.02)' : 'scale(1)', // Subtle lift hint
-                                            boxShadow: draggedDeckId === deck.id ? '0 10px 20px rgba(0,0,0,0.3)' : 'none',
-                                        }}
-                                        className="card-large deck-item"
-                                        draggable={true}
-                                        onDragStart={(e: React.DragEvent) => {
-                                            setDraggedDeckId(deck.id);
-                                            e.dataTransfer.effectAllowed = 'move';
-                                            setTimeout(() => {
-                                                if (e.currentTarget) (e.currentTarget as HTMLElement).style.opacity = '0.4';
-                                            }, 0);
-                                        }}
-                                        onDragEnter={(e: React.DragEvent) => {
-                                            e.preventDefault();
-                                            if (!draggedDeckId || draggedDeckId === deck.id) return;
+                                {decks
+                                    .filter(d => activeFilterId ? d.id === activeFilterId : true)
+                                    .filter(d => showFavoritesOnly ? d.isFavorite : true)
+                                    .map((deck) => (
+                                        <motion.div
+                                            layout
+                                            initial={{ opacity: 0, scale: 0.9 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.9 }}
+                                            transition={{
+                                                layout: { type: 'spring', stiffness: 250, damping: 20, mass: 0.8 }, // Fluid reordering
+                                                opacity: { duration: 0.2 }
+                                            }}
+                                            key={deck.id}
+                                            style={{
+                                                ...styles.deckCard,
+                                                cursor: (!activeFilterId && !showFavoritesOnly) ? 'grab' : 'default',
+                                                position: 'relative',
+                                                zIndex: draggedDeckId === deck.id ? 10 : 1, // Ensure dragged item stays on top if visible
+                                                transform: draggedDeckId === deck.id ? 'scale(1.02)' : 'scale(1)', // Subtle lift hint
+                                                boxShadow: draggedDeckId === deck.id ? '0 10px 20px rgba(0,0,0,0.3)' : 'none',
+                                            }}
+                                            className="card-large deck-item"
+                                            draggable={!activeFilterId && !showFavoritesOnly}
+                                            onDragStart={(e: React.DragEvent) => {
+                                                setDraggedDeckId(deck.id);
+                                                e.dataTransfer.effectAllowed = 'move';
+                                                setTimeout(() => {
+                                                    if (e.currentTarget) (e.currentTarget as HTMLElement).style.opacity = '0.4';
+                                                }, 0);
+                                            }}
+                                            onDragEnter={(e: React.DragEvent) => {
+                                                e.preventDefault();
+                                                if (!draggedDeckId || draggedDeckId === deck.id) return;
 
-                                            const sourceIndex = decks.findIndex(d => d.id === draggedDeckId);
-                                            const targetIndex = decks.findIndex(d => d.id === deck.id);
+                                                const sourceIndex = decks.findIndex(d => d.id === draggedDeckId);
+                                                const targetIndex = decks.findIndex(d => d.id === deck.id);
 
-                                            if (sourceIndex === -1 || targetIndex === -1) return;
+                                                if (sourceIndex === -1 || targetIndex === -1) return;
 
-                                            const newDecks = [...decks];
-                                            const [removed] = newDecks.splice(sourceIndex, 1);
-                                            newDecks.splice(targetIndex, 0, removed);
-                                            setDecks(newDecks);
-                                        }}
-                                        onDragEnd={(e: React.DragEvent) => {
-                                            setDraggedDeckId(null);
-                                            if (e.currentTarget) (e.currentTarget as HTMLElement).style.opacity = '1';
-                                        }}
-                                        onDragOver={(e: React.DragEvent) => {
-                                            e.preventDefault();
-                                            e.dataTransfer.dropEffect = 'move';
-                                        }}
-                                    >
-                                        {/* Drag Handle */}
-                                        <div style={{
-                                            position: 'absolute',
-                                            left: '50%',
-                                            top: '6px',
-                                            transform: 'translateX(-50%)',
-                                            display: 'flex',
-                                            gap: '3px',
-                                            opacity: 0.3,
-                                            pointerEvents: 'none',
-                                            cursor: 'grab'
-                                        }}>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                                                <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.5)' }}></div>
-                                                <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.5)' }}></div>
-                                            </div>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                                                <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.5)' }}></div>
-                                                <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.5)' }}></div>
-                                            </div>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                                                <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.5)' }}></div>
-                                                <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.5)' }}></div>
-                                            </div>
-                                        </div>
-
-                                        <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '16px' }}>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                                                <p style={{
-                                                    margin: 0,
-                                                    fontSize: '0.85rem',
-                                                    color: 'var(--text-muted)',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '6px'
-                                                }}>
-                                                    {deck._count?.cards || 0} {deck._count?.cards === 1 ? t('cardCount') : t('cardsCount')}
-                                                </p>
-                                                <div style={{ display: 'flex', gap: '8px' }}>
-                                                    <button
-                                                        onClick={(e) => handleToggleFavorite(e, deck)}
-                                                        className="btn-icon-circular"
-                                                        style={{
-                                                            width: '32px', height: '32px', minWidth: '32px', padding: 0,
-                                                            borderRadius: '50%',
-                                                            background: deck.isFavorite ? 'rgba(255, 215, 0, 0.15)' : 'rgba(255, 255, 255, 0.05)',
-                                                            border: deck.isFavorite ? '1px solid rgba(255, 215, 0, 0.6)' : 'none',
-                                                            color: deck.isFavorite ? '#FFD700' : 'rgba(255, 255, 255, 0.4)',
-                                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                            cursor: 'pointer',
-                                                            transition: 'all 0.2s ease',
-                                                            zIndex: 5
-                                                        }}
-                                                        title={deck.isFavorite ? t('removeFromFavorites' as any) : t('addToFavorites' as any)}
-                                                    >
-                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill={deck.isFavorite ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                                                        </svg>
-                                                    </button>
-                                                    <button
-                                                        onClick={(e) => openEditModal(deck, e)}
-                                                        className="anim-edit-blue btn-icon-circular"
-                                                        title={t('editDeck') || 'Editar'}
-                                                        style={{
-                                                            ...styles.editButton,
-                                                            width: '32px', height: '32px', minWidth: '32px', padding: 0,
-                                                            borderColor: 'var(--accent-cyan)',
-                                                            color: 'var(--accent-cyan)',
-                                                            backgroundColor: 'rgba(0, 217, 255, 0.05)',
-                                                            zIndex: 100, pointerEvents: 'auto',
-                                                        }}
-                                                    >
-                                                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16" style={{ overflow: 'visible' }}>
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                                        </svg>
-                                                    </button>
-                                                    <button
-                                                        onClick={(e) => openDeleteModal(deck.id, e)}
-                                                        className="anim-trash btn-icon-circular"
-                                                        title={t('deleteDeck')}
-                                                        style={{
-                                                            ...styles.deleteButton,
-                                                            width: '32px', height: '32px', minWidth: '32px', padding: 0,
-                                                            zIndex: 100, pointerEvents: 'auto',
-                                                        }}
-                                                    >
-                                                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16" className="trash-icon" style={{ overflow: 'visible', pointerEvents: 'none' }}>
-                                                            <defs>
-                                                                <radialGradient id={`trashLight-${deck.id}`} cx="0.5" cy="0.5" r="0.5" fx="0.5" fy="0.5">
-                                                                    <stop offset="0%" stopColor="#FFF" stopOpacity="0.9" />
-                                                                    <stop offset="40%" stopColor="var(--accent-red)" stopOpacity="0.8" />
-                                                                    <stop offset="100%" stopColor="var(--accent-red)" stopOpacity="0" />
-                                                                </radialGradient>
-                                                            </defs>
-                                                            <ellipse className="trash-glow" cx="12" cy="10" rx="4" ry="2" fill={`url(#trashLight-${deck.id})`} opacity="0" />
-                                                            <path className="trash-can" fill="var(--bg-card)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7M10 11v6M14 11v6" />
-                                                            <path className="trash-lid" fill="var(--bg-card)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7h16M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" />
-                                                        </svg>
-                                                    </button>
+                                                const newDecks = [...decks];
+                                                const [removed] = newDecks.splice(sourceIndex, 1);
+                                                newDecks.splice(targetIndex, 0, removed);
+                                                setDecks(newDecks);
+                                            }}
+                                            onDragEnd={(e: React.DragEvent) => {
+                                                setDraggedDeckId(null);
+                                                if (e.currentTarget) (e.currentTarget as HTMLElement).style.opacity = '1';
+                                            }}
+                                            onDragOver={(e: React.DragEvent) => {
+                                                e.preventDefault();
+                                                e.dataTransfer.dropEffect = 'move';
+                                            }}
+                                        >
+                                            {/* Drag Handle */}
+                                            <div style={{
+                                                position: 'absolute',
+                                                left: '50%',
+                                                top: '6px',
+                                                transform: 'translateX(-50%)',
+                                                display: 'flex',
+                                                gap: '3px',
+                                                opacity: 0.3,
+                                                pointerEvents: 'none',
+                                                cursor: 'grab'
+                                            }}>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                                                    <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.5)' }}></div>
+                                                    <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.5)' }}></div>
+                                                </div>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                                                    <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.5)' }}></div>
+                                                    <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.5)' }}></div>
+                                                </div>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                                                    <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.5)' }}></div>
+                                                    <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.5)' }}></div>
                                                 </div>
                                             </div>
 
-                                            <h2 style={{
-                                                ...styles.deckTitle,
-                                                width: '100%',
-                                                display: 'block',
-                                                margin: 0,
-                                                fontSize: '1.5rem',
-                                                lineHeight: 1.2,
-                                                whiteSpace: 'normal',
-                                                overflow: 'hidden',
-                                                textOverflow: 'ellipsis'
-                                            }} title={deck.name}>
-                                                {deck.name}
-                                            </h2>
-                                        </div>
+                                            <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '16px' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                                    <p style={{
+                                                        margin: 0,
+                                                        fontSize: '0.85rem',
+                                                        color: 'var(--text-muted)',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '6px'
+                                                    }}>
+                                                        {deck._count?.cards || 0} {deck._count?.cards === 1 ? t('cardCount') : t('cardsCount')}
+                                                    </p>
+                                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                                        <button
+                                                            onClick={(e) => handleToggleFavorite(e, deck)}
+                                                            className="btn-icon-circular"
+                                                            style={{
+                                                                width: '32px', height: '32px', minWidth: '32px', padding: 0,
+                                                                borderRadius: '50%',
+                                                                background: deck.isFavorite ? 'rgba(255, 215, 0, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+                                                                border: deck.isFavorite ? '1px solid rgba(255, 215, 0, 0.6)' : 'none',
+                                                                color: deck.isFavorite ? '#FFD700' : 'rgba(255, 255, 255, 0.4)',
+                                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                                cursor: 'pointer',
+                                                                transition: 'all 0.2s ease',
+                                                                zIndex: 5
+                                                            }}
+                                                            title={deck.isFavorite ? t('removeFromFavorites' as any) : t('addToFavorites' as any)}
+                                                        >
+                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill={deck.isFavorite ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                                            </svg>
+                                                        </button>
+                                                        <button
+                                                            onClick={(e) => openEditModal(deck, e)}
+                                                            className="anim-edit-blue btn-icon-circular"
+                                                            title={t('editDeck') || 'Editar'}
+                                                            style={{
+                                                                ...styles.editButton,
+                                                                width: '32px', height: '32px', minWidth: '32px', padding: 0,
+                                                                borderColor: 'var(--accent-cyan)',
+                                                                color: 'var(--accent-cyan)',
+                                                                backgroundColor: 'rgba(0, 217, 255, 0.05)',
+                                                                zIndex: 100, pointerEvents: 'auto',
+                                                            }}
+                                                        >
+                                                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16" style={{ overflow: 'visible' }}>
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                            </svg>
+                                                        </button>
+                                                        <button
+                                                            onClick={(e) => openDeleteModal(deck.id, e)}
+                                                            className="anim-trash btn-icon-circular"
+                                                            title={t('deleteDeck')}
+                                                            style={{
+                                                                ...styles.deleteButton,
+                                                                width: '32px', height: '32px', minWidth: '32px', padding: 0,
+                                                                zIndex: 100, pointerEvents: 'auto',
+                                                            }}
+                                                        >
+                                                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16" className="trash-icon" style={{ overflow: 'visible', pointerEvents: 'none' }}>
+                                                                <defs>
+                                                                    <radialGradient id={`trashLight-${deck.id}`} cx="0.5" cy="0.5" r="0.5" fx="0.5" fy="0.5">
+                                                                        <stop offset="0%" stopColor="#FFF" stopOpacity="0.9" />
+                                                                        <stop offset="40%" stopColor="var(--accent-red)" stopOpacity="0.8" />
+                                                                        <stop offset="100%" stopColor="var(--accent-red)" stopOpacity="0" />
+                                                                    </radialGradient>
+                                                                </defs>
+                                                                <ellipse className="trash-glow" cx="12" cy="10" rx="4" ry="2" fill={`url(#trashLight-${deck.id})`} opacity="0" />
+                                                                <path className="trash-can" fill="var(--bg-card)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7M10 11v6M14 11v6" />
+                                                                <path className="trash-lid" fill="var(--bg-card)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7h16M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                </div>
 
-                                        <div style={styles.deckActions}>
-                                            <button
-                                                onClick={() => navigate(`/decks/${deck.id}/study`)}
-                                                className="btn-easy"
-                                                onMouseEnter={() => setHoveredDeckId(deck.id)}
-                                                onMouseLeave={() => setHoveredDeckId(null)}
-                                                style={{
-                                                    ...styles.studyButton,
-                                                    background: 'linear-gradient(135deg, rgba(30, 80, 40, 0.9), rgba(20, 50, 25, 1))',
-                                                    transition: 'all 0.3s ease',
-                                                    transform: hoveredDeckId === deck.id ? 'scale(1.02)' : 'scale(1)',
-                                                    boxShadow: hoveredDeckId === deck.id
-                                                        ? '0 0 25px rgba(0, 255, 128, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.1)'
-                                                        : '0 4px 15px rgba(0,0,0,0.3)',
-                                                    flex: 1, // Grow to fill space
-                                                }}
-                                            >
-                                                <span style={{ fontSize: '1.1rem', marginRight: '8px' }}>▶️</span>
-                                                {t('study')}
-                                            </button>
+                                                <h2 style={{
+                                                    ...styles.deckTitle,
+                                                    width: '100%',
+                                                    display: 'block',
+                                                    margin: 0,
+                                                    fontSize: '1.5rem',
+                                                    lineHeight: 1.2,
+                                                    whiteSpace: 'normal',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis'
+                                                }} title={deck.name}>
+                                                    {deck.name}
+                                                </h2>
+                                            </div>
 
+                                            <div style={styles.deckActions}>
+                                                <button
+                                                    onClick={() => navigate(`/decks/${deck.id}/study`)}
+                                                    className="btn-easy"
+                                                    onMouseEnter={() => setHoveredDeckId(deck.id)}
+                                                    onMouseLeave={() => setHoveredDeckId(null)}
+                                                    style={{
+                                                        ...styles.studyButton,
+                                                        background: 'linear-gradient(135deg, rgba(30, 80, 40, 0.9), rgba(20, 50, 25, 1))',
+                                                        transition: 'all 0.3s ease',
+                                                        transform: hoveredDeckId === deck.id ? 'scale(1.02)' : 'scale(1)',
+                                                        boxShadow: hoveredDeckId === deck.id
+                                                            ? '0 0 25px rgba(0, 255, 128, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.1)'
+                                                            : '0 4px 15px rgba(0,0,0,0.3)'
+                                                    }}
+                                                >
+                                                    {t('study')}
+                                                </button>
 
+                                                <button
+                                                    onClick={() => { setSelectedDeckId(deck.id); setShowAiModal(true); }}
+                                                    style={styles.magicButton}
+                                                    className="magic-button"
+                                                    title={t('generateWithAI')}
+                                                >
+                                                    <svg className="magic-icon" fill="currentColor" viewBox="0 0 24 24" width="24" height="24">
+                                                        <path className="star-1" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" />
+                                                        <path className="star-2" d="M18 2L19 6L23 7L19 8L18 12L17 8L13 7L17 6L18 2Z" />
+                                                        <path className="star-3" d="M6 16L7 19L10 20L7 21L6 24L5 21L2 20L5 19L6 16Z" />
+                                                    </svg>
+                                                </button>
 
-                                            <button
-                                                onClick={() => { setSelectedDeckId(deck.id); setShowAiModal(true); }}
-                                                style={styles.magicButton}
-                                                className="magic-button"
-                                                title={t('generateWithAI')}
-                                            >
-                                                <svg className="magic-icon" fill="currentColor" viewBox="0 0 24 24" width="24" height="24">
-                                                    <path className="star-1" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" />
-                                                    <path className="star-2" d="M18 2L19 6L23 7L19 8L18 12L17 8L13 7L17 6L18 2Z" />
-                                                    <path className="star-3" d="M6 16L7 19L10 20L7 21L6 24L5 21L2 20L5 19L6 16Z" />
-                                                </svg>
-                                            </button>
-
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    navigate(`/decks/${deck.id}/add`);
-                                                }}
-                                                className="btn-glass"
-                                                style={{
-                                                    ...styles.magicButton,
-                                                    background: 'rgba(255, 255, 255, 0.05)',
-                                                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                                                    boxShadow: 'none'
-                                                }}
-                                                title={t('addCards')}
-                                            >
-                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" style={{ color: 'var(--text-inverse)' }}>
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </motion.div>
-                                ))}
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        navigate(`/decks/${deck.id}/add`);
+                                                    }}
+                                                    className="btn-glass"
+                                                    style={{
+                                                        ...styles.magicButton,
+                                                        background: 'rgba(255, 255, 255, 0.05)',
+                                                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                                                        boxShadow: 'none'
+                                                    }}
+                                                    title={t('addCards')}
+                                                >
+                                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" style={{ color: 'var(--text-inverse)' }}>
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </motion.div>
+                                    ))}
                             </AnimatePresence>
                         </LayoutGroup>
-                    ) : (
-                        <div style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            padding: '60px 20px',
-                            opacity: 0.6
-                        }}>
-                            <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)' }}>{t('noDecksYet')}</p>
-                        </div>
-                    )}
+                    </div>
                 </div>
-            </div >
-
-
-            {
-                fetchError && !isLoading && (
+                {fetchError && !isLoading && (
                     <div style={{
                         gridColumn: '1 / -1',
                         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
@@ -787,10 +857,14 @@ const DeckList: React.FC = () => {
                             {t('retry') || 'Retry'}
                         </button>
                     </div>
-                )
-            }
+                )}
 
-
+                {!fetchError && decks.length === 0 && !isLoading && (
+                    <div style={styles.emptyState}>
+                        <p style={styles.emptyText}>{t('noDecksYet')}</p>
+                    </div>
+                )}
+            </div>
 
 
             {/* Import Loading Modal (Placed here to be on top of others) */}
@@ -995,7 +1069,7 @@ const DeckList: React.FC = () => {
                                             <div
                                                 key={deck.id}
                                                 onClick={() => {
-                                                    navigate(`/decks/${deck.id}/study`);
+                                                    setActiveFilterId(deck.id);
                                                     setIsSearchOpen(false);
                                                     setSearchQuery('');
                                                 }}
@@ -1049,7 +1123,7 @@ const DeckList: React.FC = () => {
                 onClose={() => setErrorModalOpen(false)}
             />
 
-        </Layout >
+        </Layout>
     );
 };
 
@@ -1338,13 +1412,12 @@ const styles: { [key: string]: React.CSSProperties } = {
     },
     deckActions: {
         display: 'flex',
-        flexWrap: 'wrap', // Allow wrapping
         gap: '10px',
         width: '100%',
         marginTop: 'auto', // Push to bottom if height varies
     },
     studyButton: {
-        flex: 1, // Take remaining space
+        flex: 2,
         minWidth: '120px',
         height: '50px',
         padding: '0',
@@ -1353,8 +1426,7 @@ const styles: { [key: string]: React.CSSProperties } = {
         justifyContent: 'center',
     },
     addButton: {
-        flex: '0 0 50px', // Fixed width
-        width: '50px',
+        flex: 1,
         minWidth: '50px',
         height: '50px',
         padding: 0,
@@ -1368,8 +1440,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     },
 
     magicButton: {
-        flex: '0 0 50px', // Fixed width
-        width: '50px',
+        flex: 1,
         minWidth: '50px',
         height: '50px',
         padding: 0,
