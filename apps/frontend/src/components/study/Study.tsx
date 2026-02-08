@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { MEDIA_BASE_URL } from '../../config';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../layout/Layout';
@@ -22,9 +22,15 @@ const Study: React.FC = () => {
     const [triggerHeart, setTriggerHeart] = useState(false);
 
     const [animClass, setAnimClass] = useState('');
+    const firstRender = useRef(true);
 
     useEffect(() => {
         let timer: any;
+
+        if (firstRender.current) {
+            firstRender.current = false;
+            return;
+        }
 
         if (isFlipped) {
             // Wait for card flip (600ms) then start open animation
@@ -33,16 +39,9 @@ const Study: React.FC = () => {
             }, 600);
         } else {
             // Wait for card flip back (600ms) then start close animation
-            // Only if we were previously open
-            if (animClass === 'anim-spin-open') {
-                timer = setTimeout(() => {
-                    setAnimClass('anim-spin-close');
-                    // Optional: remove class after animation finishes (0.8s) to be clean
-                    setTimeout(() => setAnimClass(''), 800);
-                }, 600);
-            } else {
-                setAnimClass('');
-            }
+            timer = setTimeout(() => {
+                setAnimClass('anim-spin-close');
+            }, 600);
         }
         return () => clearTimeout(timer);
     }, [isFlipped]);
