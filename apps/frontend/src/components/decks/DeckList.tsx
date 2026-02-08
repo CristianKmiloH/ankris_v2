@@ -784,7 +784,19 @@ const DeckList: React.FC = () => {
                                 ))}
                             </AnimatePresence>
                         </LayoutGroup>
-        </div>
+                    ) : (
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '60px 20px',
+                            opacity: 0.6
+                        }}>
+                            <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)' }}>{t('noDecksYet')}</p>
+                        </div>
+                    )}
+                </div>
             </div >
 
             {/* Custom Study Modal */}
