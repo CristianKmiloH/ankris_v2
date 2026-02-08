@@ -20,6 +20,7 @@ const Study: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [showCustomStudyModal, setShowCustomStudyModal] = useState(false);
     const [triggerSpin, setTriggerSpin] = useState(false);
+    const [triggerHeart, setTriggerHeart] = useState(false);
 
     useEffect(() => {
         if (isFlipped) {
@@ -170,7 +171,7 @@ const Study: React.FC = () => {
             headerAction={
                 <button
                     onClick={() => setShowCustomStudyModal(true)}
-                    className="btn-icon-round"
+                    className="btn-icon-study"
                     title={t('studyOptions') || "Opciones de Estudio"}
                 >
                     <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -302,7 +303,7 @@ const Study: React.FC = () => {
                                     </div>
 
                                     {/* Flip Icon - Top Left */}
-                                    <div className={`flip-icon ${triggerSpin ? 'anim-spin-glow' : ''}`} style={{ position: 'absolute', top: '16px', left: '16px', color: 'var(--accent-cyan)', opacity: 0.8 }}>
+                                    <div className={`flip-icon ${triggerSpin ? 'anim-spin-glow' : ''}`} style={{ position: 'absolute', top: '10px', left: '10px', color: 'var(--accent-cyan)', opacity: 0.8, zIndex: 10 }}>
                                         <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                         </svg>
@@ -310,23 +311,21 @@ const Study: React.FC = () => {
 
                                     {/* Favorite Heart - Top Right (Left of Counter) */}
                                     <div
-                                        className="favorite-icon"
+                                        className={`favorite-icon ${triggerHeart ? 'anim-heart-flash' : ''}`}
                                         onClick={(e) => {
                                             e.stopPropagation();
+                                            setTriggerHeart(true);
+                                            setTimeout(() => setTriggerHeart(false), 400);
                                             handleToggleFavorite();
                                         }}
                                         style={{
                                             position: 'absolute',
-                                            top: '16px',
-                                            right: '16px', // Moved to Top Right corner
+                                            top: '10px',
+                                            right: '10px', // Moved to Top Right corner
                                             cursor: 'pointer',
-                                            zIndex: 6,
+                                            zIndex: 10,
                                             color: cards[currentCardIndex].isFavorite ? '#ff4081' : 'var(--text-muted)',
-                                            transition: 'transform 0.2s',
                                         }}
-                                        onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.9)'}
-                                        onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                                     >
                                         <svg width="24" height="24" fill={cards[currentCardIndex].isFavorite ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
