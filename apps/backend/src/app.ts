@@ -21,6 +21,10 @@ app.get('/health', (req, res) => {
     res.json({ status: 'ok', service: 'ankris-backend' });
 });
 
+app.get('/', (req, res) => {
+    res.json({ status: 'ok', service: 'ankris-backend', message: 'Root health check passed' });
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/decks', deckRoutes); // TODO: Move to /api/decks for consistency? Leaving as is for now.
 app.use('/api/cards', cardRoutes); // New endpoint for Browser
