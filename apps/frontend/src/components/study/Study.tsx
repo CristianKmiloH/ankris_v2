@@ -21,7 +21,7 @@ const Study: React.FC = () => {
     const [showCustomStudyModal, setShowCustomStudyModal] = useState(false);
     const [triggerHeart, setTriggerHeart] = useState(false);
 
-    const [animClass, setAnimClass] = useState('');
+    const [activeIcon, setActiveIcon] = useState(false);
     const firstRender = useRef(true);
 
     useEffect(() => {
@@ -33,14 +33,14 @@ const Study: React.FC = () => {
         }
 
         if (isFlipped) {
-            // Wait for card flip (600ms) then start open animation
+            // Wait for card flip (600ms) then ACTIVATE icon (0 -> 360)
             timer = setTimeout(() => {
-                setAnimClass('anim-spin-open');
+                setActiveIcon(true);
             }, 600);
         } else {
-            // Wait for card flip back (600ms) then start close animation
+            // Wait for card flip back (600ms) then DEACTIVATE icon (360 -> 0)
             timer = setTimeout(() => {
-                setAnimClass('anim-spin-close');
+                setActiveIcon(false);
             }, 600);
         }
         return () => clearTimeout(timer);
@@ -320,7 +320,7 @@ const Study: React.FC = () => {
                                     </div>
 
                                     {/* Flip Icon - Top Left */}
-                                    <div className={`flip-icon ${animClass}`} style={{ position: 'absolute', top: '10px', left: '10px', color: 'var(--accent-cyan)', opacity: 0.8, zIndex: 10 }}>
+                                    <div className={`flip-icon ${activeIcon ? 'flip-icon-active' : ''}`} style={{ position: 'absolute', top: '10px', left: '10px', color: 'var(--accent-cyan)', opacity: 0.8, zIndex: 10 }}>
                                         <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                         </svg>
