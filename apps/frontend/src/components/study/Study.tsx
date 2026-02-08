@@ -8,6 +8,8 @@ import { useTranslation } from '../../i18n/useTranslation';
 import parse from 'html-react-parser';
 
 
+import CustomStudyModal from './CustomStudyModal';
+
 const Study: React.FC = () => {
     const { deckId } = useParams();
     const navigate = useNavigate();
@@ -16,6 +18,7 @@ const Study: React.FC = () => {
     const [currentCardIndex, setCurrentCardIndex] = useState(0);
     const [isFlipped, setIsFlipped] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [showCustomStudyModal, setShowCustomStudyModal] = useState(false);
 
     // Refs for scrolling containers
     const frontContentRef = React.useRef<HTMLDivElement>(null);
@@ -145,7 +148,28 @@ const Study: React.FC = () => {
     }, [isFlipped, loading, cards.length, handleAnswer]);
 
     return (
-        <Layout activeTab="study" disableScroll={true}>
+        <Layout
+            activeTab="study"
+            disableScroll={true}
+            headerAction={
+                <button
+                    onClick={() => setShowCustomStudyModal(true)}
+                    className="btn-icon-round"
+                    title={t('studyOptions') || "Opciones de Estudio"}
+                >
+                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                    </svg>
+                </button>
+            }
+        >
+            {showCustomStudyModal && deckId && (
+                <CustomStudyModal
+                    deckId={deckId}
+                    deckName={t('currentDeck') || "Mazo Actual"} // We might need to fetch deck name if important
+                    onClose={() => setShowCustomStudyModal(false)}
+                />
+            )}
             {loading ? (
                 <LoadingScreen />
             ) : cards.length === 0 ? (
