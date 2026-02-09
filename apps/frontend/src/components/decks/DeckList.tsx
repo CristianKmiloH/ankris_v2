@@ -1514,7 +1514,7 @@ const DeckItem = ({
                 cursor: 'grabbing'
             }}
             transition={{
-                layout: { type: 'spring', stiffness: 150, damping: 20, mass: 1.2 }, // Heavy/Elegant liquid feel
+                layout: { type: 'spring', stiffness: 400, damping: 30 }, // Snappy: Neighbors move instantly to avoid overlap
                 opacity: { duration: 0.2 }
             }}
             style={{
