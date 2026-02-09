@@ -151,8 +151,6 @@ export const translations = {
         customStudy: 'Custom Study',
         studyDue: 'Study Due Cards',
         studyFavorites: 'Study Favorites',
-        studyDue: 'Study Due Cards',
-        studyFavorites: 'Study Favorites',
         cramAll: 'Cram All Cards',
         studyOptions: 'Study Options',
         currentDeck: 'Current Deck',
