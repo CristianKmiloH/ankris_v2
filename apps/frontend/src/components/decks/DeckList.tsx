@@ -1496,235 +1496,227 @@ const DeckItem = ({
     openDeleteModal: any,
     setSelectedDeckId: any,
     setShowAiModal: any
-}) => {
     const dragControls = useDragControls();
-    const [isDragging, setIsDragging] = React.useState(false);
 
-    return (
-        <Reorder.Item
-            value={deck}
-            dragListener={false} // Disable auto-drag
-            dragControls={dragControls} // Manual control
-            onDragStart={() => setIsDragging(true)}
-            onDragEnd={() => setIsDragging(false)}
-            layout="position" // Only animate position, not scale/size
-            dragMomentum={false} // Prevents "slip" and jumping after release
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            whileDrag={{
-                scale: 1.05,
-                zIndex: 100,
-                boxShadow: "0 25px 60px rgba(0,0,0,0.7)",
-                backgroundColor: 'rgb(30, 30, 32)',
-                opacity: 1,
-                cursor: 'grabbing'
-            }}
-            transition={{
-                // Critical Fix: Disable layout animation WHILE dragging.
-                // This prevents the card from "fighting" the drag when the list reorders.
-                layout: isDragging
-                    ? { duration: 0 } // Instant updates during drag (follows finger exactly)
-                    : { type: 'spring', stiffness: 500, damping: 30 }, // Snappy snap for neighbors
-                opacity: { duration: 0.2 }
+return (
+    <Reorder.Item
+        value={deck}
+        dragListener={false} // Disable auto-drag
+        dragControls={dragControls} // Manual control
+        layout // Standard layout animation (handles position & scale)
+        dragMomentum={false} // Prevents "slip" and jumping after release
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.9 }}
+        whileDrag={{
+            scale: 1.05,
+            zIndex: 100,
+            boxShadow: "0 25px 60px rgba(0,0,0,0.7)",
+            backgroundColor: 'rgb(30, 30, 32)',
+            opacity: 1,
+            cursor: 'grabbing'
+        }}
+        transition={{
+            layout: { type: 'spring', stiffness: 500, damping: 30 }, // Snappy reaction. No overlap.
+            opacity: { duration: 0.2 }
+        }}
+        style={{
+            ...styles.deckCard,
+            // Cursor logic: if filtering, default. If not filtering, auto (handled by listeners)
+            cursor: (!activeFilterId && !showFavoritesOnly) ? 'default' : 'default',
+            position: 'relative',
+            touchAction: 'none'
+        }}
+        className="card-large deck-item"
+    >
+        {/* Drag Handle Indicator (6 Dots - 3x2 Horizontal Grid) */}
+        <div
+            onPointerDown={(e) => {
+                // Check if drag is allowed (not filtering)
+                if (!activeFilterId && !showFavoritesOnly) {
+                    dragControls.start(e);
+                }
             }}
             style={{
-                ...styles.deckCard,
-                // Cursor logic: if filtering, default. If not filtering, auto (handled by listeners)
-                cursor: (!activeFilterId && !showFavoritesOnly) ? 'default' : 'default',
-                position: 'relative',
-                touchAction: 'none'
+                position: 'absolute',
+                left: '50%',
+                top: '0', // Larger hit area top
+                height: '35px', // Larger hit area height
+                width: '60px', // Larger hit area width
+                transform: 'translateX(-50%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: (!activeFilterId && !showFavoritesOnly) ? 'grab' : 'default',
+                zIndex: 20, // ensure top
             }}
-            className="card-large deck-item"
         >
-            {/* Drag Handle Indicator (6 Dots - 3x2 Horizontal Grid) */}
-            <div
-                onPointerDown={(e) => {
-                    // Check if drag is allowed (not filtering)
-                    if (!activeFilterId && !showFavoritesOnly) {
-                        dragControls.start(e);
-                    }
-                }}
-                style={{
-                    position: 'absolute',
-                    left: '50%',
-                    top: '0', // Larger hit area top
-                    height: '35px', // Larger hit area height
-                    width: '60px', // Larger hit area width
-                    transform: 'translateX(-50%)',
+            <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: '3px',
+                opacity: 0.4,
+                pointerEvents: 'none',
+            }}>
+                <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.7)' }}></div>
+                <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.7)' }}></div>
+                <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.7)' }}></div>
+                <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.7)' }}></div>
+                <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.7)' }}></div>
+                <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.7)' }}></div>
+            </div>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '16px', marginTop: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <p style={{
+                    margin: 0,
+                    fontSize: '0.85rem',
+                    color: 'var(--text-muted)',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: (!activeFilterId && !showFavoritesOnly) ? 'grab' : 'default',
-                    zIndex: 20, // ensure top
+                    gap: '6px'
+                }}>
+                    {deck._count?.cards || 0} {deck._count?.cards === 1 ? t('cardCount') : t('cardsCount')}
+                </p>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onClick={(e) => handleToggleFavorite(e, deck)}
+                        className="btn-icon-circular"
+                        style={{
+                            width: '32px', height: '32px', minWidth: '32px', padding: 0,
+                            borderRadius: '50%',
+                            background: deck.isFavorite ? 'rgba(255, 215, 0, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+                            border: deck.isFavorite ? '1px solid rgba(255, 215, 0, 0.6)' : 'none',
+                            color: deck.isFavorite ? '#FFD700' : 'rgba(255, 255, 255, 0.4)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            zIndex: 5
+                        }}
+                        title={deck.isFavorite ? t('removeFromFavorites' as any) : t('addToFavorites' as any)}
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill={deck.isFavorite ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                        </svg>
+                    </button>
+                    <button
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onClick={(e) => openEditModal(deck, e)}
+                        className="anim-edit-blue btn-icon-circular"
+                        title={t('editDeck') || 'Editar'}
+                        style={{
+                            ...styles.editButton,
+                            width: '32px', height: '32px', minWidth: '32px', padding: 0,
+                            borderColor: 'var(--accent-cyan)',
+                            color: 'var(--accent-cyan)',
+                            backgroundColor: 'rgba(0, 217, 255, 0.05)',
+                            zIndex: 100, pointerEvents: 'auto',
+                        }}
+                    >
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16" style={{ overflow: 'visible' }}>
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                    </button>
+                    <button
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onClick={(e) => openDeleteModal(deck.id, e)}
+                        className="anim-trash btn-icon-circular"
+                        title={t('deleteDeck')}
+                        style={{
+                            ...styles.deleteButton,
+                            width: '32px', height: '32px', minWidth: '32px', padding: 0,
+                            zIndex: 100, pointerEvents: 'auto',
+                        }}
+                    >
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16" className="trash-icon" style={{ overflow: 'visible', pointerEvents: 'none' }}>
+                            <defs>
+                                <radialGradient id={`trashLight-${deck.id}`} cx="0.5" cy="0.5" r="0.5" fx="0.5" fy="0.5">
+                                    <stop offset="0%" stopColor="#FFF" stopOpacity="0.9" />
+                                    <stop offset="40%" stopColor="var(--accent-red)" stopOpacity="0.8" />
+                                    <stop offset="100%" stopColor="var(--accent-red)" stopOpacity="0" />
+                                </radialGradient>
+                            </defs>
+                            <ellipse className="trash-glow" cx="12" cy="10" rx="4" ry="2" fill={`url(#trashLight-${deck.id})`} opacity="0" />
+                            <path className="trash-can" fill="var(--bg-card)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7M10 11v6M14 11v6" />
+                            <path className="trash-lid" fill="var(--bg-card)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7h16M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <h2 style={{
+                ...styles.deckTitle,
+                width: '100%',
+                display: 'block',
+                margin: 0,
+                fontSize: '1.5rem',
+                lineHeight: 1.2,
+                whiteSpace: 'normal',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+            }} title={deck.name}>
+                {deck.name}
+            </h2>
+        </div>
+
+        <div style={styles.deckActions}>
+            <button
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={() => navigate(`/decks/${deck.id}/study`)}
+                className="btn-easy"
+                onMouseEnter={() => setHoveredDeckId(deck.id)}
+                onMouseLeave={() => setHoveredDeckId(null)}
+                style={{
+                    ...styles.studyButton,
+                    background: 'linear-gradient(135deg, rgba(30, 80, 40, 0.9), rgba(20, 50, 25, 1))',
+                    transition: 'all 0.3s ease',
+                    transform: hoveredDeckId === deck.id ? 'scale(1.02)' : 'scale(1)',
+                    boxShadow: hoveredDeckId === deck.id
+                        ? '0 0 25px rgba(0, 255, 128, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.1)'
+                        : '0 4px 15px rgba(0,0,0,0.3)'
                 }}
             >
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(3, 1fr)',
-                    gap: '3px',
-                    opacity: 0.4,
-                    pointerEvents: 'none',
-                }}>
-                    <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.7)' }}></div>
-                    <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.7)' }}></div>
-                    <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.7)' }}></div>
-                    <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.7)' }}></div>
-                    <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.7)' }}></div>
-                    <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.7)' }}></div>
-                </div>
-            </div>
+                {t('study')}
+            </button>
 
-            <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '16px', marginTop: '12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                    <p style={{
-                        margin: 0,
-                        fontSize: '0.85rem',
-                        color: 'var(--text-muted)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px'
-                    }}>
-                        {deck._count?.cards || 0} {deck._count?.cards === 1 ? t('cardCount') : t('cardsCount')}
-                    </p>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                        <button
-                            onPointerDown={(e) => e.stopPropagation()}
-                            onClick={(e) => handleToggleFavorite(e, deck)}
-                            className="btn-icon-circular"
-                            style={{
-                                width: '32px', height: '32px', minWidth: '32px', padding: 0,
-                                borderRadius: '50%',
-                                background: deck.isFavorite ? 'rgba(255, 215, 0, 0.15)' : 'rgba(255, 255, 255, 0.05)',
-                                border: deck.isFavorite ? '1px solid rgba(255, 215, 0, 0.6)' : 'none',
-                                color: deck.isFavorite ? '#FFD700' : 'rgba(255, 255, 255, 0.4)',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s ease',
-                                zIndex: 5
-                            }}
-                            title={deck.isFavorite ? t('removeFromFavorites' as any) : t('addToFavorites' as any)}
-                        >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill={deck.isFavorite ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                            </svg>
-                        </button>
-                        <button
-                            onPointerDown={(e) => e.stopPropagation()}
-                            onClick={(e) => openEditModal(deck, e)}
-                            className="anim-edit-blue btn-icon-circular"
-                            title={t('editDeck') || 'Editar'}
-                            style={{
-                                ...styles.editButton,
-                                width: '32px', height: '32px', minWidth: '32px', padding: 0,
-                                borderColor: 'var(--accent-cyan)',
-                                color: 'var(--accent-cyan)',
-                                backgroundColor: 'rgba(0, 217, 255, 0.05)',
-                                zIndex: 100, pointerEvents: 'auto',
-                            }}
-                        >
-                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16" style={{ overflow: 'visible' }}>
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                            </svg>
-                        </button>
-                        <button
-                            onPointerDown={(e) => e.stopPropagation()}
-                            onClick={(e) => openDeleteModal(deck.id, e)}
-                            className="anim-trash btn-icon-circular"
-                            title={t('deleteDeck')}
-                            style={{
-                                ...styles.deleteButton,
-                                width: '32px', height: '32px', minWidth: '32px', padding: 0,
-                                zIndex: 100, pointerEvents: 'auto',
-                            }}
-                        >
-                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16" className="trash-icon" style={{ overflow: 'visible', pointerEvents: 'none' }}>
-                                <defs>
-                                    <radialGradient id={`trashLight-${deck.id}`} cx="0.5" cy="0.5" r="0.5" fx="0.5" fy="0.5">
-                                        <stop offset="0%" stopColor="#FFF" stopOpacity="0.9" />
-                                        <stop offset="40%" stopColor="var(--accent-red)" stopOpacity="0.8" />
-                                        <stop offset="100%" stopColor="var(--accent-red)" stopOpacity="0" />
-                                    </radialGradient>
-                                </defs>
-                                <ellipse className="trash-glow" cx="12" cy="10" rx="4" ry="2" fill={`url(#trashLight-${deck.id})`} opacity="0" />
-                                <path className="trash-can" fill="var(--bg-card)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7M10 11v6M14 11v6" />
-                                <path className="trash-lid" fill="var(--bg-card)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7h16M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
+            <button
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={() => { setSelectedDeckId(deck.id); setShowAiModal(true); }}
+                style={styles.magicButton}
+                className="magic-button"
+                title={t('generateWithAI')}
+            >
+                <svg className="magic-icon" fill="currentColor" viewBox="0 0 24 24" width="24" height="24">
+                    <path className="star-1" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" />
+                    <path className="star-2" d="M18 2L19 6L23 7L19 8L18 12L17 8L13 7L17 6L18 2Z" />
+                    <path className="star-3" d="M6 16L7 19L10 20L7 21L6 24L5 21L2 20L5 19L6 16Z" />
+                </svg>
+            </button>
 
-                <h2 style={{
-                    ...styles.deckTitle,
-                    width: '100%',
-                    display: 'block',
-                    margin: 0,
-                    fontSize: '1.5rem',
-                    lineHeight: 1.2,
-                    whiteSpace: 'normal',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
-                }} title={deck.name}>
-                    {deck.name}
-                </h2>
-            </div>
-
-            <div style={styles.deckActions}>
-                <button
-                    onPointerDown={(e) => e.stopPropagation()}
-                    onClick={() => navigate(`/decks/${deck.id}/study`)}
-                    className="btn-easy"
-                    onMouseEnter={() => setHoveredDeckId(deck.id)}
-                    onMouseLeave={() => setHoveredDeckId(null)}
-                    style={{
-                        ...styles.studyButton,
-                        background: 'linear-gradient(135deg, rgba(30, 80, 40, 0.9), rgba(20, 50, 25, 1))',
-                        transition: 'all 0.3s ease',
-                        transform: hoveredDeckId === deck.id ? 'scale(1.02)' : 'scale(1)',
-                        boxShadow: hoveredDeckId === deck.id
-                            ? '0 0 25px rgba(0, 255, 128, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.1)'
-                            : '0 4px 15px rgba(0,0,0,0.3)'
-                    }}
-                >
-                    {t('study')}
-                </button>
-
-                <button
-                    onPointerDown={(e) => e.stopPropagation()}
-                    onClick={() => { setSelectedDeckId(deck.id); setShowAiModal(true); }}
-                    style={styles.magicButton}
-                    className="magic-button"
-                    title={t('generateWithAI')}
-                >
-                    <svg className="magic-icon" fill="currentColor" viewBox="0 0 24 24" width="24" height="24">
-                        <path className="star-1" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" />
-                        <path className="star-2" d="M18 2L19 6L23 7L19 8L18 12L17 8L13 7L17 6L18 2Z" />
-                        <path className="star-3" d="M6 16L7 19L10 20L7 21L6 24L5 21L2 20L5 19L6 16Z" />
-                    </svg>
-                </button>
-
-                <button
-                    onPointerDown={(e) => e.stopPropagation()}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/decks/${deck.id}/add`);
-                    }}
-                    className="btn-glass"
-                    style={{
-                        ...styles.magicButton,
-                        background: 'rgba(255, 255, 255, 0.05)',
-                        border: '1px solid rgba(255, 255, 255, 0.2)',
-                        boxShadow: 'none'
-                    }}
-                    title={t('addCards')}
-                >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" style={{ color: 'var(--text-inverse)' }}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                    </svg>
-                </button>
-            </div>
-        </Reorder.Item>
-    );
+            <button
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/decks/${deck.id}/add`);
+                }}
+                className="btn-glass"
+                style={{
+                    ...styles.magicButton,
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    boxShadow: 'none'
+                }}
+                title={t('addCards')}
+            >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" style={{ color: 'var(--text-inverse)' }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+            </button>
+        </div>
+    </Reorder.Item>
+);
 };
 
 export default DeckList;
