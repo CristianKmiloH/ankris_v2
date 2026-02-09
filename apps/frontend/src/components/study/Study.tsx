@@ -304,24 +304,26 @@ const Study: React.FC = () => {
 
                                     {/* Favorite Heart - Top Right (Left of Counter) */}
                                     <div
-                                        className={`favorite-icon ${triggerHeart ? 'anim-heart-flash' : ''}`}
+                                        className={`favorite-icon ${triggerHeart ? 'anim-heart-pop' : ''}`}
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             setTriggerHeart(true);
-                                            setTimeout(() => setTriggerHeart(false), 400);
+                                            setTimeout(() => setTriggerHeart(false), 600); // 600ms to match animation
                                             handleToggleFavorite();
                                         }}
                                         style={{
                                             position: 'absolute',
                                             top: '10px',
-                                            right: '10px', // Moved to Top Right corner
+                                            right: '10px', // Top Right corner
                                             cursor: 'pointer',
-                                            zIndex: 10,
+                                            zIndex: 25, /* Higher than flip icon to ensure clickable */
                                             color: cards[currentCardIndex].isFavorite ? '#ff4081' : 'var(--text-muted)',
+                                            transition: 'color 0.3s ease'
                                         }}
                                     >
-                                        <svg width="24" height="24" fill={cards[currentCardIndex].isFavorite ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                        {/* Premium Bubble Heart SVG */}
+                                        <svg width="28" height="28" viewBox="0 0 24 24" fill={cards[currentCardIndex].isFavorite ? "currentColor" : "none"} stroke="currentColor" strokeWidth={cards[currentCardIndex].isFavorite ? "0" : "2"} strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                                         </svg>
                                     </div>
 
@@ -424,9 +426,28 @@ const Study: React.FC = () => {
                                         </svg>
                                     </div>
 
-                                    {/* Card Counter - Top Right (Inside Card) */}
-                                    <div className="card-counter" style={{ position: 'absolute', top: '16px', right: '16px', fontWeight: 'bold', color: 'var(--text-muted)', fontSize: '0.9rem', zIndex: 5 }}>
-                                        {currentCardIndex + 1} / {cards.length}
+                                    {/* Favorite Heart - Top Right (Symmetry) */}
+                                    <div
+                                        className={`favorite-icon ${triggerHeart ? 'anim-heart-pop' : ''}`}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setTriggerHeart(true);
+                                            setTimeout(() => setTriggerHeart(false), 600);
+                                            handleToggleFavorite();
+                                        }}
+                                        style={{
+                                            position: 'absolute',
+                                            top: '10px',
+                                            right: '10px',
+                                            cursor: 'pointer',
+                                            zIndex: 25,
+                                            color: cards[currentCardIndex].isFavorite ? '#ff4081' : 'var(--text-muted)',
+                                            transition: 'color 0.3s ease'
+                                        }}
+                                    >
+                                        <svg width="28" height="28" viewBox="0 0 24 24" fill={cards[currentCardIndex].isFavorite ? "currentColor" : "none"} stroke="currentColor" strokeWidth={cards[currentCardIndex].isFavorite ? "0" : "2"} strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                        </svg>
                                     </div>
                                 </div>
                             </div>
