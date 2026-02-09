@@ -6,7 +6,7 @@ import Layout from '../layout/Layout';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { API_BASE_URL } from '../../config';
-import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
+import { motion, AnimatePresence, LayoutGroup, Reorder } from 'framer-motion';
 
 interface AnkiWebResult {
     id: string;
@@ -611,86 +611,54 @@ const DeckList: React.FC = () => {
                     )}
 
                     <div style={styles.deckGrid}>
-                        <LayoutGroup>
+                        <Reorder.Group
+                            axis="y"
+                            values={decks}
+                            onReorder={setDecks}
+                            style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 600px)', gap: '20px', justifyContent: 'center', listStyle: 'none', padding: 0 }}
+                        >
                             <AnimatePresence mode="popLayout">
                                 {decks
                                     .filter(d => activeFilterId ? d.id === activeFilterId : true)
                                     .filter(d => showFavoritesOnly ? d.isFavorite : true)
                                     .map((deck) => (
-                                        <motion.div
-                                            layout
+                                        <Reorder.Item
+                                            key={deck.id}
+                                            value={deck}
+                                            dragListener={!activeFilterId && !showFavoritesOnly}
                                             initial={{ opacity: 0, scale: 0.9 }}
                                             animate={{ opacity: 1, scale: 1 }}
                                             exit={{ opacity: 0, scale: 0.9 }}
+                                            whileDrag={{
+                                                scale: 1.05,
+                                                boxShadow: "0 20px 50px rgba(0,0,0,0.5)",
+                                                zIndex: 100,
+                                                cursor: 'grabbing'
+                                            }}
                                             transition={{
-                                                layout: { type: 'spring', stiffness: 250, damping: 20, mass: 0.8 }, // Fluid reordering
+                                                layout: { type: 'spring', stiffness: 300, damping: 30 },
                                                 opacity: { duration: 0.2 }
                                             }}
-                                            key={deck.id}
                                             style={{
                                                 ...styles.deckCard,
                                                 cursor: (!activeFilterId && !showFavoritesOnly) ? 'grab' : 'default',
                                                 position: 'relative',
-                                                zIndex: draggedDeckId === deck.id ? 10 : 1, // Ensure dragged item stays on top if visible
-                                                transform: draggedDeckId === deck.id ? 'scale(1.02)' : 'scale(1)', // Subtle lift hint
-                                                boxShadow: draggedDeckId === deck.id ? '0 10px 20px rgba(0,0,0,0.3)' : 'none',
+                                                touchAction: 'none' // Crucial for mobile drag
                                             }}
                                             className="card-large deck-item"
-                                            draggable={!activeFilterId && !showFavoritesOnly}
-                                            onDragStart={(e: React.DragEvent) => {
-                                                setDraggedDeckId(deck.id);
-                                                e.dataTransfer.effectAllowed = 'move';
-                                                setTimeout(() => {
-                                                    if (e.currentTarget) (e.currentTarget as HTMLElement).style.opacity = '0.4';
-                                                }, 0);
-                                            }}
-                                            onDragEnter={(e: React.DragEvent) => {
-                                                e.preventDefault();
-                                                if (!draggedDeckId || draggedDeckId === deck.id) return;
-
-                                                const sourceIndex = decks.findIndex(d => d.id === draggedDeckId);
-                                                const targetIndex = decks.findIndex(d => d.id === deck.id);
-
-                                                if (sourceIndex === -1 || targetIndex === -1) return;
-
-                                                const newDecks = [...decks];
-                                                const [removed] = newDecks.splice(sourceIndex, 1);
-                                                newDecks.splice(targetIndex, 0, removed);
-                                                setDecks(newDecks);
-                                            }}
-                                            onDragEnd={(e: React.DragEvent) => {
-                                                setDraggedDeckId(null);
-                                                if (e.currentTarget) (e.currentTarget as HTMLElement).style.opacity = '1';
-                                            }}
-                                            onDragOver={(e: React.DragEvent) => {
-                                                e.preventDefault();
-                                                e.dataTransfer.dropEffect = 'move';
-                                            }}
                                         >
-                                            {/* Drag Handle */}
+                                            {/* Drag Handle Indicator (Visual Only) */}
                                             <div style={{
                                                 position: 'absolute',
                                                 left: '50%',
-                                                top: '6px',
+                                                top: '8px',
                                                 transform: 'translateX(-50%)',
                                                 display: 'flex',
-                                                gap: '3px',
-                                                opacity: 0.3,
+                                                gap: '4px',
+                                                opacity: 0.2,
                                                 pointerEvents: 'none',
-                                                cursor: 'grab'
                                             }}>
-                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                                                    <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.5)' }}></div>
-                                                    <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.5)' }}></div>
-                                                </div>
-                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                                                    <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.5)' }}></div>
-                                                    <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.5)' }}></div>
-                                                </div>
-                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                                                    <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.5)' }}></div>
-                                                    <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.5)' }}></div>
-                                                </div>
+                                                <div style={{ width: '40px', height: '4px', borderRadius: '4px', background: 'rgba(255,255,255,0.5)' }}></div>
                                             </div>
 
                                             <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '16px' }}>
@@ -707,6 +675,7 @@ const DeckList: React.FC = () => {
                                                     </p>
                                                     <div style={{ display: 'flex', gap: '8px' }}>
                                                         <button
+                                                            onPointerDown={(e) => e.stopPropagation()} // Prevent drag start
                                                             onClick={(e) => handleToggleFavorite(e, deck)}
                                                             className="btn-icon-circular"
                                                             style={{
@@ -727,6 +696,7 @@ const DeckList: React.FC = () => {
                                                             </svg>
                                                         </button>
                                                         <button
+                                                            onPointerDown={(e) => e.stopPropagation()}
                                                             onClick={(e) => openEditModal(deck, e)}
                                                             className="anim-edit-blue btn-icon-circular"
                                                             title={t('editDeck') || 'Editar'}
@@ -744,6 +714,7 @@ const DeckList: React.FC = () => {
                                                             </svg>
                                                         </button>
                                                         <button
+                                                            onPointerDown={(e) => e.stopPropagation()}
                                                             onClick={(e) => openDeleteModal(deck.id, e)}
                                                             className="anim-trash btn-icon-circular"
                                                             title={t('deleteDeck')}
@@ -786,6 +757,7 @@ const DeckList: React.FC = () => {
 
                                             <div style={styles.deckActions}>
                                                 <button
+                                                    onPointerDown={(e) => e.stopPropagation()}
                                                     onClick={() => navigate(`/decks/${deck.id}/study`)}
                                                     className="btn-easy"
                                                     onMouseEnter={() => setHoveredDeckId(deck.id)}
@@ -804,6 +776,7 @@ const DeckList: React.FC = () => {
                                                 </button>
 
                                                 <button
+                                                    onPointerDown={(e) => e.stopPropagation()}
                                                     onClick={() => { setSelectedDeckId(deck.id); setShowAiModal(true); }}
                                                     style={styles.magicButton}
                                                     className="magic-button"
@@ -817,6 +790,7 @@ const DeckList: React.FC = () => {
                                                 </button>
 
                                                 <button
+                                                    onPointerDown={(e) => e.stopPropagation()}
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         navigate(`/decks/${deck.id}/add`);
@@ -835,10 +809,10 @@ const DeckList: React.FC = () => {
                                                     </svg>
                                                 </button>
                                             </div>
-                                        </motion.div>
+                                        </Reorder.Item>
                                     ))}
                             </AnimatePresence>
-                        </LayoutGroup>
+                        </Reorder.Group>
                     </div>
                 </div>
                 {fetchError && !isLoading && (
