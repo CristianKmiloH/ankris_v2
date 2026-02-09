@@ -13,31 +13,38 @@ interface CustomStudyModalProps {
 const stripHtml = (html: string) => {
     if (!html) return '';
 
-    // Remove [sound:...] tags
-    let text = html.replace(/\[sound:.*?\]/g, '');
+    let text = html;
 
-    // Check for images before stripping tags to indicate presence
+    // Remove [sound:...] tags
+    text = text.replace(/\[sound:.*?\]/g, '');
+
+    // Check for images
     const hasImage = /<img[^>]*>/i.test(text);
 
-    // Replace block tags with space to prevent glued text
-    text = text.replace(/<\/(div|p|br|li|h[1-6])>/gi, ' ');
-    text = text.replace(/<br\s*\/?>/gi, ' ');
+    // Replace BLOCK tags (opening and closing) with spaces to ensure separation
+    // divs, p, br, li, h1-6, tr, etc.
+    text = text.replace(/<(div|p|br|li|h[1-6]|tr|table|ul|ol)[^>]*>/gi, ' ');
+    text = text.replace(/<\/(div|p|br|li|h[1-6]|tr|table|ul|ol)>/gi, ' ');
 
-    // Remove HTML tags
+    // Remove all remaining tags
     text = text.replace(/<[^>]*>/g, '');
 
-    // Replace common entities
-    text = text.replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+    // Replace entities
+    text = text.replace(/&nbsp;/g, ' ')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"');
 
-    // Trim whitespace and multiple spaces
+    // Normalize whitespace
     text = text.replace(/\s+/g, ' ').trim();
 
-    // If text is empty but had image, return placeholder
     if (!text && hasImage) return '📷 [Imagen]';
     if (!text) return '...';
 
     return text;
 };
+
 
 
 const CustomStudyModal: React.FC<CustomStudyModalProps> = ({ deckId, deckName, onClose }) => {
@@ -307,19 +314,19 @@ const styles: { [key: string]: React.CSSProperties } = {
     backButton: {
         background: 'rgba(255,255,255,0.1)',
         border: 'none',
-        borderRadius: '50%', // Circle
+        borderRadius: '50%',
         color: 'white',
         width: '40px',
         height: '40px',
-        minWidth: '40px', // Prevent squashing
-        minHeight: '40px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         cursor: 'pointer',
         transition: 'background 0.2s',
         backdropFilter: 'blur(4px)',
-        flexShrink: 0, // Prevent flex squashing
+        flex: '0 0 40px', // Strict flex sizing, do not grow/shrink
+        marginRight: '12px', // Add explicit margin to separate from title
+        padding: 0, // Reset padding
     },
     searchTitle: {
         fontSize: '1.2rem',

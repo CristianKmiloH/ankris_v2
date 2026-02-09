@@ -54,15 +54,21 @@ const Study: React.FC = () => {
 
     const loadCards = async (id?: string, typeOverride?: string) => {
         setLoading(true);
+        // Reset cards to show loading state effectively
+        setCards([]);
+
         try {
             const searchParams = new URLSearchParams(window.location.search);
             const type = typeOverride || searchParams.get('type');
             const cardId = searchParams.get('cardId');
 
-            let data;
+            console.log('Study: Loading cards', { id, type, cardId });
+
+            let data: Card[] = [];
             if (type === 'card' && cardId) {
                 // Fetch specific card for custom study
                 data = await getCardsByCustomSession([cardId]);
+                console.log('Study: Fetched single card', data);
             } else if (type === 'favorites' && id) {
                 // Fetch favorites
                 data = await getFavoriteCards(id);
@@ -80,7 +86,7 @@ const Study: React.FC = () => {
             setCards(data);
             setCurrentCardIndex(0);
         } catch (err) {
-            console.error(err);
+            console.error('Error loading cards:', err);
         } finally {
             setLoading(false);
         }
