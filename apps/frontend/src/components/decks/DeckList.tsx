@@ -1498,12 +1498,15 @@ const DeckItem = ({
     setShowAiModal: any
 }) => {
     const dragControls = useDragControls();
+    const [isDragging, setIsDragging] = React.useState(false);
 
     return (
         <Reorder.Item
             value={deck}
             dragListener={false} // Disable auto-drag
             dragControls={dragControls} // Manual control
+            onDragStart={() => setIsDragging(true)}
+            onDragEnd={() => setIsDragging(false)}
             layout="position" // Only animate position, not scale/size
             dragMomentum={false} // Prevents "slip" and jumping after release
             initial={{ opacity: 0, scale: 0.9 }}
@@ -1518,7 +1521,11 @@ const DeckItem = ({
                 cursor: 'grabbing'
             }}
             transition={{
-                layout: { type: 'spring', stiffness: 500, damping: 30 }, // Snappy reaction. No overlap.
+                // Critical Fix: Disable layout animation WHILE dragging.
+                // This prevents the card from "fighting" the drag when the list reorders.
+                layout: isDragging
+                    ? { duration: 0 } // Instant updates during drag (follows finger exactly)
+                    : { type: 'spring', stiffness: 500, damping: 30 }, // Snappy snap for neighbors
                 opacity: { duration: 0.2 }
             }}
             style={{
