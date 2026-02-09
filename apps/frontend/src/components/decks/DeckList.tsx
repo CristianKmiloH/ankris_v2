@@ -610,8 +610,6 @@ const DeckList: React.FC = () => {
                         </div>
                     )}
 
-                    )}
-
                     <div style={styles.deckGrid}>
                         <Reorder.Group
                             axis="y"
