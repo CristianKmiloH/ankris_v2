@@ -1502,6 +1502,8 @@ const DeckItem = ({
     return (
         <Reorder.Item
             value={deck}
+            dragListener={false} // Disable auto-drag
+            dragControls={dragControls} // Manual control
             layout="position" // Only animate position, not scale/size
             dragMomentum={false} // Prevents "slip" and jumping after release
             initial={{ opacity: 0, scale: 0.9 }}
