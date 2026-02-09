@@ -90,10 +90,10 @@ const CustomStudyModal: React.FC<CustomStudyModalProps> = ({ deckId, deckName, o
         if (type === 'standard') {
             navigate(`/decks/${deckId}/study`);
         } else if (type === 'card' && cardId) {
-            // Force unique URL to prevent caching and ensure refresh
+            // Use navigate with unique timestamp and force reload in key prop if needed
+            // This fixes the 'Not Found' error by staying within client-side routing
             const timestamp = Date.now();
-            window.location.href = `/decks/${deckId}/study?type=card&cardId=${cardId}&_t=${timestamp}`;
-            return;
+            navigate(`/decks/${deckId}/study?type=card&cardId=${cardId}&_t=${timestamp}`, { replace: true });
         } else {
             navigate(`/decks/${deckId}/study?type=${type}`);
         }
