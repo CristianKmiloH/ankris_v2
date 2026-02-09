@@ -311,6 +311,12 @@ const styles: { [key: string]: React.CSSProperties } = {
         width: '100%',
         paddingBottom: '4px',
     },
+    backButtonWrapper: {
+        width: '44px', // Wrapper with fixed width
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+    },
     backButton: {
         background: 'rgba(255,255,255,0.1)',
         border: 'none',
@@ -318,15 +324,16 @@ const styles: { [key: string]: React.CSSProperties } = {
         color: 'white',
         width: '40px',
         height: '40px',
+        maxWidth: '40px',
+        maxHeight: '40px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         cursor: 'pointer',
         transition: 'background 0.2s',
         backdropFilter: 'blur(4px)',
-        flex: '0 0 40px', // Strict flex sizing, do not grow/shrink
-        marginRight: '12px', // Add explicit margin to separate from title
-        padding: 0, // Reset padding
+        padding: 0,
+        flex: 'none', // Strict flex
     },
     searchTitle: {
         fontSize: '1.2rem',
