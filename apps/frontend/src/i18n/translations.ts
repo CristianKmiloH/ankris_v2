@@ -151,9 +151,15 @@ export const translations = {
         customStudy: 'Custom Study',
         studyDue: 'Study Due Cards',
         studyFavorites: 'Study Favorites',
+        studyDue: 'Study Due Cards',
+        studyFavorites: 'Study Favorites',
         cramAll: 'Cram All Cards',
+        studyOptions: 'Study Options',
+        currentDeck: 'Current Deck',
     },
     es: {
+        // ... (existing es translations)
+
         // Auth
         login: 'Iniciar Sesión',
         register: 'Registrarse',
@@ -306,6 +312,8 @@ export const translations = {
         studyDue: 'Estudiar Pendientes',
         studyFavorites: 'Estudiar Favoritos',
         cramAll: 'Repasar Todo (Cram)',
+        studyOptions: 'Opciones de Estudio',
+        currentDeck: 'Mazo Actual',
     }
 };
 
