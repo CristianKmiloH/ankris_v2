@@ -49,17 +49,17 @@ const Study: React.FC = () => {
             localStorage.setItem('lastActiveDeckId', deckId);
         }
 
-        loadCards(deckId);
+        loadCards(deckId, location.search);
     }, [deckId, navigate, location.search]);
 
-    const loadCards = async (id?: string, typeOverride?: string) => {
+    const loadCards = async (id?: string, queryString?: string) => {
         setLoading(true);
         // Reset cards to show loading state effectively
         setCards([]);
 
         try {
-            const searchParams = new URLSearchParams(window.location.search);
-            const type = typeOverride || searchParams.get('type');
+            const searchParams = new URLSearchParams(queryString || window.location.search);
+            const type = searchParams.get('type');
             const cardId = searchParams.get('cardId');
 
             console.log('Study: Loading cards', { id, type, cardId });
