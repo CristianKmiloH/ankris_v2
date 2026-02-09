@@ -1,12 +1,39 @@
 import React from 'react';
 import { useTranslation } from '../../i18n/useTranslation';
 import { useNavigate } from 'react-router-dom';
+import { getDueCards } from '../../services/noteService';
 
 interface CustomStudyModalProps {
     deckId: string;
     deckName: string;
     onClose: () => void;
 }
+
+// Helper to clean up card content for preview
+const stripHtml = (html: string) => {
+    if (!html) return '';
+
+    // Remove [sound:...] tags
+    let text = html.replace(/\[sound:.*?\]/g, '');
+
+    // Check for images before stripping tags to indicate presence
+    const hasImage = /<img[^>]*>/i.test(text);
+
+    // Remove HTML tags
+    text = text.replace(/<[^>]*>/g, '');
+
+    // Replace common entities
+    text = text.replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+
+    // Trim whitespace
+    text = text.trim();
+
+    // If text is empty but had image, return placeholder
+    if (!text && hasImage) return '📷 [Imagen]';
+    if (!text) return '...';
+
+    return text;
+};
 
 const CustomStudyModal: React.FC<CustomStudyModalProps> = ({ deckId, deckName, onClose }) => {
     const { t } = useTranslation();
@@ -17,29 +44,17 @@ const CustomStudyModal: React.FC<CustomStudyModalProps> = ({ deckId, deckName, o
     const [filteredCards, setFilteredCards] = React.useState<any[]>([]);
     const [loading, setLoading] = React.useState(false);
 
-    // Import service dynamically or assuming it's available. 
-    // Since we can't easily add top-level imports with replace_file_content without breaking scope if not careful,
-    // we'll rely on the existing imports or add them if missing.
-    // Wait, I need to add the import for getDueCards. I will assume it is NOT imported yet.
-    // I will do a separate edit for imports if needed, but here I'll try to use the global scope or just assuming I'll fix imports next.
-    // Actually, I should use a multi-step replacement or just rewrite the file content if it's small enough.
-    // The file is small (134 lines). I'll use replace_file_content on the whole function body.
-
     // Fetch cards when entering search view
     React.useEffect(() => {
         if (view === 'search' && allCards.length === 0) {
             setLoading(true);
-            // We need to import getDueCards. I'll add the import in a separate step or use 'require' if feasible (not in TSX usually).
-            // I will assume I will add the import at the top.
-            import('../../services/noteService').then(({ getDueCards }) => {
-                getDueCards(deckId, true).then(cards => {
-                    setAllCards(cards);
-                    setFilteredCards(cards);
-                    setLoading(false);
-                }).catch(err => {
-                    console.error("Error fetching cards for search", err);
-                    setLoading(false);
-                });
+            getDueCards(deckId, true).then(cards => {
+                setAllCards(cards);
+                setFilteredCards(cards);
+                setLoading(false);
+            }).catch(err => {
+                console.error("Error fetching cards for search", err);
+                setLoading(false);
             });
         }
     }, [view, deckId, allCards.length]);
@@ -48,10 +63,13 @@ const CustomStudyModal: React.FC<CustomStudyModalProps> = ({ deckId, deckName, o
     React.useEffect(() => {
         if (view === 'search') {
             const lower = searchTerm.toLowerCase();
-            const filtered = allCards.filter(c =>
-                c.front.toLowerCase().includes(lower) ||
-                c.back.toLowerCase().includes(lower)
-            );
+            const filtered = allCards.filter(c => {
+                // Search in raw content (including hidden structure) or stripped content? 
+                // Usually raw is safer to find specific things, but for user experience stripped might be better.
+                // Let's search in stripped content to match what they see, OR simple raw text search.
+                return c.front.toLowerCase().includes(lower) ||
+                    c.back.toLowerCase().includes(lower);
+            });
             setFilteredCards(filtered);
         }
     }, [searchTerm, allCards, view]);
@@ -105,34 +123,49 @@ const CustomStudyModal: React.FC<CustomStudyModalProps> = ({ deckId, deckName, o
                     <>
                         <div style={styles.headerRow}>
                             <button style={styles.backButton} onClick={() => setView('menu')}>
-                                ←
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M19 12H5M12 19l-7-7 7-7" />
+                                </svg>
                             </button>
-                            <h2 style={{ ...styles.title, fontSize: '1.2rem' }}>{t('searchCards') || 'Buscar Tarjeta'}</h2>
-                            <div style={{ width: 24 }} /> {/* Spacer */}
+                            <h2 style={{ ...styles.title, fontSize: '1.2rem', flex: 1, textAlign: 'center', marginRight: '32px' }}>{t('searchCards') || 'Buscar Tarjeta'}</h2>
                         </div>
 
-                        <input
-                            style={styles.searchInput}
-                            placeholder={t('searchPlaceholder') || "Escribe..."}
-                            value={searchTerm}
-                            onChange={e => setSearchTerm(e.target.value)}
-                            autoFocus
-                        />
+                        <div style={styles.searchContainer}>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={styles.searchIcon}>
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            <input
+                                style={styles.searchInput}
+                                placeholder={t('searchPlaceholder') || "Escribe para buscar..."}
+                                value={searchTerm}
+                                onChange={e => setSearchTerm(e.target.value)}
+                                autoFocus
+                            />
+                        </div>
 
                         <div style={styles.listContainer}>
                             {loading ? (
-                                <p style={styles.loadingText}>Cargando...</p>
+                                <div style={styles.loadingContainer}>
+                                    <div className="spinner" style={{ border: '3px solid rgba(255,255,255,0.1)', borderTop: '3px solid var(--accent-cyan)', borderRadius: '50%', width: '24px', height: '24px', animation: 'spin 1s linear infinite' }}></div>
+                                    <span style={styles.loadingText}>Cargando...</span>
+                                </div>
                             ) : filteredCards.length === 0 ? (
-                                <p style={styles.loadingText}>{t('noResults') || "No hay resultados"}</p>
+                                <div style={styles.emptyState}>
+                                    <span style={{ fontSize: '2rem', marginBottom: '10px' }}>🤷‍♂️</span>
+                                    <p style={styles.loadingText}>{t('noResults') || "No hay resultados"}</p>
+                                </div>
                             ) : (
-                                filteredCards.map(card => (
+                                filteredCards.map((card, index) => (
                                     <div
-                                        key={card.id}
+                                        key={card.id || index}
                                         style={styles.cardItem}
+                                        className="card-item-hover"
                                         onClick={() => handleStart('card', card.id)}
                                     >
-                                        <div style={styles.cardText} dangerouslySetInnerHTML={{ __html: card.front }} />
-                                        <div style={{ ...styles.cardText, color: 'var(--text-secondary)', fontSize: '0.8rem' }} dangerouslySetInnerHTML={{ __html: card.back }} />
+                                        <div style={styles.cardFront}>{stripHtml(card.front)}</div>
+                                        <div style={styles.cardBack}>{stripHtml(card.back)}</div>
+                                        <div style={styles.cardArrow}>→</div>
                                     </div>
                                 ))
                             )}
@@ -140,6 +173,24 @@ const CustomStudyModal: React.FC<CustomStudyModalProps> = ({ deckId, deckName, o
                     </>
                 )}
             </div>
+            <style>{`
+                @keyframes scaleIn {
+                    from { opacity: 0; transform: scale(0.95); }
+                    to { opacity: 1; transform: scale(1); }
+                }
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+                .card-item-hover:hover {
+                    background-color: rgba(255, 255, 255, 0.08) !important;
+                    transform: translateY(-1px);
+                    border-color: rgba(255, 255, 255, 0.1) !important;
+                }
+                .card-item-hover:active {
+                    transform: scale(0.98);
+                }
+            `}</style>
         </div>
     );
 };
@@ -151,8 +202,8 @@ const styles: { [key: string]: React.CSSProperties } = {
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        backdropFilter: 'blur(8px)',
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        backdropFilter: 'blur(12px)',
         zIndex: 1000,
         display: 'flex',
         alignItems: 'center',
@@ -160,32 +211,32 @@ const styles: { [key: string]: React.CSSProperties } = {
         padding: '20px',
     },
     modal: {
-        backgroundColor: 'rgba(23, 23, 28, 0.95)',
-        backdropFilter: 'blur(24px)',
+        backgroundColor: '#1E1E24', // Solid dark premium background
         borderRadius: '24px',
-        border: '1px solid var(--border-glass)',
-        boxShadow: '0 24px 48px -12px rgba(0, 0, 0, 0.6)',
-        padding: '32px',
+        border: '1px solid rgba(255,255,255,0.08)',
+        boxShadow: '0 32px 64px -16px rgba(0, 0, 0, 0.8)',
+        padding: '24px', // Slightly tighter padding
         width: '100%',
-        maxWidth: '400px',
-        maxHeight: '80vh', // Limit height for list
+        maxWidth: '420px',
+        maxHeight: '85vh',
         display: 'flex',
         flexDirection: 'column',
         gap: '20px',
         animation: 'scaleIn 0.2s ease-out',
-        overflow: 'hidden', // Contain list
+        overflow: 'hidden',
     },
     title: {
-        fontSize: '1.5rem',
+        fontSize: '1.4rem',
         fontWeight: '700',
-        color: 'var(--text-primary)',
+        color: 'white',
         margin: 0,
         textAlign: 'center',
+        letterSpacing: '-0.02em',
     },
     subtitle: {
-        fontSize: '1rem',
-        color: 'var(--text-secondary)',
-        margin: '-10px 0 10px 0',
+        fontSize: '0.95rem',
+        color: 'rgba(255,255,255,0.5)',
+        margin: '-12px 0 8px 0',
         textAlign: 'center',
     },
     optionsGrid: {
@@ -196,18 +247,18 @@ const styles: { [key: string]: React.CSSProperties } = {
         display: 'flex',
         alignItems: 'center',
         padding: '16px',
-        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
+        backgroundColor: 'rgba(255, 255, 255, 0.03)',
+        border: '1px solid rgba(255, 255, 255, 0.06)',
         borderRadius: '16px',
         color: 'var(--text-primary)',
         cursor: 'pointer',
-        transition: 'all 0.2s',
+        transition: 'all 0.2s cubic-bezier(0.2, 0, 0, 1)',
         fontSize: '1rem',
         fontWeight: '600',
         gap: '12px',
     },
     icon: {
-        fontSize: '1.5rem',
+        fontSize: '1.4rem',
     },
     label: {
         flex: 1,
@@ -218,33 +269,54 @@ const styles: { [key: string]: React.CSSProperties } = {
         borderRadius: '12px',
         backgroundColor: 'transparent',
         border: 'none',
-        color: 'var(--text-secondary)',
+        color: 'rgba(255,255,255,0.4)',
         cursor: 'pointer',
         fontSize: '0.9rem',
+        fontWeight: '500',
+        marginTop: '8px',
     },
-    // New Styles for Search
+    // Search Styles
     headerRow: {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         width: '100%',
+        marginBottom: '4px',
     },
     backButton: {
-        background: 'none',
+        background: 'rgba(255,255,255,0.05)',
         border: 'none',
-        color: 'var(--text-primary)',
-        fontSize: '1.5rem',
+        borderRadius: '10px',
+        color: 'white',
+        width: '36px',
+        height: '36px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         cursor: 'pointer',
-        padding: '0 8px',
+        transition: 'background 0.2s',
+    },
+    searchContainer: {
+        position: 'relative',
+        width: '100%',
+    },
+    searchIcon: {
+        position: 'absolute',
+        left: '14px',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        pointerEvents: 'none',
     },
     searchInput: {
-        padding: '12px 16px',
-        borderRadius: '12px',
-        backgroundColor: 'rgba(0,0,0,0.3)',
-        border: '1px solid var(--border-color)',
+        width: '100%',
+        padding: '14px 14px 14px 44px',
+        borderRadius: '14px',
+        backgroundColor: 'rgba(0,0,0,0.25)',
+        border: '1px solid rgba(255,255,255,0.1)',
         color: 'white',
         fontSize: '1rem',
-        marginTop: '-10px',
+        outline: 'none',
+        transition: 'border-color 0.2s',
     },
     listContainer: {
         flex: 1,
@@ -252,30 +324,66 @@ const styles: { [key: string]: React.CSSProperties } = {
         display: 'flex',
         flexDirection: 'column',
         gap: '8px',
-        marginTop: '10px',
-        minHeight: '200px', // Ensure height
+        marginTop: '4px',
+        minHeight: '200px',
+        paddingRight: '4px', // For scrollbar
     },
     cardItem: {
-        padding: '12px',
+        padding: '16px',
         backgroundColor: 'rgba(255,255,255,0.03)',
-        borderRadius: '8px',
+        borderRadius: '16px',
         cursor: 'pointer',
-        border: '1px solid transparent',
+        border: '1px solid rgba(255,255,255,0.03)',
         display: 'flex',
-        flexDirection: 'column',
-        gap: '4px',
+        alignItems: 'center',
+        gap: '12px',
+        transition: 'all 0.2s ease',
+        position: 'relative',
     },
-    cardText: {
+    cardFront: {
+        fontSize: '1rem',
+        fontWeight: '600',
+        color: 'white',
+        flex: 1,
         whiteSpace: 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
-        fontSize: '0.9rem',
+    },
+    cardBack: {
+        fontSize: '0.85rem',
+        color: 'rgba(255,255,255,0.5)',
+        flex: 1,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        textAlign: 'right',
+    },
+    cardArrow: {
+        color: 'rgba(255,255,255,0.3)',
+        fontSize: '1.2rem',
+        lineHeight: 1,
+    },
+    loadingContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flex: 1,
+        gap: '12px',
+        padding: '40px',
     },
     loadingText: {
-        color: 'var(--text-secondary)',
-        textAlign: 'center',
-        marginTop: '20px',
-    }
+        color: 'rgba(255,255,255,0.4)',
+        fontSize: '0.9rem',
+    },
+    emptyState: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flex: 1,
+        padding: '40px',
+    },
 };
 
 export default CustomStudyModal;
