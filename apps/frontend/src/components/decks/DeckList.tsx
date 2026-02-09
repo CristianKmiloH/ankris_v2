@@ -1505,11 +1505,12 @@ const DeckItem = ({
             dragListener={false} // Disable auto-drag
             dragControls={dragControls} // Manual control
             dragMomentum={false} // Prevents "slip" and jumping after release
+            dragElastic={0.1} // Resistance to over-dragging (Premium solidity)
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             whileDrag={{
-                scale: 1.05, // Slightly larger lift
+                scale: 1.05,
                 zIndex: 100,
                 boxShadow: "0 25px 60px rgba(0,0,0,0.7)",
                 backgroundColor: 'rgb(30, 30, 32)',
@@ -1517,7 +1518,7 @@ const DeckItem = ({
                 cursor: 'grabbing'
             }}
             transition={{
-                layout: { duration: 0.28, ease: "easeOut" }, // Smooth, predictable slide. No spring snap.
+                layout: { type: 'spring', stiffness: 200, damping: 50 }, // Viscous Fluid. Zero bounce. "Honey" slide.
                 opacity: { duration: 0.2 }
             }}
             style={{
