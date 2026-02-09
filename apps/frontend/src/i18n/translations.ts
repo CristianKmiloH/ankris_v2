@@ -79,6 +79,7 @@ export const translations = {
 
         // Stats
         statistics: 'Statistics',
+        studyHistory: 'Study History',
         totalCards: 'Total Cards',
         reviews: 'Total Reviews', // New key
         cardsStudied: 'Cards Studied',
@@ -237,6 +238,7 @@ export const translations = {
 
         // Stats
         statistics: 'Estadísticas',
+        studyHistory: 'Historial de Estudio',
         totalCards: 'Total de Tarjetas',
         reviews: 'Repeticiones',
         cardsStudied: 'Tarjetas Estudiadas',

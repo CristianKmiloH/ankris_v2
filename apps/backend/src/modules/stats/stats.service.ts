@@ -10,6 +10,8 @@ interface UserStats {
     dailyLoad: { date: string; count: number }[];
 }
 
+import { prisma } from '../../db/prisma';
+
 export const getUserStats = async (userId: string): Promise<UserStats> => {
     const cards = await getAllCards(userId);
 
@@ -38,13 +40,58 @@ export const getUserStats = async (userId: string): Promise<UserStats> => {
         };
     });
 
+    // Real Retention Calculation
+    // Get all logs for this user
+    const totalLogs = await prisma.reviewLog.count({ where: { userId } });
+    const successLogs = await prisma.reviewLog.count({
+        where: {
+            userId,
+            grade: { gte: 3 } // Good or Easy
+        }
+    });
+
+    const realRetention = totalLogs > 0 ? Math.round((successLogs / totalLogs) * 100) : 100;
+
     return {
         totalCards: cards.length,
         newCards: cards.filter(c => c.state === 0).length,
         learningCards: cards.filter(c => c.state === 1).length,
         reviewCards: cards.filter(c => c.state === 2).length,
         totalReviews: cards.reduce((sum, c) => sum + (c.reps || 0), 0),
-        retentionRate: 100, // Default to 100% until history tracking is implemented
+        retentionRate: realRetention,
         dailyLoad
+    };
+};
+
+export const getStudyHistory = async (userId: string, start: Date, end: Date) => {
+    const logs = await prisma.reviewLog.findMany({
+        where: {
+            userId,
+            reviewDate: {
+                gte: start,
+                lte: end
+            }
+        },
+        orderBy: { reviewDate: 'asc' }
+    });
+
+    // Aggregate by day
+    const dayMap = new Map<string, number>();
+    const gradeCounts = { 1: 0, 2: 0, 3: 0, 4: 0 };
+
+    logs.forEach(log => {
+        const dayKey = log.reviewDate.toISOString().split('T')[0];
+        dayMap.set(dayKey, (dayMap.get(dayKey) || 0) + 1);
+        if (log.grade >= 1 && log.grade <= 4) {
+            gradeCounts[log.grade as 1 | 2 | 3 | 4]++;
+        }
+    });
+
+    // Fill gaps? Maybe frontend handles it.
+    // Return simple structure
+    return {
+        total: logs.length,
+        timeline: Array.from(dayMap.entries()).map(([date, count]) => ({ date, count })),
+        grades: gradeCounts
     };
 };

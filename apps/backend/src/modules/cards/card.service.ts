@@ -181,8 +181,22 @@ export const answerCard = async (userId: string, cardId: string, grade: number) 
         }
     });
 
-    // Log review (Mock)
-    console.log(`[FSRS] Card ${card.id} answered ${grade}. Next due: ${updatedCard.due}, Interval: ${computedInterval}`);
+    // Create Review Log
+    await prisma.reviewLog.create({
+        data: {
+            userId,
+            cardId,
+            grade,
+            state: card.state, // State BEFORE review
+            reviewTime: Math.floor(Math.random() * 5000) + 1000, // Mock duration for now (1-6s) as frontend doesn't send it yet
+            scheduledDays: card.scheduledDays || 0,
+            elapsedDays: Math.floor(actualElapsedDays),
+            reviewDate: now
+        }
+    });
+
+    // Log review (Console)
+    console.log(`[FSRS] Card ${card.id} answered ${grade}. Logged to history.`);
 
     return updatedCard;
 };

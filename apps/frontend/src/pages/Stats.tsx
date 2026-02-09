@@ -4,6 +4,7 @@ import LoadingScreen from '../components/common/LoadingScreen';
 import { getStats, type StatsData } from '../services/statsService';
 import DailyLoadChart from '../components/stats/DailyLoadChart';
 import RetentionChart from '../components/stats/RetentionChart';
+import StudyHistory from '../components/stats/StudyHistory';
 import { useTranslation } from '../i18n/useTranslation';
 
 const Stats: React.FC = () => {
@@ -53,6 +54,7 @@ const Stats: React.FC = () => {
 
                 {/* Charts Area - Flexible */}
                 <div style={styles.chartsContainer}>
+                    <StudyHistory />
                     <div style={styles.chartWrapper}>
                         <DailyLoadChart data={stats.dailyLoad} />
                     </div>
