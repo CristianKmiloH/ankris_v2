@@ -3,7 +3,7 @@ import { MEDIA_BASE_URL } from '../../config';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../layout/Layout';
 import LoadingScreen from '../common/LoadingScreen';
-import { getDueCards, getAllDueCards, answerCard, toggleFavorite, getFavoriteCards, type Card } from '../../services/noteService';
+import { getDueCards, getAllDueCards, answerCard, toggleFavorite, getFavoriteCards, getCardsByCustomSession, type Card } from '../../services/noteService';
 import { useTranslation } from '../../i18n/useTranslation';
 import parse from 'html-react-parser';
 
@@ -56,17 +56,18 @@ const Study: React.FC = () => {
         try {
             const searchParams = new URLSearchParams(window.location.search);
             const type = typeOverride || searchParams.get('type');
+            const cardId = searchParams.get('cardId');
 
             let data;
-            if (type === 'favorites' && id) {
+            if (type === 'card' && cardId) {
+                // Fetch specific card for custom study
+                data = await getCardsByCustomSession([cardId]);
+            } else if (type === 'favorites' && id) {
                 // Fetch favorites
                 data = await getFavoriteCards(id);
             } else if (type === 'all' && id) {
                 // Fetch all/cram
                 data = await getDueCards(id, true); // forceAll=true maps to 'type=all'
-            } else if (id) {
-                // Fetch all/cram
-                data = await getDueCards(id, true); // forceAll=true maps to 'all' in getDueCards wrapper
             } else if (id) {
                 // Standard due cards
                 data = await getDueCards(id);
