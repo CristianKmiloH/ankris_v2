@@ -1509,12 +1509,13 @@ const DeckItem = ({
             exit={{ opacity: 0, scale: 0.9 }}
             whileDrag={{
                 scale: 1.02,
-                zIndex: 50,
-                boxShadow: "0 20px 50px rgba(0,0,0,0.5)",
+                zIndex: 100, // Ensure strictly on top
+                boxShadow: "0 25px 60px rgba(0,0,0,0.7)", // Deep shadow for lift
+                backgroundColor: 'rgb(30, 30, 32)', // FORCE SOLID BACKGROUND to prevent "mixing"
                 cursor: 'grabbing'
             }}
             transition={{
-                layout: { type: 'spring', stiffness: 400, damping: 30 }, // Snappy: Neighbors move instantly to avoid overlap
+                layout: { type: 'spring', stiffness: 250, damping: 30 }, // Natural/Solid Physics (Not too fast, not too slow)
                 opacity: { duration: 0.2 }
             }}
             style={{
