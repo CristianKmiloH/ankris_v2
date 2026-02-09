@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { MEDIA_BASE_URL } from '../../config';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import Layout from '../layout/Layout';
 import LoadingScreen from '../common/LoadingScreen';
 import { getDueCards, getAllDueCards, answerCard, toggleFavorite, getFavoriteCards, getCardsByCustomSession, type Card } from '../../services/noteService';
@@ -13,6 +13,7 @@ import CustomStudyModal from './CustomStudyModal';
 const Study: React.FC = () => {
     const { deckId } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const { t } = useTranslation();
     const [cards, setCards] = useState<Card[]>([]);
     const [currentCardIndex, setCurrentCardIndex] = useState(0);
@@ -49,7 +50,7 @@ const Study: React.FC = () => {
         }
 
         loadCards(deckId);
-    }, [deckId, navigate]);
+    }, [deckId, navigate, location.search]);
 
     const loadCards = async (id?: string, typeOverride?: string) => {
         setLoading(true);

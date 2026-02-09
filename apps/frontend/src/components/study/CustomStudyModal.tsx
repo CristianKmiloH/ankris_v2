@@ -19,14 +19,18 @@ const stripHtml = (html: string) => {
     // Check for images before stripping tags to indicate presence
     const hasImage = /<img[^>]*>/i.test(text);
 
+    // Replace block tags with space to prevent glued text
+    text = text.replace(/<\/(div|p|br|li|h[1-6])>/gi, ' ');
+    text = text.replace(/<br\s*\/?>/gi, ' ');
+
     // Remove HTML tags
     text = text.replace(/<[^>]*>/g, '');
 
     // Replace common entities
     text = text.replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
 
-    // Trim whitespace
-    text = text.trim();
+    // Trim whitespace and multiple spaces
+    text = text.replace(/\s+/g, ' ').trim();
 
     // If text is empty but had image, return placeholder
     if (!text && hasImage) return '📷 [Imagen]';
@@ -34,6 +38,7 @@ const stripHtml = (html: string) => {
 
     return text;
 };
+
 
 const CustomStudyModal: React.FC<CustomStudyModalProps> = ({ deckId, deckName, onClose }) => {
     const { t } = useTranslation();
@@ -306,12 +311,15 @@ const styles: { [key: string]: React.CSSProperties } = {
         color: 'white',
         width: '40px',
         height: '40px',
+        minWidth: '40px', // Prevent squashing
+        minHeight: '40px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         cursor: 'pointer',
         transition: 'background 0.2s',
         backdropFilter: 'blur(4px)',
+        flexShrink: 0, // Prevent flex squashing
     },
     searchTitle: {
         fontSize: '1.2rem',
