@@ -123,11 +123,12 @@ const CustomStudyModal: React.FC<CustomStudyModalProps> = ({ deckId, deckName, o
                     <>
                         <div style={styles.headerRow}>
                             <button style={styles.backButton} onClick={() => setView('menu')}>
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M19 12H5M12 19l-7-7 7-7" />
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M15 18l-6-6 6-6" />
                                 </svg>
                             </button>
-                            <h2 style={{ ...styles.title, fontSize: '1.2rem', flex: 1, textAlign: 'center', marginRight: '32px' }}>{t('searchCards') || 'Buscar Tarjeta'}</h2>
+                            <h2 style={styles.searchTitle}>{t('searchCards') || 'Buscar Tarjeta'}</h2>
+                            <div style={{ width: 40 }} /> {/* Spacer to balance back button */}
                         </div>
 
                         <div style={styles.searchContainer}>
@@ -152,7 +153,7 @@ const CustomStudyModal: React.FC<CustomStudyModalProps> = ({ deckId, deckName, o
                                 </div>
                             ) : filteredCards.length === 0 ? (
                                 <div style={styles.emptyState}>
-                                    <span style={{ fontSize: '2rem', marginBottom: '10px' }}>🤷‍♂️</span>
+                                    <span style={{ fontSize: '2rem', marginBottom: '10px', opacity: 0.5 }}>🔍</span>
                                     <p style={styles.loadingText}>{t('noResults') || "No hay resultados"}</p>
                                 </div>
                             ) : (
@@ -163,9 +164,22 @@ const CustomStudyModal: React.FC<CustomStudyModalProps> = ({ deckId, deckName, o
                                         className="card-item-hover"
                                         onClick={() => handleStart('card', card.id)}
                                     >
-                                        <div style={styles.cardFront}>{stripHtml(card.front)}</div>
-                                        <div style={styles.cardBack}>{stripHtml(card.back)}</div>
-                                        <div style={styles.cardArrow}>→</div>
+                                        <div style={styles.cardContent}>
+                                            <div style={styles.cardFrontRow}>
+                                                <span style={styles.qBadge}>Q</span>
+                                                <span style={styles.cardFrontText}>{stripHtml(card.front)}</span>
+                                            </div>
+                                            <div style={styles.cardBackRow}>
+                                                <span style={styles.aBadge}>A</span>
+                                                <span style={styles.cardBackText}>{stripHtml(card.back)}</span>
+                                            </div>
+                                        </div>
+                                        <div style={styles.playAction}>
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <circle cx="12" cy="12" r="10" opacity='0.2' />
+                                                <polygon points="10 8 16 12 10 16 10 8" fill="var(--accent-cyan)" />
+                                            </svg>
+                                        </div>
                                     </div>
                                 ))
                             )}
@@ -184,7 +198,8 @@ const CustomStudyModal: React.FC<CustomStudyModalProps> = ({ deckId, deckName, o
                 }
                 .card-item-hover:hover {
                     background-color: rgba(255, 255, 255, 0.08) !important;
-                    transform: translateY(-1px);
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
                     border-color: rgba(255, 255, 255, 0.1) !important;
                 }
                 .card-item-hover:active {
@@ -202,7 +217,7 @@ const styles: { [key: string]: React.CSSProperties } = {
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
         backdropFilter: 'blur(12px)',
         zIndex: 1000,
         display: 'flex',
@@ -211,33 +226,34 @@ const styles: { [key: string]: React.CSSProperties } = {
         padding: '20px',
     },
     modal: {
-        backgroundColor: '#1E1E24', // Solid dark premium background
-        borderRadius: '24px',
+        backgroundColor: '#16161a',
+        borderRadius: '32px',
         border: '1px solid rgba(255,255,255,0.08)',
-        boxShadow: '0 32px 64px -16px rgba(0, 0, 0, 0.8)',
-        padding: '24px', // Slightly tighter padding
+        boxShadow: '0 40px 80px -20px rgba(0, 0, 0, 0.9)',
+        padding: '28px',
         width: '100%',
         maxWidth: '420px',
         maxHeight: '85vh',
         display: 'flex',
         flexDirection: 'column',
-        gap: '20px',
-        animation: 'scaleIn 0.2s ease-out',
+        gap: '24px',
+        animation: 'scaleIn 0.25s cubic-bezier(0.2, 0, 0, 1)',
         overflow: 'hidden',
     },
     title: {
-        fontSize: '1.4rem',
-        fontWeight: '700',
+        fontSize: '1.5rem',
+        fontWeight: '800',
         color: 'white',
         margin: 0,
         textAlign: 'center',
-        letterSpacing: '-0.02em',
+        letterSpacing: '-0.03em',
     },
     subtitle: {
         fontSize: '0.95rem',
         color: 'rgba(255,255,255,0.5)',
-        margin: '-12px 0 8px 0',
+        margin: '-16px 0 8px 0',
         textAlign: 'center',
+        fontWeight: '500',
     },
     optionsGrid: {
         display: 'grid',
@@ -246,19 +262,19 @@ const styles: { [key: string]: React.CSSProperties } = {
     optionButton: {
         display: 'flex',
         alignItems: 'center',
-        padding: '16px',
+        padding: '18px',
         backgroundColor: 'rgba(255, 255, 255, 0.03)',
         border: '1px solid rgba(255, 255, 255, 0.06)',
-        borderRadius: '16px',
+        borderRadius: '20px',
         color: 'var(--text-primary)',
         cursor: 'pointer',
         transition: 'all 0.2s cubic-bezier(0.2, 0, 0, 1)',
-        fontSize: '1rem',
+        fontSize: '1.05rem',
         fontWeight: '600',
-        gap: '12px',
+        gap: '14px',
     },
     icon: {
-        fontSize: '1.4rem',
+        fontSize: '1.5rem',
     },
     label: {
         flex: 1,
@@ -272,8 +288,8 @@ const styles: { [key: string]: React.CSSProperties } = {
         color: 'rgba(255,255,255,0.4)',
         cursor: 'pointer',
         fontSize: '0.9rem',
-        fontWeight: '500',
-        marginTop: '8px',
+        fontWeight: '600',
+        marginTop: '0px',
     },
     // Search Styles
     headerRow: {
@@ -281,20 +297,29 @@ const styles: { [key: string]: React.CSSProperties } = {
         alignItems: 'center',
         justifyContent: 'space-between',
         width: '100%',
-        marginBottom: '4px',
+        paddingBottom: '4px',
     },
     backButton: {
-        background: 'rgba(255,255,255,0.05)',
+        background: 'rgba(255,255,255,0.1)',
         border: 'none',
-        borderRadius: '10px',
+        borderRadius: '50%', // Circle
         color: 'white',
-        width: '36px',
-        height: '36px',
+        width: '40px',
+        height: '40px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         cursor: 'pointer',
         transition: 'background 0.2s',
+        backdropFilter: 'blur(4px)',
+    },
+    searchTitle: {
+        fontSize: '1.2rem',
+        fontWeight: '700',
+        color: 'white',
+        margin: 0,
+        textAlign: 'center',
+        flex: 1,
     },
     searchContainer: {
         position: 'relative',
@@ -302,66 +327,104 @@ const styles: { [key: string]: React.CSSProperties } = {
     },
     searchIcon: {
         position: 'absolute',
-        left: '14px',
+        left: '16px',
         top: '50%',
         transform: 'translateY(-50%)',
         pointerEvents: 'none',
+        opacity: 0.7,
     },
     searchInput: {
         width: '100%',
-        padding: '14px 14px 14px 44px',
-        borderRadius: '14px',
-        backgroundColor: 'rgba(0,0,0,0.25)',
+        padding: '16px 16px 16px 48px',
+        borderRadius: '16px',
+        backgroundColor: 'rgba(0,0,0,0.3)',
         border: '1px solid rgba(255,255,255,0.1)',
         color: 'white',
         fontSize: '1rem',
         outline: 'none',
-        transition: 'border-color 0.2s',
+        transition: 'all 0.2s',
     },
     listContainer: {
         flex: 1,
         overflowY: 'auto',
         display: 'flex',
         flexDirection: 'column',
-        gap: '8px',
-        marginTop: '4px',
+        gap: '10px',
+        marginTop: '8px',
         minHeight: '200px',
-        paddingRight: '4px', // For scrollbar
+        paddingRight: '4px',
+        paddingBottom: '10px',
     },
     cardItem: {
         padding: '16px',
         backgroundColor: 'rgba(255,255,255,0.03)',
-        borderRadius: '16px',
+        borderRadius: '18px',
         cursor: 'pointer',
-        border: '1px solid rgba(255,255,255,0.03)',
+        border: '1px solid rgba(255,255,255,0.04)',
         display: 'flex',
         alignItems: 'center',
-        gap: '12px',
-        transition: 'all 0.2s ease',
+        gap: '16px',
+        transition: 'all 0.2s cubic-bezier(0.2, 0, 0, 1)',
         position: 'relative',
     },
-    cardFront: {
+    cardContent: {
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '6px',
+        overflow: 'hidden',
+    },
+    cardFrontRow: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+    },
+    cardBackRow: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+    },
+    qBadge: {
+        fontSize: '0.7rem',
+        fontWeight: '800',
+        color: 'var(--accent-cyan)',
+        backgroundColor: 'rgba(0, 255, 255, 0.1)',
+        padding: '2px 6px',
+        borderRadius: '6px',
+        minWidth: '20px',
+        textAlign: 'center',
+    },
+    aBadge: {
+        fontSize: '0.7rem',
+        fontWeight: '800',
+        color: 'var(--text-secondary)',
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        padding: '2px 6px',
+        borderRadius: '6px',
+        minWidth: '20px',
+        textAlign: 'center',
+    },
+    cardFrontText: {
         fontSize: '1rem',
         fontWeight: '600',
         color: 'white',
-        flex: 1,
         whiteSpace: 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
     },
-    cardBack: {
-        fontSize: '0.85rem',
-        color: 'rgba(255,255,255,0.5)',
-        flex: 1,
+    cardBackText: {
+        fontSize: '0.9rem',
+        color: 'rgba(255,255,255,0.6)',
         whiteSpace: 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
-        textAlign: 'right',
     },
-    cardArrow: {
-        color: 'rgba(255,255,255,0.3)',
-        fontSize: '1.2rem',
-        lineHeight: 1,
+    playAction: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: 'var(--accent-cyan)',
+        opacity: 0.8,
     },
     loadingContainer: {
         display: 'flex',
