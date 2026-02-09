@@ -1518,7 +1518,7 @@ const DeckItem = ({
                 cursor: 'grabbing'
             }}
             transition={{
-                layout: { type: 'spring', stiffness: 200, damping: 50 }, // Viscous Fluid. Zero bounce. "Honey" slide.
+                layout: { type: 'spring', stiffness: 500, damping: 30 }, // Snappy reaction. No overlap.
                 opacity: { duration: 0.2 }
             }}
             style={{
