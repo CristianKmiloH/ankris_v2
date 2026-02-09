@@ -1509,15 +1509,15 @@ const DeckItem = ({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             whileDrag={{
-                scale: 1.02,
-                zIndex: 100, // Ensure strictly on top
-                boxShadow: "0 25px 60px rgba(0,0,0,0.7)", // Deep shadow for lift
-                backgroundColor: 'rgb(30, 30, 32)', // FORCE SOLID BACKGROUND to prevent "mixing"
-                opacity: 1, // Ensure fully opaque
+                scale: 1.05, // Slightly larger lift
+                zIndex: 100,
+                boxShadow: "0 25px 60px rgba(0,0,0,0.7)",
+                backgroundColor: 'rgb(30, 30, 32)',
+                opacity: 1,
                 cursor: 'grabbing'
             }}
             transition={{
-                layout: { type: 'spring', stiffness: 300, damping: 40 }, // "Hydraulic" feel: Responsive but zero bounce
+                layout: { duration: 0.28, ease: "easeOut" }, // Smooth, predictable slide. No spring snap.
                 opacity: { duration: 0.2 }
             }}
             style={{
