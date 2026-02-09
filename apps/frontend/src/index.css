@@ -1719,12 +1719,7 @@ button {
 }
 
 /* Spin on Hover / Active (Touch) */
-.study-card:hover .flip-icon,
-.study-card:active .flip-icon {
-  transform: rotate(-360deg);
-  opacity: 1 !important;
-  filter: drop-shadow(0 0 5px var(--accent-cyan));
-}
+/* OSC Phase 12: Hover animation removed to avoid conflict */
 
 /* End of Rule */
 
@@ -2835,8 +2830,8 @@ button:active .icon-glow-green {
   padding: 0 !important;
   border-radius: 50% !important;
   display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+  align-items: center;
+  justify-content: center;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(4px);
@@ -2856,16 +2851,16 @@ button:active .icon-glow-green {
   color: var(--text-secondary);
 }
 
-/* 2. Two-Way Flip Animation - OSC Phase 11: Mobile Reliability & Center Axis */
+/* 2. Two-Way Flip Animation - OSC Phase 13: Parent-Driven Sequential Trigger */
 .flip-icon {
   /* 
-     Synced with card flip (0.6s). 
-     No delay to ensure visibility during rotation. 
+     Base State (0deg).
+     Wait for return flip (0.6s delay) before rotating back.
   */
   transition:
-    transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
-    filter 0.6s ease,
-    opacity 0.6s ease;
+    transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s,
+    filter 0.6s ease 0.6s,
+    opacity 0.6s ease 0.6s;
 
   transform-origin: center center;
   transform: rotate(0deg);
@@ -2883,11 +2878,17 @@ button:active .icon-glow-green {
   z-index: 20;
 }
 
-.flip-icon-active {
-  transform: rotate(360deg);
+/* 
+   Active State (Triggered by parent .flipped class).
+   Wait for forward flip (0.6s delay) before rotating to -360deg.
+*/
+.study-card.flipped .flip-icon,
+.study-card.flipped .card-back .flip-icon {
+  transform: rotate(-360deg) !important;
   filter: drop-shadow(0 0 8px rgba(0, 255, 255, 1));
-  color: var(--accent-cyan);
   opacity: 1 !important;
+  transition-delay: 0.6s;
+  /* Crucial: Start AFTER card flip */
 }
 
 /* 3. Heart Beat / Flash Animation */
