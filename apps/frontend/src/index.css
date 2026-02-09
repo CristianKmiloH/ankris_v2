@@ -2855,12 +2855,12 @@ button:active .icon-glow-green {
 .flip-icon {
   /* 
      Base State (0deg).
-     Wait for return flip (1s delay) before rotating back.
+     Wait for return flip (0.5s delay) before rotating back.
   */
   transition:
-    transform 1s cubic-bezier(0.23, 1, 0.32, 1) 1s,
-    filter 1s ease 1s,
-    opacity 1s ease 1s;
+    transform 2s cubic-bezier(0.2, 0, 0.2, 1) 0.5s,
+    filter 2s ease 0.5s,
+    opacity 2s ease 0.5s;
 
   transform-origin: center center;
   transform: rotate(0deg);
@@ -2887,8 +2887,8 @@ button:active .icon-glow-green {
   transform: rotate(-360deg) !important;
   filter: drop-shadow(0 0 8px rgba(0, 255, 255, 1));
   opacity: 1 !important;
-  transition-delay: 1s;
-  /* Crucial: Start AFTER card flip */
+  transition-delay: 0.5s;
+  /* Crucial: Start at 50% of card flip */
 }
 
 /* 3. Heart Beat / Flash Animation */
