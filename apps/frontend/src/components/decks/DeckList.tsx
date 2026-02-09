@@ -636,7 +636,7 @@ const DeckList: React.FC = () => {
                                                 cursor: 'grabbing'
                                             }}
                                             transition={{
-                                                layout: { type: 'spring', stiffness: 200, damping: 25 }, // Softer spring for less "snap"
+                                                layout: { type: 'spring', stiffness: 150, damping: 20, mass: 1.2 }, // Heavy/Elegant liquid feel
                                                 opacity: { duration: 0.2 }
                                             }}
                                             style={{
@@ -647,27 +647,24 @@ const DeckList: React.FC = () => {
                                             }}
                                             className="card-large deck-item"
                                         >
-                                            {/* Drag Handle Indicator (6 Dots - 2x3 Grid) */}
+                                            {/* Drag Handle Indicator (6 Dots - 3x2 Horizontal Grid) */}
                                             <div style={{
                                                 position: 'absolute',
                                                 left: '50%',
                                                 top: '8px',
                                                 transform: 'translateX(-50%)',
-                                                display: 'flex',
+                                                display: 'grid',
+                                                gridTemplateColumns: 'repeat(3, 1fr)',
                                                 gap: '3px',
                                                 opacity: 0.3,
                                                 pointerEvents: 'none',
                                             }}>
-                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                                                    <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.6)' }}></div>
-                                                    <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.6)' }}></div>
-                                                    <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.6)' }}></div>
-                                                </div>
-                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                                                    <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.6)' }}></div>
-                                                    <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.6)' }}></div>
-                                                    <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.6)' }}></div>
-                                                </div>
+                                                <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.6)' }}></div>
+                                                <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.6)' }}></div>
+                                                <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.6)' }}></div>
+                                                <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.6)' }}></div>
+                                                <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.6)' }}></div>
+                                                <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.6)' }}></div>
                                             </div>
 
                                             <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '16px' }}>
