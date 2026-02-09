@@ -90,7 +90,10 @@ const CustomStudyModal: React.FC<CustomStudyModalProps> = ({ deckId, deckName, o
         if (type === 'standard') {
             navigate(`/decks/${deckId}/study`);
         } else if (type === 'card' && cardId) {
-            navigate(`/decks/${deckId}/study?type=card&cardId=${cardId}`);
+            // Force unique URL to prevent caching and ensure refresh
+            const timestamp = Date.now();
+            window.location.href = `/decks/${deckId}/study?type=card&cardId=${cardId}&_t=${timestamp}`;
+            return;
         } else {
             navigate(`/decks/${deckId}/study?type=${type}`);
         }
@@ -134,13 +137,26 @@ const CustomStudyModal: React.FC<CustomStudyModalProps> = ({ deckId, deckName, o
                 ) : (
                     <>
                         <div style={styles.headerRow}>
-                            <button style={styles.backButton} onClick={() => setView('menu')}>
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M15 18l-6-6 6-6" />
-                                </svg>
-                            </button>
-                            <h2 style={styles.searchTitle}>{t('searchCards') || 'Buscar Tarjeta'}</h2>
-                            <div style={{ width: 40 }} /> {/* Spacer to balance back button */}
+                            <div style={styles.backButtonWrapper}>
+                                <button
+                                    style={{
+                                        ...styles.backButton,
+                                        width: '40px',
+                                        height: '40px',
+                                        minWidth: '40px',
+                                        borderRadius: '50%',
+                                        flex: '0 0 40px',
+                                        aspectRatio: '1 / 1'
+                                    }}
+                                    onClick={() => setView('menu')}
+                                >
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M15 18l-6-6 6-6" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <h2 style={styles.searchTitle}>{t('searchCards') || 'Buscador de Cartas'}</h2>
+                            <div style={{ width: 44, flex: '0 0 44px' }} /> {/* Spacer */}
                         </div>
 
                         <div style={styles.searchContainer}>
