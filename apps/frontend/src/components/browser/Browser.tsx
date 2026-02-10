@@ -308,7 +308,7 @@ const Browser: React.FC = () => {
                 </div>
 
                 {/* Bottom Section: Cards (60% / Remaining) */}
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', paddingTop: '10px' }}>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', paddingTop: '0px' }}>
                     <div style={styles.resultsHeader}>
                         <h2 style={styles.resultsTitle}>{t('cardsTitle')} ({filteredCards.length})</h2>
                         <span style={styles.hint}>💡 {t('clickToFlip')}</span>
@@ -487,7 +487,7 @@ const styles: { [key: string]: React.CSSProperties } = {
         fontSize: '1rem',
     },
     deckFilters: {
-        marginBottom: '4px', // Compact
+        marginBottom: '0px', // Removed margin
     },
     deckButtons: {
         display: 'flex',
