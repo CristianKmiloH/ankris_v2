@@ -491,9 +491,13 @@ const styles: { [key: string]: React.CSSProperties } = {
     },
     deckButtons: {
         display: 'flex',
-        gap: '6px', // Tighter gap
+        gap: '6px',
         flexWrap: 'wrap',
-        marginBottom: '2px', // Minimal bottom margin
+        marginBottom: '0px', // Removed margin as requested
+        maxHeight: '175px', // Limit to approx 4 rows
+        overflowY: 'auto', // Internal scroll
+        padding: '2px', // Prevent shadow crop
+        scrollbarWidth: 'thin' as const,
     },
     // Visual styles handled by .btn-glass / .btn-primary in CSS
     deckButton: {
@@ -521,7 +525,8 @@ const styles: { [key: string]: React.CSSProperties } = {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: '8px', // Separation from grid
+        marginBottom: '4px', // Minimal separation
+        marginTop: '4px', // Minimal separation from filters
         gap: '12px',
     },
     resultsTitle: {
