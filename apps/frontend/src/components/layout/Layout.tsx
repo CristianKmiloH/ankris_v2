@@ -124,6 +124,11 @@ const styles = {
         fontWeight: '600',
         letterSpacing: '1px',
         textTransform: 'uppercase' as const,
+        whiteSpace: 'nowrap' as const,
+        overflow: 'hidden' as const,
+        textOverflow: 'ellipsis' as const,
+        maxWidth: '100%',
+        display: 'block',
     },
     actions: {
         display: 'flex',

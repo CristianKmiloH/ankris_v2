@@ -100,6 +100,7 @@ export const translations = {
         cardCount: 'card',
 
         // Browser
+        myCards: 'My Cards',
         cardBrowser: 'Card Browser',
         searchCards: 'Search cards...',
         allDecks: 'All Decks',
@@ -259,6 +260,7 @@ export const translations = {
         cardCount: 'tarjeta',
 
         // Browser
+        myCards: 'Mis Tarjetas',
         cardBrowser: 'Navegador de Tarjetas',
         searchCards: 'Buscar tarjetas...',
         allDecks: 'Todos los Mazos',

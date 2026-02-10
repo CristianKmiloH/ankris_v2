@@ -291,21 +291,8 @@ const DeckList: React.FC = () => {
                 </svg>
             </button>
 
-            {/* Stats and Filter Column */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                <button
-                    onClick={() => navigate('/stats')}
-                    className="btn-icon-round anim-header-stats"
-                    title={t('statistics')}
-                >
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ overflow: 'visible' }}>
-                        <path className="bar-1" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2z" />
-                        <path className="bar-2" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19V9a2 2 0 00-2-2h-2a2 2 0 00-2 2v10a2 2 0 002 2h2a2 2 0 002-2z" />
-                        <path className="bar-3" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 19V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14a2 2 0 002 2h2a2 2 0 002-2z" />
-                    </svg>
-                </button>
-                <FilterToggle />
-            </div>
+            {/* Moved Favorites Filter here (replaced Stats) */}
+            <FilterToggle />
         </div>
     );
 
@@ -336,7 +323,7 @@ const DeckList: React.FC = () => {
                 transition: 'all 0.2s ease',
             }}
         >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill={showFavoritesOnly ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill={showFavoritesOnly ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
             </svg>
         </button>

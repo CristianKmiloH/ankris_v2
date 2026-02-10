@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import Layout from '../layout/Layout';
 import { getDecks, type Deck } from '../../services/deckService';
-import { getAllCards, type Card, updateCard, deleteCard, toggleFavorite } from '../../services/cardService';
+import { getAllCards, type Card, updateCard, deleteCard } from '../../services/cardService';
 import { useTranslation } from '../../i18n/useTranslation';
 import { MEDIA_BASE_URL } from '../../config';
 
@@ -61,21 +61,7 @@ const Browser: React.FC = () => {
         setEditingCard(card);
     };
 
-    const handleToggleFavorite = async (card: Card, e: React.MouseEvent) => {
-        e.stopPropagation();
 
-        // Optimistic update
-        const updatedCards = cards.map(c => c.id === card.id ? { ...c, isFavorite: !c.isFavorite } : c);
-        setCards(updatedCards);
-
-        try {
-            await toggleFavorite(card.id);
-        } catch (err) {
-            console.error('Error toggling favorite:', err);
-            // Revert
-            setCards(cards.map(c => c.id === card.id ? card : c));
-        }
-    };
 
     const handleSaveEdit = async (id: string, front: string, back: string, newFiles?: { front?: File[], back?: File[] }) => {
         try {
@@ -264,11 +250,13 @@ const Browser: React.FC = () => {
     return (
         <Layout
             activeTab="library"
-            title={t('cardBrowser')}
-            subtitle={t('exploreCards')}
+            title={t('myCards') || "Mis Tarjetas"}
+            // subtitle removed or empty to save space
             showBackButton={true}
+            disableScroll={true}
+            headerStyle={{ padding: '16px 16px 0 16px', marginBottom: '8px' }}
         >
-            <div style={styles.container}>
+            <div style={{ ...styles.container, padding: '0 16px 16px 16px' }}>
                 {/* Loading Modal */}
                 {isLoading && (
                     <div style={styles.modalOverlay}>
@@ -478,7 +466,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     },
     fixedHeader: {
         flexShrink: 0,
-        marginBottom: '16px',
+        marginBottom: '0px', // Further reduced
     },
     scrollableContent: {
         flex: 1,
@@ -487,7 +475,7 @@ const styles: { [key: string]: React.CSSProperties } = {
         scrollbarWidth: 'none',
     },
     searchBox: {
-        marginBottom: '16px',
+        marginBottom: '8px',
     },
     searchInput: {
         width: '100%',
