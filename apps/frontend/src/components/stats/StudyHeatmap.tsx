@@ -1,70 +1,67 @@
-import React, { useEffect, useState } from 'react';
-import { getHistory } from '../../services/statsService';
+import React, { useMemo } from 'react';
 import { useTranslation } from '../../i18n/useTranslation';
 import './StudyHistory.css'; // Share styles
 
-const StudyHeatmap: React.FC = () => {
+interface StudyHeatmapProps {
+    data: { date: string; count: number }[];
+    startDate: Date;
+    endDate: Date;
+}
+
+const StudyHeatmap: React.FC<StudyHeatmapProps> = ({ data, startDate, endDate }) => {
     const { t } = useTranslation();
-    const [heatmapData, setHeatmapData] = useState<Map<string, number>>(new Map());
-    // const [loading, setLoading] = useState(true); // Unused for now
 
-    // Config: Show last 6 months approx (26 weeks)
-    const WEEKS_TO_SHOW = 26;
+    // Transform data to map for O(1) lookup
+    const heatmapData = useMemo(() => {
+        const map = new Map<string, number>();
+        data.forEach(item => {
+            const dateKey = new Date(item.date).toISOString().split('T')[0];
+            map.set(dateKey, item.count);
+        });
+        return map;
+    }, [data]);
 
-    useEffect(() => {
-        fetchHeatmapData();
-    }, []);
+    // Generate dates based on provided range
+    const dates = useMemo(() => {
+        const datesArr: Date[] = [];
+        const start = new Date(startDate);
+        const end = new Date(endDate);
 
-    const fetchHeatmapData = async () => {
-        try {
-            const end = new Date();
-            const start = new Date();
-            start.setDate(start.getDate() - (WEEKS_TO_SHOW * 7)); // Go back X weeks
+        // Ensure we visually align to full weeks if it's a "Month" view?
+        // User requesting: "If I choose week -> 7 days". "If I choose Month -> 30 days".
+        // So we adhere STRICTLY to the range provided.
+        // HOWEVER, for grid alignment, if we use rows=7 (days), we need to know which weekday 'start' is.
+        // The CSS grid 'grid-template-rows: repeat(7, ...)' fills strictly Top->Bottom => Sun->Sat.
+        // If 'start' is Wednesday, the first square will be top-left (Sunday slot visually), but logic says Wednesday?
+        // NO. Getting cells to align to Weekdays requires inserting padding cells.
 
-            const data = await getHistory(start, end);
+        // Pad start to Sunday
+        const dayOfWeek = start.getDay(); // 0 (Sun) - 6 (Sat)
+        // If we want alignment, we must add placeholders BEFORE start?
+        // But user wants "Show ONLY 7 days" for week.
+        // If Week starts Monday...
+        // Let's strictly show the range.
+        // If range is shorter than 2 weeks, maybe row-based (horizontal) is better?
+        // But if Month, we want vertical colums.
 
-            // Convert array to Map for O(1) lookup
-            const map = new Map<string, number>();
-            data.timeline.forEach(item => {
-                // Ensure date string matches local date comparison
-                // The API returns UTC usually, let's normalize to YYYY-MM-DD
-                const dateKey = new Date(item.date).toISOString().split('T')[0];
-                map.set(dateKey, item.count);
-            });
-            setHeatmapData(map);
-        } catch (e) {
-            console.error("Failed to load heatmap", e);
-        } finally {
-            // setLoading(false);
+        // Hybrid Approach:
+        // Use standard Grid logic:
+        // Determine offset from Sunday.
+        // Insert 'null' dates for padding.
+
+        const paddedDates: (Date | null)[] = [];
+        for (let i = 0; i < dayOfWeek; i++) {
+            paddedDates.push(null);
         }
-    };
 
-    // Generate grid dates
-    const generateDates = () => {
-        const dates: Date[] = [];
-        const today = new Date();
-        const endDate = new Date(today);
-
-        // Align end date to Saturday to finish the grid properly? 
-        // Or align start date to Sunday?
-        // GitHub aligns start date to Sunday.
-
-        const startDate = new Date(today);
-        startDate.setDate(today.getDate() - (WEEKS_TO_SHOW * 7));
-
-        // Find the Sunday before/of startDate
-        const day = startDate.getDay(); // 0 is Sunday
-        startDate.setDate(startDate.getDate() - day);
-
-        const current = new Date(startDate);
-        while (current <= endDate) {
-            dates.push(new Date(current));
+        const current = new Date(start);
+        while (current <= end) {
+            paddedDates.push(new Date(current));
             current.setDate(current.getDate() + 1);
         }
-        return dates;
-    };
 
-    const dates = generateDates();
+        return paddedDates;
+    }, [startDate, endDate]);
 
     // Helper to get color intensity
     const getClassForCount = (count: number) => {
@@ -80,7 +77,11 @@ const StudyHeatmap: React.FC = () => {
             <h4 className="heatmap-title">{t('activityLog' as any) || 'Activity Log'}</h4>
             <div className="heatmap-scroll-wrapper">
                 <div className="heatmap-grid">
-                    {dates.map((date) => {
+                    {dates.map((date, i) => {
+                        if (!date) {
+                            return <div key={`empty-${i}`} className="heatmap-cell empty" style={{ opacity: 0 }} />;
+                        }
+
                         const dateKey = date.toISOString().split('T')[0];
                         const count = heatmapData.get(dateKey) || 0;
                         const level = getClassForCount(count);
@@ -90,7 +91,7 @@ const StudyHeatmap: React.FC = () => {
                             <div
                                 key={dateKey}
                                 className={`heatmap-cell ${level}`}
-                                title={`${count} reviews on ${dayLabel}`}
+                                title={`${count} reviews on ${dayLabel} (${dateKey})`}
                                 data-date={dateKey}
                             />
                         );
@@ -98,13 +99,13 @@ const StudyHeatmap: React.FC = () => {
                 </div>
             </div>
             <div className="heatmap-legend">
-                <span>Less</span>
+                <span>-</span>
                 <div className="legend-cell level-0"></div>
                 <div className="legend-cell level-1"></div>
                 <div className="legend-cell level-2"></div>
                 <div className="legend-cell level-3"></div>
                 <div className="legend-cell level-4"></div>
-                <span>More</span>
+                <span>+</span>
             </div>
         </div>
     );

@@ -12,6 +12,28 @@ const StudyHistory: React.FC = () => {
     const [data, setData] = useState<HistoryData | null>(null);
     const [loading, setLoading] = useState(false);
 
+    const calculateDateRange = () => {
+        const start = new Date(currentDate);
+        const end = new Date(currentDate);
+
+        if (range === 'day') {
+            start.setHours(0, 0, 0, 0);
+            end.setHours(23, 59, 59, 999);
+        } else if (range === 'week') {
+            const day = start.getDay() || 7;
+            if (day !== 1) start.setHours(-24 * (day - 1));
+            start.setHours(0, 0, 0, 0);
+            end.setTime(start.getTime() + 7 * 24 * 60 * 60 * 1000 - 1);
+        } else if (range === 'month') {
+            start.setDate(1);
+            start.setHours(0, 0, 0, 0);
+            end.setMonth(end.getMonth() + 1);
+            end.setDate(0);
+            end.setHours(23, 59, 59, 999);
+        }
+        return { start, end };
+    };
+
     useEffect(() => {
         fetchHistory();
     }, [range, currentDate]);
@@ -19,25 +41,7 @@ const StudyHistory: React.FC = () => {
     const fetchHistory = async () => {
         setLoading(true);
         try {
-            const start = new Date(currentDate);
-            const end = new Date(currentDate);
-
-            if (range === 'day') {
-                start.setHours(0, 0, 0, 0);
-                end.setHours(23, 59, 59, 999);
-            } else if (range === 'week') {
-                const day = start.getDay() || 7;
-                if (day !== 1) start.setHours(-24 * (day - 1));
-                start.setHours(0, 0, 0, 0);
-                end.setTime(start.getTime() + 7 * 24 * 60 * 60 * 1000 - 1);
-            } else if (range === 'month') {
-                start.setDate(1);
-                start.setHours(0, 0, 0, 0);
-                end.setMonth(end.getMonth() + 1);
-                end.setDate(0);
-                end.setHours(23, 59, 59, 999);
-            }
-
+            const { start, end } = calculateDateRange();
             const history = await getHistory(start, end);
             setData(history);
         } catch (e) {
@@ -47,21 +51,16 @@ const StudyHistory: React.FC = () => {
         }
     };
 
-    const handleNext = () => {
+    const navDate = (direction: 'next' | 'prev') => {
         const d = new Date(currentDate);
-        if (range === 'day') d.setDate(d.getDate() + 1);
-        else if (range === 'week') d.setDate(d.getDate() + 7);
-        else if (range === 'month') d.setMonth(d.getMonth() + 1);
+        if (range === 'day') d.setDate(d.getDate() + (direction === 'next' ? 1 : -1));
+        else if (range === 'week') d.setDate(d.getDate() + (direction === 'next' ? 7 : -7));
+        else if (range === 'month') d.setMonth(d.getMonth() + (direction === 'next' ? 1 : -1));
         setCurrentDate(d);
     };
 
-    const handlePrev = () => {
-        const d = new Date(currentDate);
-        if (range === 'day') d.setDate(d.getDate() - 1);
-        else if (range === 'week') d.setDate(d.getDate() - 7);
-        else if (range === 'month') d.setMonth(d.getMonth() - 1);
-        setCurrentDate(d);
-    };
+    const handleNext = () => navDate('next');
+    const handlePrev = () => navDate('prev');
 
     const formatDateRange = () => {
         const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
@@ -77,6 +76,7 @@ const StudyHistory: React.FC = () => {
     };
 
     const chartData = data?.timeline || [];
+    const { start: currentStart, end: currentEnd } = calculateDateRange();
 
     if (!data && loading) return <div className="study-history-container" style={{ justifyContent: 'center', alignItems: 'center', color: '#666' }}>Loading...</div>;
 
@@ -163,7 +163,11 @@ const StudyHistory: React.FC = () => {
             </div>
 
             {/* Heatmap Activity Grid */}
-            <StudyHeatmap />
+            <StudyHeatmap
+                data={data?.timeline || []}
+                startDate={currentStart}
+                endDate={currentEnd}
+            />
         </div>
     );
 };
