@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { getHistory, type HistoryData } from '../../services/statsService';
 import { useTranslation } from '../../i18n/useTranslation';
+import StudyHeatmap from './StudyHeatmap';
 import './StudyHistory.css';
 
 const StudyHistory: React.FC = () => {
@@ -160,6 +161,9 @@ const StudyHistory: React.FC = () => {
                     </BarChart>
                 </ResponsiveContainer>
             </div>
+
+            {/* Heatmap Activity Grid */}
+            <StudyHeatmap />
         </div>
     );
 };
