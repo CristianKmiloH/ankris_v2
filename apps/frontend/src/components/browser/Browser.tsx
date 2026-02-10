@@ -267,8 +267,8 @@ const Browser: React.FC = () => {
                     </div>
                 )}
 
-                {/* Top Section: Search & Decks (Max 40%) */}
-                <div style={{ flex: '0 0 40%', display: 'flex', flexDirection: 'column', overflow: 'hidden', paddingBottom: '10px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                {/* Top Section: Search & Decks (Auto Height) */}
+                <div style={{ flex: '0 0 auto', display: 'flex', flexDirection: 'column', overflow: 'hidden', paddingBottom: '0px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
                     <div style={styles.searchBox}>
                         <input
                             type="text"
