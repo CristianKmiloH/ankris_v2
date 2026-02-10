@@ -206,7 +206,7 @@ button {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: var(--shadow-button);
   box-shadow: var(--shadow-button);
-  min-width: 200px;
+  /* min-width: 200px;  REMOVED BY USER REQUEST */
 }
 
 /* Override min-width for icon buttons */
