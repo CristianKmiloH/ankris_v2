@@ -181,6 +181,23 @@
     display: none;
 }
 
+.heatmap-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    /* Match grid gap for alignment */
+    width: 100%;
+    margin-bottom: 6px;
+}
+
+.heatmap-day-label {
+    text-align: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+}
+
 .heatmap-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);

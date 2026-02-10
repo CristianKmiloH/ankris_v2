@@ -58,10 +58,29 @@ const StudyHeatmap: React.FC<StudyHeatmapProps> = ({ data, startDate, endDate })
         return 'level-4';
     };
 
+    // Generate weekdays (Mon-Sun)
+    const weekdays = useMemo(() => {
+        const days = [];
+        const d = new Date();
+        const day = d.getDay();
+        const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
+        d.setDate(diff); // Set to Monday
+        for (let i = 0; i < 7; i++) {
+            days.push(new Date(d).toLocaleDateString('es-ES', { weekday: 'short' })); // Force ES or usage language
+            d.setDate(d.getDate() + 1);
+        }
+        return days;
+    }, []);
+
     return (
         <div className="study-heatmap-container">
             <h4 className="heatmap-title">{t('activityLog' as any) || 'Activity Log'}</h4>
             <div className="heatmap-scroll-wrapper">
+                <div className="heatmap-header">
+                    {weekdays.map((day, i) => (
+                        <div key={i} className="heatmap-day-label">{day}</div>
+                    ))}
+                </div>
                 <div className="heatmap-grid">
                     {dates.map((date, i) => {
                         if (!date) {
