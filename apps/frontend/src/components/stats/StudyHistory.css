@@ -268,3 +268,21 @@
     height: 6px;
     border-radius: 1px;
 }
+
+/* Fix for Recharts focus outline on mobiletap */
+:global(.recharts-wrapper) {
+    outline: none !important;
+}
+
+:global(.recharts-surface:focus),
+:global(.recharts-layer:focus),
+:global(.recharts-tooltip-wrapper:focus) {
+    outline: none !important;
+}
+
+/* Target internal SVG elements that might get focus */
+.study-chart-area path:focus,
+.study-chart-area rect:focus,
+.study-chart-area g:focus {
+    outline: none !important;
+}
