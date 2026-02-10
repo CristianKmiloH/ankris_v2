@@ -99,7 +99,7 @@ const styles = {
         padding: '24px 24px 0 24px',
         marginBottom: '24px',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-start', // Align with title, not center of block
         gap: '16px',
         flexShrink: 0,
     },
@@ -110,9 +110,10 @@ const styles = {
     },
     backButton: {
         marginRight: '16px',
+        marginTop: '8px', // Align with new title position
     },
     title: {
-        fontSize: 'clamp(2rem, 5vw, 2.5rem)',
+        fontSize: 'clamp(2.2rem, 6vw, 3rem)', // Increased size
         lineHeight: '1.1',
         marginBottom: '8px',
         color: 'var(--text-primary)',
@@ -135,6 +136,7 @@ const styles = {
         gap: '12px',
         flexShrink: 0, // Prevent shrinking
         alignItems: 'center',
+        marginTop: '6px', // Visual alignment with large title
     },
     content: {
         flex: '1 1 auto',
