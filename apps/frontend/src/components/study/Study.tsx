@@ -167,7 +167,7 @@ const Study: React.FC = () => {
                 ) : null
             }
             disableScroll={true}
-            headerStyle={{ marginBottom: 0, paddingBottom: 10 }} // Remove excess margin
+            headerStyle={{ marginBottom: 0, paddingBottom: 10, alignItems: 'center' }} // Align counter and settings button
             headerAction={
                 <button
                     onClick={() => setShowCustomStudyModal(true)}

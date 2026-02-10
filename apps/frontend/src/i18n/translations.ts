@@ -44,9 +44,10 @@ export const translations = {
         good: 'Normal', // Was 'Good'
         easy: 'Easy',
         sessionComplete: 'Session Complete!',
-        allCaughtUp: 'All Caught Up! 🎉',
+        allCaughtUp: 'All Caught Up!', // Removed emoji
         noCardsDue: 'No cards due for this deck right now.',
         backToDecks: 'Back to Decks',
+        studyAgain: 'Study Again', // Added key
         question: 'QUESTION',
         answer: 'ANSWER',
         studyFlipHint: 'Click or Space to flip',
@@ -204,9 +205,10 @@ export const translations = {
         good: 'Normal', // Was 'Bien'
         easy: 'Fácil',
         sessionComplete: '¡Sesión Completa!',
-        allCaughtUp: '¡Todo al Día! 🎉',
+        allCaughtUp: '¡Todo al Día!', // Removed emoji
         noCardsDue: 'No hay tarjetas pendientes para este mazo ahora.',
         backToDecks: 'Volver a Mazos',
+        studyAgain: 'Estudiar de Nuevo', // Added key
         question: 'PREGUNTA',
         answer: 'RESPUESTA',
         studyFlipHint: 'Haz clic o usa Espacio para voltear',
