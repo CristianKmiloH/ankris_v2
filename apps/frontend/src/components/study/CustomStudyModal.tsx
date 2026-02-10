@@ -109,9 +109,9 @@ const CustomStudyModal: React.FC<CustomStudyModalProps> = ({ deckId, deckName, o
                         <p style={styles.subtitle}>{deckName}</p>
 
                         <div style={styles.optionsGrid}>
-                            <button style={styles.optionButton} onClick={() => handleStart('standard')}>
-                                <span style={styles.icon}>📅</span>
-                                <span style={styles.label}>{t('studyDue') || 'Estudiar Pendientes'}</span>
+                            <button style={styles.optionButton} onClick={() => setView('search')}>
+                                <span style={styles.icon}>🔍</span>
+                                <span style={styles.label}>{t('searchCards') || 'Buscar Tarjeta'}</span>
                             </button>
 
                             <button style={styles.optionButton} onClick={() => handleStart('favorites')}>
@@ -119,14 +119,14 @@ const CustomStudyModal: React.FC<CustomStudyModalProps> = ({ deckId, deckName, o
                                 <span style={styles.label}>{t('studyFavorites') || 'Estudiar Favoritos'}</span>
                             </button>
 
+                            <button style={styles.optionButton} onClick={() => handleStart('standard')}>
+                                <span style={styles.icon}>📅</span>
+                                <span style={styles.label}>{t('studyDue') || 'Estudiar Pendientes'}</span>
+                            </button>
+
                             <button style={styles.optionButton} onClick={() => handleStart('all')}>
                                 <span style={styles.icon}>📚</span>
                                 <span style={styles.label}>{t('cramAll') || 'Repasar Todo (Cram)'}</span>
-                            </button>
-
-                            <button style={styles.optionButton} onClick={() => setView('search')}>
-                                <span style={styles.icon}>🔍</span>
-                                <span style={styles.label}>{t('searchCards') || 'Buscar Tarjeta'}</span>
                             </button>
                         </div>
 
