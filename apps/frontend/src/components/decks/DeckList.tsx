@@ -949,9 +949,7 @@ const styles: { [key: string]: React.CSSProperties } = {
         display: 'flex',
         gap: '8px',
         alignItems: 'center',
-        flexWrap: 'wrap', // Allow wrapping if screen is tiny
-        justifyContent: 'flex-end', // Align to right
-        maxWidth: '100%', // Prevent overflow
+        flexWrap: 'nowrap', // Force horizontal
     },
     createForm: {
         display: 'flex',

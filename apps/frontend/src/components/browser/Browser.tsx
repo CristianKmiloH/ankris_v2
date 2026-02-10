@@ -251,7 +251,7 @@ const Browser: React.FC = () => {
         <Layout
             activeTab="library"
             title={t('myCards') || "Mis Tarjetas"}
-            subtitle={t('startJourney')}
+            subtitle={t('exploreCards')}
             showBackButton={true}
             disableScroll={true}
             headerStyle={{ padding: '16px 16px 0 16px', marginBottom: '8px' }}

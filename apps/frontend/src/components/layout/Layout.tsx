@@ -133,6 +133,8 @@ const styles = {
     actions: {
         display: 'flex',
         gap: '12px',
+        flexShrink: 0, // Prevent shrinking
+        alignItems: 'center',
     },
     content: {
         flex: '1 1 auto',
