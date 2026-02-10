@@ -6,7 +6,7 @@ import Layout from '../layout/Layout';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { API_BASE_URL } from '../../config';
-import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface AnkiWebResult {
     id: string;
@@ -34,7 +34,7 @@ const DeckList: React.FC = () => {
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const [isImportHovered, setIsImportHovered] = useState(false);
     const [hoveredDeckId, setHoveredDeckId] = useState<string | null>(null); // Track hovered study button
-    const [draggedDeckId, setDraggedDeckId] = useState<string | null>(null); // Track dragged deck for live reordering
+
     const searchInputRef = React.useRef<HTMLInputElement>(null);
 
 
