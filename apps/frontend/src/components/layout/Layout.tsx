@@ -96,39 +96,40 @@ const styles = {
         overflow: 'hidden',
     },
     header: {
-        padding: '16px 16px 0 16px', // Reduced padding for mobile
-        marginBottom: '24px',
+        padding: '12px 12px 0 12px', // Minimal padding
+        marginBottom: '16px',
         display: 'flex',
-        alignItems: 'flex-start', // Align with title, not center of block
-        gap: '16px',
+        alignItems: 'flex-start',
+        gap: '8px', // Minimal gap
         flexShrink: 0,
     },
     compactHeader: {
-        padding: '8px 16px 0 16px',
+        padding: '8px 12px 0 12px',
         marginBottom: '4px',
         minHeight: '40px',
     },
     backButton: {
-        marginRight: '16px',
-        marginTop: '8px', // Align with new title position
+        marginRight: '12px', // Reduced margin
+        marginTop: '8px',
     },
     title: {
-        fontSize: 'clamp(3rem, 7vw, 4rem)', // Significantly increased as requested
+        fontSize: 'clamp(2.4rem, 7vw, 4rem)', // Slightly adjusted min to fit
         lineHeight: '1.1',
-        marginBottom: '8px',
+        marginBottom: '4px',
         color: 'var(--text-primary)',
         letterSpacing: '-1px',
+        fontWeight: '800',
+        whiteSpace: 'nowrap' as const, // Force single line
     },
     subtitle: {
         color: 'var(--accent-cyan)',
-        fontSize: '0.875rem',
+        fontSize: '0.8rem', // Slightly smaller for better fit
         fontWeight: '600',
-        letterSpacing: '1px',
+        letterSpacing: '0.5px',
         textTransform: 'uppercase' as const,
-        whiteSpace: 'nowrap' as const,
-        overflow: 'hidden' as const,
-        textOverflow: 'ellipsis' as const,
-        maxWidth: '100%',
+        whiteSpace: 'normal', // Allow wrapping
+        lineHeight: '1.2',
+        marginTop: '2px',
         display: 'block',
     },
     actions: {
@@ -136,7 +137,7 @@ const styles = {
         gap: '12px',
         flexShrink: 0, // Prevent shrinking
         alignItems: 'center',
-        marginTop: '6px', // Visual alignment with large title
+        marginTop: '8px', // Visual alignment
     },
     content: {
         flex: '1 1 auto',

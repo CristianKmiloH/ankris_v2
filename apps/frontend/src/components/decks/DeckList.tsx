@@ -951,7 +951,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     },
     headerButtons: {
         display: 'flex',
-        gap: '8px',
+        gap: '4px', // Minimal gap
         alignItems: 'center',
         flexWrap: 'nowrap', // Force horizontal
     },
@@ -1490,8 +1490,6 @@ interface DeckItemProps {
 
 const DeckItem = ({
     deck,
-    activeFilterId,
-    showFavoritesOnly,
     t,
     navigate,
     styles,
