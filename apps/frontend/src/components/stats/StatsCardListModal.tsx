@@ -121,20 +121,20 @@ const styles: { [key: string]: React.CSSProperties } = {
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.85)', // Dark premium overlay
+        backgroundColor: 'rgba(0, 0, 0, 0.85)',
         backdropFilter: 'blur(12px)',
         zIndex: 9999,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '20px',
+        padding: '16px', // Reduced padding for mobile
     },
     modal: {
-        backgroundColor: '#18181b', // Zinc-900 like
-        borderRadius: '24px', // Modern but not too round
+        backgroundColor: '#18181b',
+        borderRadius: '28px', // Slightly adjusted
         width: '100%',
-        maxWidth: '500px', // Slightly wider
-        height: '85vh',
+        maxWidth: '480px',
+        height: '90vh', // Taller on mobile
         maxHeight: '800px',
         border: '1px solid rgba(255, 255, 255, 0.08)',
         display: 'flex',
@@ -143,19 +143,24 @@ const styles: { [key: string]: React.CSSProperties } = {
         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
     },
     header: {
-        padding: '20px 24px',
+        padding: '16px 20px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
         background: 'rgba(255, 255, 255, 0.02)',
         flexShrink: 0,
+        gap: '12px',
     },
     title: {
         fontSize: '1.25rem',
         fontWeight: '700',
         margin: 0,
         letterSpacing: '-0.01em',
+        whiteSpace: 'nowrap', // Prevent title wrapping
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
     },
     countBadge: {
         background: 'rgba(255, 255, 255, 0.1)',
@@ -164,36 +169,36 @@ const styles: { [key: string]: React.CSSProperties } = {
         fontSize: '0.75rem',
         fontWeight: '600',
         color: 'var(--text-secondary)',
+        display: 'inline-block',
     },
     closeButton: {
         background: 'rgba(255, 255, 255, 0.05)',
         border: 'none',
         color: 'var(--text-secondary)',
         cursor: 'pointer',
-        width: '32px',
-        height: '32px',
-        borderRadius: '10px', // Square-ish rounded
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        width: '36px', // Fixed size
+        height: '36px', // Fixed size
+        borderRadius: '50%', // Perfectly round
+        display: 'grid', // Center content
+        placeItems: 'center',
+        flexShrink: 0, // Prevent squeezing
         transition: 'all 0.2s',
     },
     searchContainer: {
-        padding: '16px 24px',
+        padding: '12px 20px',
         flexShrink: 0,
     },
     inputWrapper: {
         display: 'flex',
         alignItems: 'center',
         backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        borderRadius: '14px', // Standard rounded input
+        borderRadius: '12px',
         border: '1px solid rgba(255, 255, 255, 0.08)',
         overflow: 'hidden',
-        transition: 'border-color 0.2s',
     },
     searchInput: {
         flex: 1,
-        padding: '12px 14px',
+        padding: '10px 12px',
         background: 'transparent',
         border: 'none',
         color: 'var(--text-primary)',
@@ -204,7 +209,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     listContainer: {
         flex: 1,
         overflowY: 'auto',
-        padding: '0 24px 24px',
+        padding: '0 20px 20px',
         display: 'flex',
         flexDirection: 'column',
         gap: '10px',
@@ -212,42 +217,43 @@ const styles: { [key: string]: React.CSSProperties } = {
     },
     cardItem: {
         backgroundColor: 'rgba(255, 255, 255, 0.03)',
-        borderRadius: '16px', // Reduced from 20px
+        borderRadius: '16px',
         padding: '16px',
         cursor: 'pointer',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'center', // Align vertically center
         justifyContent: 'space-between',
-        transition: 'all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1)',
+        transition: 'all 0.2s',
         border: '1px solid transparent',
         position: 'relative',
-        overflow: 'hidden',
         minHeight: '70px',
     },
     cardContent: {
         flex: 1,
-        marginRight: '16px',
+        marginRight: '12px',
         display: 'flex',
         flexDirection: 'column',
         gap: '4px',
-        overflow: 'hidden',
+        overflow: 'hidden', // Contain text
     },
     cardFront: {
         color: 'var(--text-primary)',
         fontSize: '1rem',
         fontWeight: '600',
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
+        wordBreak: 'break-word', // Allow breaking long words
+        lineHeight: 1.3,
     },
     cardBack: {
         color: 'var(--text-secondary)',
         fontSize: '0.85rem',
         fontWeight: '400',
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
         opacity: 0.7,
+        wordBreak: 'break-word',
+        lineHeight: 1.3,
+        display: '-webkit-box',
+        WebkitLineClamp: 2, // Limit to 2 lines
+        WebkitBoxOrient: 'vertical',
+        overflow: 'hidden',
     },
     actionIcon: {
         display: 'flex',
@@ -256,7 +262,7 @@ const styles: { [key: string]: React.CSSProperties } = {
         background: 'rgba(255, 255, 255, 0.05)',
         width: '32px',
         height: '32px',
-        borderRadius: '10px', // Match close button
+        borderRadius: '50%', // Circle arrow
         flexShrink: 0,
     },
     emptyState: {
