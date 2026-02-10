@@ -108,9 +108,9 @@ export const reorderDeck = async (id: string, direction: 'up' | 'down'): Promise
         },
         body: JSON.stringify({ direction })
     });
-});
-if (!response.ok) throw new Error('Failed to reorder deck');
-return response.json();
+
+    if (!response.ok) throw new Error('Failed to reorder deck');
+    return response.json();
 };
 
 export const updateDeckOrder = async (deckIds: string[]): Promise<void> => {
