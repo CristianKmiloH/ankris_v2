@@ -63,7 +63,7 @@ export const getUserStats = async (userId: string): Promise<UserStats> => {
     };
 };
 
-export const getStudyHistory = async (userId: string, start: Date, end: Date) => {
+export const getStudyHistory = async (userId: string, start: Date, end: Date, offsetMinutes: number = 0) => {
     const logs = await prisma.reviewLog.findMany({
         where: {
             userId,
@@ -75,23 +75,31 @@ export const getStudyHistory = async (userId: string, start: Date, end: Date) =>
         orderBy: { reviewDate: 'asc' }
     });
 
-    // Aggregate by day
+    // Aggregate by day using Client's Local Time
     const dayMap = new Map<string, number>();
     const gradeCounts = { 1: 0, 2: 0, 3: 0, 4: 0 };
 
     logs.forEach(log => {
-        const dayKey = log.reviewDate.toISOString().split('T')[0];
+        // Adjust UTC time to Local Time by subtracting the offset (minutes)
+        // getTimezoneOffset() returns positive for zones behind UTC (e.g. 300 for EST)
+        // So UTC - 300min = Local Time
+        const localTime = log.reviewDate.getTime() - (offsetMinutes * 60 * 1000);
+        const dayKey = new Date(localTime).toISOString().split('T')[0];
+
         dayMap.set(dayKey, (dayMap.get(dayKey) || 0) + 1);
         if (log.grade >= 1 && log.grade <= 4) {
             gradeCounts[log.grade as 1 | 2 | 3 | 4]++;
         }
     });
 
-    // Fill gaps? Maybe frontend handles it.
-    // Return simple structure
+    // Sort timeline by date
+    const sortedTimeline = Array.from(dayMap.entries())
+        .map(([date, count]) => ({ date, count }))
+        .sort((a, b) => a.date.localeCompare(b.date));
+
     return {
         total: logs.length,
-        timeline: Array.from(dayMap.entries()).map(([date, count]) => ({ date, count })),
+        timeline: sortedTimeline,
         grades: gradeCounts
     };
 };

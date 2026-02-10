@@ -30,6 +30,7 @@ export const getHistory = async (start?: Date, end?: Date): Promise<HistoryData>
     const params = new URLSearchParams();
     if (start) params.append('start', start.toISOString());
     if (end) params.append('end', end.toISOString());
+    params.append('offset', new Date().getTimezoneOffset().toString());
 
     const response = await fetch(`${API_BASE_URL}/api/stats/history?${params.toString()}`, {
         headers: { Authorization: `Bearer ${token}` }

@@ -18,12 +18,12 @@ router.get('/user', async (req: AuthRequest, res) => {
 router.get('/history', async (req: AuthRequest, res) => {
     try {
         const userId = req.user!.userId;
-        const { start, end } = req.query;
+        const { start, end, offset } = req.query;
 
         const startDate = start ? new Date(start as string) : new Date(new Date().setDate(new Date().getDate() - 30));
         const endDate = end ? new Date(end as string) : new Date();
 
-        const history = await getStudyHistory(userId, startDate, endDate);
+        const history = await getStudyHistory(userId, startDate, endDate, Number(offset || 0));
         res.json(history);
     } catch (error: any) {
         res.status(500).json({ error: error.message });
