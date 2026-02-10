@@ -27,30 +27,16 @@ const StudyHeatmap: React.FC<StudyHeatmapProps> = ({ data, startDate, endDate })
         const start = new Date(startDate);
         const end = new Date(endDate);
 
-        // Ensure we visually align to full weeks if it's a "Month" view?
-        // User requesting: "If I choose week -> 7 days". "If I choose Month -> 30 days".
-        // So we adhere STRICTLY to the range provided.
-        // HOWEVER, for grid alignment, if we use rows=7 (days), we need to know which weekday 'start' is.
-        // The CSS grid 'grid-template-rows: repeat(7, ...)' fills strictly Top->Bottom => Sun->Sat.
-        // If 'start' is Wednesday, the first square will be top-left (Sunday slot visually), but logic says Wednesday?
-        // NO. Getting cells to align to Weekdays requires inserting padding cells.
+        // Logic for Calendar Grid (row-major, Mon-Sun):
+        // We need to pad the start to align the first date to the correct weekday column.
+        // week starts on Monday (0) to Sunday (6) for this grid.
 
-        // Pad start to Sunday
         const dayOfWeek = start.getDay(); // 0 (Sun) - 6 (Sat)
-        // If we want alignment, we must add placeholders BEFORE start?
-        // But user wants "Show ONLY 7 days" for week.
-        // If Week starts Monday...
-        // Let's strictly show the range.
-        // If range is shorter than 2 weeks, maybe row-based (horizontal) is better?
-        // But if Month, we want vertical colums.
-
-        // Hybrid Approach:
-        // Use standard Grid logic:
-        // Determine offset from Sunday.
-        // Insert 'null' dates for padding.
+        // Convert to Monday-based index: 0 (Mon) ... 6 (Sun)
+        const mondayBasedDay = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
 
         const paddedDates: (Date | null)[] = [];
-        for (let i = 0; i < dayOfWeek; i++) {
+        for (let i = 0; i < mondayBasedDay; i++) {
             paddedDates.push(null);
         }
 
