@@ -6,7 +6,7 @@ import Layout from '../layout/Layout';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { API_BASE_URL } from '../../config';
-import { motion, AnimatePresence, LayoutGroup, Reorder, useDragControls } from 'framer-motion';
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 
 interface AnkiWebResult {
     id: string;
@@ -611,36 +611,29 @@ const DeckList: React.FC = () => {
                     )}
 
                     <div style={styles.deckGrid}>
-                        <Reorder.Group
-                            axis="y"
-                            values={decks}
-                            onReorder={setDecks}
-                            style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 600px)', gap: '20px', justifyContent: 'center', listStyle: 'none', padding: 0 }}
-                        >
-                            <AnimatePresence mode="popLayout">
-                                {decks
-                                    .filter(d => activeFilterId ? d.id === activeFilterId : true)
-                                    .filter(d => showFavoritesOnly ? d.isFavorite : true)
-                                    .map((deck) => (
-                                        <DeckItem
-                                            key={deck.id}
-                                            deck={deck}
-                                            activeFilterId={activeFilterId}
-                                            showFavoritesOnly={showFavoritesOnly}
-                                            t={t}
-                                            navigate={navigate}
-                                            styles={styles}
-                                            hoveredDeckId={hoveredDeckId}
-                                            setHoveredDeckId={setHoveredDeckId}
-                                            handleToggleFavorite={handleToggleFavorite}
-                                            openEditModal={openEditModal}
-                                            openDeleteModal={openDeleteModal}
-                                            setSelectedDeckId={setSelectedDeckId}
-                                            setShowAiModal={setShowAiModal}
-                                        />
-                                    ))}
-                            </AnimatePresence>
-                        </Reorder.Group>
+                        <AnimatePresence mode="popLayout">
+                            {decks
+                                .filter(d => activeFilterId ? d.id === activeFilterId : true)
+                                .filter(d => showFavoritesOnly ? d.isFavorite : true)
+                                .map((deck) => (
+                                    <DeckItem
+                                        key={deck.id}
+                                        deck={deck}
+                                        activeFilterId={activeFilterId}
+                                        showFavoritesOnly={showFavoritesOnly}
+                                        t={t}
+                                        navigate={navigate}
+                                        styles={styles}
+                                        hoveredDeckId={hoveredDeckId}
+                                        setHoveredDeckId={setHoveredDeckId}
+                                        handleToggleFavorite={handleToggleFavorite}
+                                        openEditModal={openEditModal}
+                                        openDeleteModal={openDeleteModal}
+                                        setSelectedDeckId={setSelectedDeckId}
+                                        setShowAiModal={setShowAiModal}
+                                    />
+                                ))}
+                        </AnimatePresence>
                     </div>
                 </div>
                 {fetchError && !isLoading && (
@@ -1497,26 +1490,12 @@ const DeckItem = ({
     setSelectedDeckId: any,
     setShowAiModal: any
 }) => {
-    const dragControls = useDragControls();
-
     return (
-        <Reorder.Item
-            value={deck}
-            dragListener={false} // Disable auto-drag
-            dragControls={dragControls} // Manual control
+        <motion.div
             layout // Standard layout animation (handles position & scale)
-            dragMomentum={false} // Prevents "slip" and jumping after release
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            whileDrag={{
-                scale: 1.05,
-                zIndex: 100,
-                boxShadow: "0 25px 60px rgba(0,0,0,0.7)",
-                backgroundColor: 'rgb(30, 30, 32)',
-                opacity: 1,
-                cursor: 'grabbing'
-            }}
             transition={{
                 layout: { type: 'spring', stiffness: 500, damping: 30 }, // Snappy reaction. No overlap.
                 opacity: { duration: 0.2 }
@@ -1524,20 +1503,13 @@ const DeckItem = ({
             style={{
                 ...styles.deckCard,
                 // Cursor logic: if filtering, default. If not filtering, auto (handled by listeners)
-                cursor: (!activeFilterId && !showFavoritesOnly) ? 'default' : 'default',
-                position: 'relative',
-                touchAction: 'none'
+                cursor: 'default',
+                position: 'relative'
             }}
             className="card-large deck-item"
         >
             {/* Drag Handle Indicator (6 Dots - 3x2 Horizontal Grid) */}
             <div
-                onPointerDown={(e) => {
-                    // Check if drag is allowed (not filtering)
-                    if (!activeFilterId && !showFavoritesOnly) {
-                        dragControls.start(e);
-                    }
-                }}
                 style={{
                     position: 'absolute',
                     left: '50%',
@@ -1548,7 +1520,7 @@ const DeckItem = ({
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    cursor: (!activeFilterId && !showFavoritesOnly) ? 'grab' : 'default',
+                    cursor: 'grab', // Visual hint only
                     zIndex: 20, // ensure top
                 }}
             >
@@ -1716,7 +1688,8 @@ const DeckItem = ({
                     </svg>
                 </button>
             </div>
-        </Reorder.Item>
+        </div>
+        </motion.div >
     );
 };
 
