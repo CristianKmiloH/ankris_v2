@@ -51,7 +51,7 @@ const Layout: React.FC<LayoutProps> = ({
                             </button>
                         )}
 
-                        <div style={{ flex: 1 }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
                             {title && <h1 style={styles.title}>{title}</h1>}
                             {subtitle && <p style={styles.subtitle}>{subtitle}</p>}
                         </div>
@@ -96,7 +96,7 @@ const styles = {
         overflow: 'hidden',
     },
     header: {
-        padding: '24px 24px 0 24px',
+        padding: '16px 16px 0 16px', // Reduced padding for mobile
         marginBottom: '24px',
         display: 'flex',
         alignItems: 'flex-start', // Align with title, not center of block
