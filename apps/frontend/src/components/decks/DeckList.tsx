@@ -1728,5 +1728,3 @@ const DeckItem = ({
 };
 
 export default DeckList;
-   
- 
