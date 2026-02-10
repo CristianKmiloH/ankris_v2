@@ -266,9 +266,9 @@ const DeckList: React.FC = () => {
                 onClick={handleImportClick}
                 className="btn-icon-round anim-header-import"
                 title={t('importModalTitle') || "Import / Download"}
-                style={{ width: '45px', height: '45px', minWidth: '45px' }}
+                style={{ width: '55px', height: '55px', minWidth: '55px' }}
             >
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ overflow: 'visible', width: '22px', height: '22px' }}>
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ overflow: 'visible', width: '24px', height: '24px' }}>
                     <g className="arrow-group">
                         <path className="arrow-shaft" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v10" />
                         <path className="arrow-head" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12l-4 4 -4-4" />
@@ -285,12 +285,12 @@ const DeckList: React.FC = () => {
                     border: '1px solid rgba(255, 255, 255, 0.2)',
                     boxShadow: '0 8px 16px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.3)',
                     color: 'var(--accent-cyan)',
-                    width: '45px',
-                    height: '45px',
-                    minWidth: '45px',
+                    width: '55px',
+                    height: '55px',
+                    minWidth: '55px',
                 }}
             >
-                <svg className="glass-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ width: '22px', height: '22px' }}>
+                <svg className="glass-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ width: '24px', height: '24px' }}>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
             </button>
@@ -306,9 +306,9 @@ const DeckList: React.FC = () => {
             className="btn-icon-round"
             title={showFavoritesOnly ? "Show All Decks" : "Show Favorites Only"}
             style={{
-                width: '45px',
-                height: '45px',
-                minWidth: '45px',
+                width: '55px',
+                height: '55px',
+                minWidth: '55px',
                 padding: 0,
                 display: 'flex',
                 alignItems: 'center',
@@ -327,7 +327,7 @@ const DeckList: React.FC = () => {
                 transition: 'all 0.2s ease',
             }}
         >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill={showFavoritesOnly ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill={showFavoritesOnly ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
             </svg>
         </button>
