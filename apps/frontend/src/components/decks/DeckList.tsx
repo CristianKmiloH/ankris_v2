@@ -947,7 +947,11 @@ const styles: { [key: string]: React.CSSProperties } = {
     },
     headerButtons: {
         display: 'flex',
-        gap: '12px',
+        gap: '8px',
+        alignItems: 'center',
+        flexWrap: 'wrap', // Allow wrapping if screen is tiny
+        justifyContent: 'flex-end', // Align to right
+        maxWidth: '100%', // Prevent overflow
     },
     createForm: {
         display: 'flex',
