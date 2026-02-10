@@ -20,6 +20,7 @@ const Stats: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalTitle, setModalTitle] = useState('');
     const [modalCards, setModalCards] = useState<Card[]>([]);
+    const [modalAccent, setModalAccent] = useState('var(--text-primary)');
     const [loadingCards, setLoadingCards] = useState(false);
 
     useEffect(() => {
@@ -56,21 +57,26 @@ const Stats: React.FC = () => {
 
         let filtered: Card[] = [];
         let title = '';
+        let accent = 'var(--text-primary)';
 
         if (type === 'new') {
             title = t('new') || 'New';
+            accent = 'var(--accent-purple)';
             filtered = cardsToFilter.filter(c => c.state === 0);
         } else if (type === 'learning') {
             title = t('learning') || 'Learning';
+            accent = 'var(--accent-orange)';
             // Assuming Learning=1, Relearning=3. Adjust if needed.
             filtered = cardsToFilter.filter(c => c.state === 1 || c.state === 3);
         } else if (type === 'review') {
             title = t('review') || 'Review';
+            accent = 'var(--accent-green)';
             filtered = cardsToFilter.filter(c => c.state === 2);
         }
 
         setModalTitle(title);
         setModalCards(filtered);
+        setModalAccent(accent);
         setIsModalOpen(true);
     };
 
@@ -143,6 +149,7 @@ const Stats: React.FC = () => {
                     title={modalTitle}
                     cards={modalCards}
                     onSelectCard={handleSelectCard}
+                    accentColor={modalAccent}
                 />
 
                 {loadingCards && (
