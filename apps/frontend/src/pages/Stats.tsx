@@ -1,15 +1,26 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import LoadingScreen from '../components/common/LoadingScreen';
 import { getStats, type StatsData } from '../services/statsService';
+import { getAllCards, type Card } from '../services/cardService';
 import DailyLoadChart from '../components/stats/DailyLoadChart';
 import RetentionChart from '../components/stats/RetentionChart';
 import StudyHistory from '../components/stats/StudyHistory';
+import StatsCardListModal from '../components/stats/StatsCardListModal';
 import { useTranslation } from '../i18n/useTranslation';
 
 const Stats: React.FC = () => {
+    const navigate = useNavigate();
     const [stats, setStats] = useState<StatsData | null>(null);
     const { t } = useTranslation();
+
+    // Modal State
+    const [allCards, setAllCards] = useState<Card[]>([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalTitle, setModalTitle] = useState('');
+    const [modalCards, setModalCards] = useState<Card[]>([]);
+    const [loadingCards, setLoadingCards] = useState(false);
 
     useEffect(() => {
         const load = async () => {
@@ -23,6 +34,53 @@ const Stats: React.FC = () => {
         load();
     }, []);
 
+    const handleStatClick = async (type: 'new' | 'learning' | 'review') => {
+        if (!stats) return;
+
+        let cardsToFilter = allCards;
+
+        // Fetch cards if not already loaded
+        if (allCards.length === 0) {
+            setLoadingCards(true);
+            try {
+                cardsToFilter = await getAllCards();
+                setAllCards(cardsToFilter);
+            } catch (e) {
+                console.error("Failed to load cards", e);
+                setLoadingCards(false);
+                return;
+            } finally {
+                setLoadingCards(false);
+            }
+        }
+
+        let filtered: Card[] = [];
+        let title = '';
+
+        if (type === 'new') {
+            title = t('new') || 'New';
+            filtered = cardsToFilter.filter(c => c.state === 0);
+        } else if (type === 'learning') {
+            title = t('learning') || 'Learning';
+            // Assuming Learning=1, Relearning=3. Adjust if needed.
+            filtered = cardsToFilter.filter(c => c.state === 1 || c.state === 3);
+        } else if (type === 'review') {
+            title = t('review') || 'Review';
+            filtered = cardsToFilter.filter(c => c.state === 2);
+        }
+
+        setModalTitle(title);
+        setModalCards(filtered);
+        setIsModalOpen(true);
+    };
+
+    const handleSelectCard = (card: Card) => {
+        setIsModalOpen(false);
+        // Navigate to study this specific card
+        // We use the card's deckId to ensure proper routing context
+        navigate(`/decks/${card.deckId}/study?type=card&cardId=${card.id}`);
+    };
+
     if (!stats) return <LoadingScreen />;
 
     return (
@@ -32,21 +90,36 @@ const Stats: React.FC = () => {
             subtitle={t('learningProgress')}
         >
             <div style={styles.container}>
-                {/* Key Metrics - Fixed or Top Priority */}
+                {/* Key Metrics - Interactive Capsules */}
                 <div style={styles.metricsContainer}>
                     <div style={styles.metricCard}>
                         <p style={styles.metricLabel}>{t('totalCards')}</p>
                         <h2 style={styles.metricValue}>{stats.totalCards}</h2>
                     </div>
-                    <div style={styles.metricCard}>
+                    {/* New - Interactive */}
+                    <div
+                        style={{ ...styles.metricCard, cursor: 'pointer', borderColor: 'var(--accent-purple-dim)' }}
+                        onClick={() => handleStatClick('new')}
+                        className="scale-on-hover"
+                    >
                         <p style={{ ...styles.metricLabel, color: 'var(--accent-purple)' }}>{t('new')}</p>
                         <h2 style={styles.metricValue}>{stats.newCards}</h2>
                     </div>
-                    <div style={styles.metricCard}>
+                    {/* Learning - Interactive */}
+                    <div
+                        style={{ ...styles.metricCard, cursor: 'pointer', borderColor: 'var(--accent-orange-dim)' }}
+                        onClick={() => handleStatClick('learning')}
+                        className="scale-on-hover"
+                    >
                         <p style={{ ...styles.metricLabel, color: 'var(--accent-orange)' }}>{t('learning')}</p>
                         <h2 style={styles.metricValue}>{stats.learningCards}</h2>
                     </div>
-                    <div style={styles.metricCard}>
+                    {/* Review - Interactive */}
+                    <div
+                        style={{ ...styles.metricCard, cursor: 'pointer', borderColor: 'var(--accent-green-dim)' }}
+                        onClick={() => handleStatClick('review')}
+                        className="scale-on-hover"
+                    >
                         <p style={{ ...styles.metricLabel, color: 'var(--accent-green)' }}>{t('review')}</p>
                         <h2 style={styles.metricValue}>{stats.reviewCards}</h2>
                     </div>
@@ -62,6 +135,21 @@ const Stats: React.FC = () => {
                         <RetentionChart rate={stats.retentionRate} />
                     </div>
                 </div>
+
+                {/* Card List Modal */}
+                <StatsCardListModal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    title={modalTitle}
+                    cards={modalCards}
+                    onSelectCard={handleSelectCard}
+                />
+
+                {loadingCards && (
+                    <div style={styles.loadingOverlay}>
+                        <div className="spinner"></div>
+                    </div>
+                )}
             </div>
         </Layout>
     );
@@ -94,6 +182,7 @@ const styles = {
         textAlign: 'center' as const,
         minWidth: '0',
         overflow: 'hidden',
+        transition: 'transform 0.2s, border-color 0.2s',
     },
     metricLabel: {
         fontSize: '0.65rem',
@@ -132,6 +221,15 @@ const styles = {
         minHeight: '280px', // Sufficient height for stats
         display: 'flex',
         flexDirection: 'column' as const,
+    },
+    loadingOverlay: {
+        position: 'fixed' as const,
+        top: 0, left: 0, right: 0, bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        zIndex: 9999,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
     }
 };
 
