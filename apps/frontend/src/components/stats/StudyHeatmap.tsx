@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { getHistory, type HistoryData } from '../../services/statsService';
+import { getHistory } from '../../services/statsService';
 import { useTranslation } from '../../i18n/useTranslation';
 import './StudyHistory.css'; // Share styles
 
 const StudyHeatmap: React.FC = () => {
     const { t } = useTranslation();
     const [heatmapData, setHeatmapData] = useState<Map<string, number>>(new Map());
-    const [loading, setLoading] = useState(true);
+    // const [loading, setLoading] = useState(true); // Unused for now
 
     // Config: Show last 6 months approx (26 weeks)
     const WEEKS_TO_SHOW = 26;
@@ -35,7 +35,7 @@ const StudyHeatmap: React.FC = () => {
         } catch (e) {
             console.error("Failed to load heatmap", e);
         } finally {
-            setLoading(false);
+            // setLoading(false);
         }
     };
 
@@ -77,7 +77,7 @@ const StudyHeatmap: React.FC = () => {
 
     return (
         <div className="study-heatmap-container">
-            <h4 className="heatmap-title">{t('activityLog') || 'Activity Log'}</h4>
+            <h4 className="heatmap-title">{t('activityLog' as any) || 'Activity Log'}</h4>
             <div className="heatmap-scroll-wrapper">
                 <div className="heatmap-grid">
                     {dates.map((date) => {
