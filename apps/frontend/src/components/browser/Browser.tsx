@@ -487,17 +487,17 @@ const styles: { [key: string]: React.CSSProperties } = {
         fontSize: '1rem',
     },
     deckFilters: {
-        marginBottom: '16px',
+        marginBottom: '4px', // Compact
     },
     deckButtons: {
         display: 'flex',
-        gap: '12px',
-        flexWrap: 'wrap', // Wrap instead of scroll
-        marginBottom: '8px',
+        gap: '6px', // Tighter gap
+        flexWrap: 'wrap',
+        marginBottom: '2px', // Minimal bottom margin
     },
     // Visual styles handled by .btn-glass / .btn-primary in CSS
     deckButton: {
-        padding: '10px 20px', // More padding for nicer hit target
+        padding: '8px 12px', // Compact padding
         fontSize: '0.875rem',
         cursor: 'pointer',
         whiteSpace: 'nowrap',
@@ -521,20 +521,27 @@ const styles: { [key: string]: React.CSSProperties } = {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
+        marginBottom: '8px', // Separation from grid
+        gap: '12px',
     },
     resultsTitle: {
         fontSize: '1.25rem',
         fontWeight: 'bold',
+        whiteSpace: 'nowrap',
     },
     hint: {
-        fontSize: '0.875rem',
+        fontSize: '0.8rem',
         color: 'var(--accent-cyan)',
+        textAlign: 'right' as const,
+        flex: 1, // Allow text to take space without crushing title
+        lineHeight: '1.2',
     },
     cardsGrid: {
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-        gap: '16px',
+        gap: '12px', // Slightly tighter
         width: '100%',
+        paddingBottom: '120px', // Extra scrolling space
     },
     cardHeader: {
         display: 'flex',
