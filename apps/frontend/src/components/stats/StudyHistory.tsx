@@ -21,17 +21,14 @@ const StudyHistory: React.FC = () => {
             const end = new Date(currentDate);
 
             if (range === 'day') {
-                // Single day (00:00 to 23:59)
                 start.setHours(0, 0, 0, 0);
                 end.setHours(23, 59, 59, 999);
             } else if (range === 'week') {
-                // Current week (Monday to Sunday)
-                const day = start.getDay() || 7; // 1=Mon, 7=Sun
+                const day = start.getDay() || 7;
                 if (day !== 1) start.setHours(-24 * (day - 1));
                 start.setHours(0, 0, 0, 0);
                 end.setTime(start.getTime() + 7 * 24 * 60 * 60 * 1000 - 1);
             } else if (range === 'month') {
-                // Current month
                 start.setDate(1);
                 start.setHours(0, 0, 0, 0);
                 end.setMonth(end.getMonth() + 1);
@@ -69,7 +66,6 @@ const StudyHistory: React.FC = () => {
         if (range === 'day') return currentDate.toLocaleDateString('es-ES', opts);
         if (range === 'month') return currentDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
 
-        // Week range
         const start = new Date(currentDate);
         const day = start.getDay() || 7;
         start.setDate(start.getDate() - (day - 1));
@@ -78,66 +74,93 @@ const StudyHistory: React.FC = () => {
         return `${start.toLocaleDateString('es-ES', opts)} - ${end.toLocaleDateString('es-ES', opts)}`;
     };
 
-    if (!data && loading) return <div style={styles.loading}>Loading history...</div>;
-
-    // Transform data for Recharts if needed, or use directly
     const chartData = data?.timeline || [];
+
+    if (!data && loading) return <div style={styles.loading}>Loading...</div>;
 
     return (
         <div style={styles.container}>
+            {/* Header: Title & Tabs */}
             <div style={styles.header}>
                 <h3 style={styles.title}>{t('studyHistory') || 'Study History'}</h3>
-                <div style={styles.controls}>
-                    <div style={styles.pillContainer}>
-                        {(['day', 'week', 'month'] as const).map(r => (
-                            <button
-                                key={r}
-                                style={{
-                                    ...styles.pill,
-                                    ...(range === r ? styles.pillActive : {})
-                                }}
-                                onClick={() => setRange(r)}
-                            >
-                                {r.charAt(0).toUpperCase() + r.slice(1)}
-                            </button>
-                        ))}
-                    </div>
+                <div style={styles.pillContainer}>
+                    {(['day', 'week', 'month'] as const).map(r => (
+                        <button
+                            key={r}
+                            style={{
+                                ...styles.pill,
+                                ...(range === r ? styles.pillActive : {})
+                            }}
+                            onClick={() => setRange(r)}
+                        >
+                            {t(r === 'day' ? 'days_mon' : r === 'week' ? 'week' : 'month') === 'days_mon' ? 'Día' :
+                                t(r === 'day' ? 'days_mon' : r === 'week' ? 'week' : 'month') === 'week' ? 'Sem' :
+                                    t(r === 'day' ? 'days_mon' : r === 'week' ? 'week' : 'month') === 'month' ? 'Mes' :
+                                        r.charAt(0).toUpperCase() + r.slice(1)}
+                        </button>
+                    ))}
                 </div>
             </div>
 
+            {/* Navigation & Summary Date */}
             <div style={styles.navRow}>
-                <button style={styles.navButton} onClick={handlePrev}>←</button>
+                <button style={styles.navButton} onClick={handlePrev}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+                </button>
+
                 <span style={styles.dateLabel}>{formatDateRange()}</span>
-                <button style={styles.navButton} onClick={handleNext}>→</button>
+
+                <button style={styles.navButton} onClick={handleNext}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg>
+                </button>
             </div>
 
+            {/* Big Stat Display */}
             <div style={styles.summaryRow}>
                 <div style={styles.summaryItem}>
                     <span style={styles.summaryValue}>{data?.total || 0}</span>
                     <span style={styles.summaryLabel}>{t('reviews') || 'Reviews'}</span>
                 </div>
-                {/* Could add grade breakdown here */}
             </div>
 
+            {/* Chart */}
             <div style={styles.chartContainer}>
                 <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData}>
+                    <BarChart data={chartData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
                         <XAxis
                             dataKey="date"
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fill: '#666', fontSize: 10 }}
-                            interval={range === 'month' ? 2 : 0}
+                            tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 10, fontWeight: 600 }}
+                            interval={range === 'month' ? 4 : 0}
+                            dy={10}
                         />
                         <Tooltip
-                            contentStyle={{ backgroundColor: '#1e1e20', border: 'none', borderRadius: '8px' }}
-                            cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                            contentStyle={{
+                                backgroundColor: 'rgba(30,30,32,0.95)',
+                                border: '1px solid rgba(255,255,255,0.1)',
+                                borderRadius: '12px',
+                                boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+                                padding: '8px 12px'
+                            }}
+                            cursor={{ fill: 'rgba(255,255,255,0.03)', radius: 4 }}
+                            itemStyle={{ color: '#fff', fontSize: '13px', fontWeight: 600 }}
+                            labelStyle={{ color: 'rgba(255,255,255,0.5)', fontSize: '11px', marginBottom: '4px' }}
                         />
-                        <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+                        <Bar dataKey="count" radius={[6, 6, 6, 6]} barSize={range === 'month' ? 6 : 12}>
                             {chartData.map((_, index) => (
-                                <Cell key={`cell-${index}`} fill="var(--accent-purple)" />
+                                <Cell
+                                    key={`cell-${index}`}
+                                    fill="url(#gradientBar)"
+                                />
                             ))}
                         </Bar>
+                        <defs>
+                            <linearGradient id="gradientBar" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="var(--accent-purple)" />
+                                <stop offset="100%" stopColor="var(--accent-purple)" stopOpacity={0.6} />
+                            </linearGradient>
+                        </defs>
                     </BarChart>
                 </ResponsiveContainer>
             </div>
@@ -148,108 +171,120 @@ const StudyHistory: React.FC = () => {
 const styles = {
     container: {
         backgroundColor: 'var(--bg-card)',
-        borderRadius: '24px',
-        padding: '20px',
+        borderRadius: '28px',
+        padding: '20px 24px',
         border: '1px solid var(--bg-card-elevated)',
         display: 'flex',
         flexDirection: 'column' as const,
-        gap: '16px',
-        minHeight: '350px',
+        gap: '20px',
+        minHeight: '380px',
+        position: 'relative' as const,
+        overflow: 'hidden',
     },
     header: {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
+        marginBottom: '4px',
     },
     title: {
-        fontSize: '1.1rem',
-        fontWeight: '700',
+        fontSize: '1.2rem',
+        fontWeight: '800',
         color: 'var(--text-primary)',
         margin: 0,
-    },
-    controls: {
-        display: 'flex',
-        gap: '8px',
+        letterSpacing: '-0.02em',
     },
     pillContainer: {
         display: 'flex',
-        backgroundColor: 'rgba(255,255,255,0.05)',
-        borderRadius: '20px',
-        padding: '2px',
+        backgroundColor: 'rgba(0,0,0,0.2)',
+        borderRadius: '100px',
+        padding: '3px',
+        gap: '2px',
     },
     pill: {
         backgroundColor: 'transparent',
         border: 'none',
-        color: 'var(--text-secondary)',
-        padding: '6px 12px',
-        borderRadius: '16px',
-        fontSize: '0.8rem',
+        color: 'rgba(255,255,255,0.5)',
+        padding: '6px 14px',
+        borderRadius: '100px',
+        fontSize: '0.75rem',
+        fontWeight: '600',
         cursor: 'pointer',
-        transition: 'all 0.2s ease',
+        transition: 'all 0.2s cubic-bezier(0.2, 0, 0.2, 1)',
+        textTransform: 'uppercase' as const,
+        letterSpacing: '0.5px',
     },
     pillActive: {
-        backgroundColor: 'var(--bg-card-elevated)',
+        backgroundColor: 'rgba(255,255,255,0.1)',
         color: 'var(--text-primary)',
-        fontWeight: '600',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+        fontWeight: '700',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
     },
     navRow: {
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
-        gap: '16px',
+        justifyContent: 'space-between',
+        padding: '0 10px',
+        backgroundColor: 'rgba(255,255,255,0.02)',
+        borderRadius: '20px',
+        height: '64px',
     },
     navButton: {
-        background: 'none',
-        border: '1px solid var(--bg-card-elevated)',
+        background: 'rgba(255,255,255,0.05)',
+        border: 'none',
         borderRadius: '50%',
-        width: '32px',
-        height: '32px',
+        width: '44px',
+        height: '44px',
         color: 'var(--text-primary)',
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontSize: '1.2rem',
+        transition: 'all 0.2s ease',
     },
     dateLabel: {
         color: 'var(--text-primary)',
-        fontWeight: '600',
-        fontSize: '0.95rem',
-        minWidth: '120px',
+        fontWeight: '700',
+        fontSize: '1rem',
         textAlign: 'center' as const,
+        letterSpacing: '0.5px',
     },
     summaryRow: {
         display: 'flex',
         justifyContent: 'center',
-        gap: '24px',
-        paddingBottom: '8px',
+        alignItems: 'center',
+        paddingTop: '4px',
     },
     summaryItem: {
         display: 'flex',
         flexDirection: 'column' as const,
         alignItems: 'center',
+        gap: '4px',
     },
     summaryValue: {
-        fontSize: '1.5rem',
-        fontWeight: '800',
-        color: 'var(--text-primary)',
+        fontSize: '2.5rem',
+        fontWeight: '900',
+        color: 'var(--accent-purple)',
+        lineHeight: '1',
+        textShadow: '0 4px 20px rgba(138, 43, 226, 0.4)',
     },
     summaryLabel: {
         fontSize: '0.75rem',
-        color: 'var(--text-secondary)',
+        color: 'rgba(255,255,255,0.5)',
         textTransform: 'uppercase' as const,
-        letterSpacing: '0.5px',
+        letterSpacing: '2px',
+        fontWeight: '600',
     },
     chartContainer: {
         flex: 1,
-        minHeight: '200px',
+        minHeight: '160px',
         width: '100%',
+        marginTop: '10px',
     },
     loading: {
-        padding: '20px',
+        padding: '40px',
         textAlign: 'center' as const,
-        color: 'var(--text-secondary)',
+        color: 'rgba(255,255,255,0.4)',
     }
 };
 
