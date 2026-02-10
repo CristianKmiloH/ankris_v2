@@ -39,8 +39,10 @@ const StatsCardListModal: React.FC<StatsCardListModalProps> = ({
             <div
                 style={{
                     ...styles.modal,
-                    boxShadow: `0 25px 50px -12px ${accentColor}`,
-                    borderColor: `${accentColor}33` // 20% opacity
+                    boxShadow: `0 25px 50px -12px ${accentColor}`, // Use var directly
+                    borderColor: accentColor,
+                    borderWidth: '1px',
+                    borderStyle: 'solid'
                 }}
                 onClick={e => e.stopPropagation()}
                 className="slide-up"
@@ -63,8 +65,8 @@ const StatsCardListModal: React.FC<StatsCardListModalProps> = ({
 
                 {/* Search */}
                 <div style={styles.searchContainer}>
-                    <div style={styles.inputWrapper}>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" style={{ marginLeft: '12px' }}>
+                    <div style={{ ...styles.inputWrapper, borderColor: accentColor }}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={accentColor} strokeWidth="2" style={{ marginLeft: '12px' }}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                         <input
@@ -109,6 +111,19 @@ const StatsCardListModal: React.FC<StatsCardListModalProps> = ({
                     )}
                 </div>
 
+                {/* Bottom colored glow */}
+                <div style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: '20px',
+                    background: accentColor,
+                    filter: 'blur(30px)',
+                    opacity: 0.2, // Low opacity for subtle look
+                    pointerEvents: 'none',
+                    zIndex: 10
+                }} />
             </div>
         </div>
     );
