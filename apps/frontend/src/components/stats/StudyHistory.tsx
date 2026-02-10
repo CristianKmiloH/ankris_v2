@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { getHistory, type HistoryData } from '../../services/statsService';
 import { useTranslation } from '../../i18n/useTranslation';
+import './StudyHistory.css';
 
 const StudyHistory: React.FC = () => {
     const { t } = useTranslation();
@@ -76,21 +77,18 @@ const StudyHistory: React.FC = () => {
 
     const chartData = data?.timeline || [];
 
-    if (!data && loading) return <div style={styles.loading}>Loading...</div>;
+    if (!data && loading) return <div className="study-history-container" style={{ justifyContent: 'center', alignItems: 'center', color: '#666' }}>Loading...</div>;
 
     return (
-        <div style={styles.container}>
+        <div className="study-history-container">
             {/* Header: Title & Tabs */}
-            <div style={styles.header}>
-                <h3 style={styles.title}>{t('studyHistory') || 'Study History'}</h3>
-                <div style={styles.pillContainer}>
+            <div className="study-history-header">
+                <h3 className="study-history-title">{t('studyHistory') || 'Study History'}</h3>
+                <div className="study-history-controls">
                     {(['day', 'week', 'month'] as const).map(r => (
                         <button
                             key={r}
-                            style={{
-                                ...styles.pill,
-                                ...(range === r ? styles.pillActive : {})
-                            }}
+                            className={`study-pill ${range === r ? 'active' : ''}`}
                             onClick={() => setRange(r)}
                         >
                             {t(r === 'day' ? 'days_mon' : r === 'week' ? 'week' : 'month') === 'days_mon' ? 'Día' :
@@ -103,28 +101,26 @@ const StudyHistory: React.FC = () => {
             </div>
 
             {/* Navigation & Summary Date */}
-            <div style={styles.navRow}>
-                <button style={styles.navButton} onClick={handlePrev}>
+            <div className="study-nav-row">
+                <button className="study-nav-btn" onClick={handlePrev}>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
                 </button>
 
-                <span style={styles.dateLabel}>{formatDateRange()}</span>
+                <span className="study-date-label">{formatDateRange()}</span>
 
-                <button style={styles.navButton} onClick={handleNext}>
+                <button className="study-nav-btn" onClick={handleNext}>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg>
                 </button>
             </div>
 
             {/* Big Stat Display */}
-            <div style={styles.summaryRow}>
-                <div style={styles.summaryItem}>
-                    <span style={styles.summaryValue}>{data?.total || 0}</span>
-                    <span style={styles.summaryLabel}>{t('reviews') || 'Reviews'}</span>
-                </div>
+            <div className="study-summary">
+                <span className="study-summary-value">{data?.total || 0}</span>
+                <span className="study-summary-label">{t('reviews') || 'Reviews'}</span>
             </div>
 
             {/* Chart */}
-            <div style={styles.chartContainer}>
+            <div className="study-chart-area">
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
                         <XAxis
@@ -166,126 +162,6 @@ const StudyHistory: React.FC = () => {
             </div>
         </div>
     );
-};
-
-const styles = {
-    container: {
-        backgroundColor: 'var(--bg-card)',
-        borderRadius: '28px',
-        padding: '20px 24px',
-        border: '1px solid var(--bg-card-elevated)',
-        display: 'flex',
-        flexDirection: 'column' as const,
-        gap: '20px',
-        minHeight: '380px',
-        position: 'relative' as const,
-        overflow: 'hidden',
-    },
-    header: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '4px',
-    },
-    title: {
-        fontSize: '1.2rem',
-        fontWeight: '800',
-        color: 'var(--text-primary)',
-        margin: 0,
-        letterSpacing: '-0.02em',
-    },
-    pillContainer: {
-        display: 'flex',
-        backgroundColor: 'rgba(0,0,0,0.2)',
-        borderRadius: '100px',
-        padding: '3px',
-        gap: '2px',
-    },
-    pill: {
-        backgroundColor: 'transparent',
-        border: 'none',
-        color: 'rgba(255,255,255,0.5)',
-        padding: '6px 14px',
-        borderRadius: '100px',
-        fontSize: '0.75rem',
-        fontWeight: '600',
-        cursor: 'pointer',
-        transition: 'all 0.2s cubic-bezier(0.2, 0, 0.2, 1)',
-        textTransform: 'uppercase' as const,
-        letterSpacing: '0.5px',
-    },
-    pillActive: {
-        backgroundColor: 'rgba(255,255,255,0.1)',
-        color: 'var(--text-primary)',
-        fontWeight: '700',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-    },
-    navRow: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '0 10px',
-        backgroundColor: 'rgba(255,255,255,0.02)',
-        borderRadius: '20px',
-        height: '64px',
-    },
-    navButton: {
-        background: 'rgba(255,255,255,0.05)',
-        border: 'none',
-        borderRadius: '50%',
-        width: '44px',
-        height: '44px',
-        color: 'var(--text-primary)',
-        cursor: 'pointer',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        transition: 'all 0.2s ease',
-    },
-    dateLabel: {
-        color: 'var(--text-primary)',
-        fontWeight: '700',
-        fontSize: '1rem',
-        textAlign: 'center' as const,
-        letterSpacing: '0.5px',
-    },
-    summaryRow: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingTop: '4px',
-    },
-    summaryItem: {
-        display: 'flex',
-        flexDirection: 'column' as const,
-        alignItems: 'center',
-        gap: '4px',
-    },
-    summaryValue: {
-        fontSize: '2.5rem',
-        fontWeight: '900',
-        color: 'var(--accent-purple)',
-        lineHeight: '1',
-        textShadow: '0 4px 20px rgba(138, 43, 226, 0.4)',
-    },
-    summaryLabel: {
-        fontSize: '0.75rem',
-        color: 'rgba(255,255,255,0.5)',
-        textTransform: 'uppercase' as const,
-        letterSpacing: '2px',
-        fontWeight: '600',
-    },
-    chartContainer: {
-        flex: 1,
-        minHeight: '160px',
-        width: '100%',
-        marginTop: '10px',
-    },
-    loading: {
-        padding: '40px',
-        textAlign: 'center' as const,
-        color: 'rgba(255,255,255,0.4)',
-    }
 };
 
 export default StudyHistory;
