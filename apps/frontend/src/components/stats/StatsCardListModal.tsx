@@ -178,11 +178,13 @@ const styles: { [key: string]: React.CSSProperties } = {
         cursor: 'pointer',
         width: '36px', // Fixed size
         height: '36px', // Fixed size
+        padding: 0, // RESET GLOBAL PADDING
         borderRadius: '50%', // Perfectly round
         display: 'grid', // Center content
         placeItems: 'center',
         flexShrink: 0, // Prevent squeezing
         transition: 'all 0.2s',
+        minWidth: '36px', // Ensure it doesn't shrink
     },
     searchContainer: {
         padding: '12px 20px',
@@ -195,6 +197,7 @@ const styles: { [key: string]: React.CSSProperties } = {
         borderRadius: '12px',
         border: '1px solid rgba(255, 255, 255, 0.08)',
         overflow: 'hidden',
+        width: '100%',
     },
     searchInput: {
         flex: 1,
@@ -205,6 +208,7 @@ const styles: { [key: string]: React.CSSProperties } = {
         fontSize: '0.95rem',
         outline: 'none',
         fontWeight: '500',
+        minWidth: 0, // Fix flex child overflow
     },
     listContainer: {
         flex: 1,
@@ -226,22 +230,24 @@ const styles: { [key: string]: React.CSSProperties } = {
         transition: 'all 0.2s',
         border: '1px solid transparent',
         position: 'relative',
-        minHeight: '70px',
+        minHeight: 'auto', // Allow growth
     },
     cardContent: {
         flex: 1,
         marginRight: '12px',
         display: 'flex',
         flexDirection: 'column',
-        gap: '4px',
+        gap: '6px',
         overflow: 'hidden', // Contain text
+        minWidth: 0, // Enable truncation
     },
     cardFront: {
         color: 'var(--text-primary)',
         fontSize: '1rem',
         fontWeight: '600',
         wordBreak: 'break-word', // Allow breaking long words
-        lineHeight: 1.3,
+        lineHeight: 1.4,
+        whiteSpace: 'normal',
     },
     cardBack: {
         color: 'var(--text-secondary)',
@@ -249,11 +255,8 @@ const styles: { [key: string]: React.CSSProperties } = {
         fontWeight: '400',
         opacity: 0.7,
         wordBreak: 'break-word',
-        lineHeight: 1.3,
-        display: '-webkit-box',
-        WebkitLineClamp: 2, // Limit to 2 lines
-        WebkitBoxOrient: 'vertical',
-        overflow: 'hidden',
+        lineHeight: 1.4,
+        whiteSpace: 'normal', // Allow wrap
     },
     actionIcon: {
         display: 'flex',
