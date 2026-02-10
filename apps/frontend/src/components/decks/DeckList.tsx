@@ -991,7 +991,7 @@ const styles: { [key: string]: React.CSSProperties } = {
         width: '100%',
     },
     deckCard: {
-        transition: 'transform 0.2s',
+        // transition: 'transform 0.2s', // Removed to avoid conflict with framer-motion
         margin: 0,
         padding: '20px', // Increased padding to prevent text touching edges
         width: '100%',
