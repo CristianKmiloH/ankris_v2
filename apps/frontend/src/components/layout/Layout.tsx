@@ -113,7 +113,7 @@ const styles = {
         marginTop: '8px', // Align with new title position
     },
     title: {
-        fontSize: 'clamp(2.2rem, 6vw, 3rem)', // Increased size
+        fontSize: 'clamp(2.5rem, 6vw, 3rem)', // Increased size further as requested
         lineHeight: '1.1',
         marginBottom: '8px',
         color: 'var(--text-primary)',
