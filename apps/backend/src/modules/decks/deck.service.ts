@@ -139,3 +139,27 @@ export const reorderDeck = async (userId: string, deckId: string, direction: 'up
 
     return decks;
 };
+
+export const updateDeckOrder = async (userId: string, deckIds: string[]) => {
+    // Validate ownership of all decks first? 
+    // Or just try to update where userId matches.
+    // Efficient approach: Transaction
+
+    // We only update decks that belong to the user
+    // To be safe, we can use a transaction or Promise.all
+
+    // Security check: ensure all deckIds belong to user? 
+    // If not, we just ignore the bad ones or update the ones we found.
+    // Simpler: Just update where id=deckId AND userId=userId.
+
+    const updatePromises = deckIds.map((id, index) =>
+        prisma.deck.updateMany({
+            where: { id, userId },
+            data: { orderIndex: index }
+        })
+    );
+
+    await Promise.all(updatePromises);
+
+    return true;
+};

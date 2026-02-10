@@ -112,4 +112,21 @@ router.patch('/:id/reorder', async (req: AuthRequest, res) => {
     }
 });
 
+// Batch Reorder (Drag & Drop)
+router.patch('/reorder-batch', async (req: AuthRequest, res) => {
+    try {
+        const userId = req.user!.userId;
+        const { deckIds } = req.body;
+
+        if (!Array.isArray(deckIds)) {
+            return res.status(400).json({ error: 'deckIds must be an array' });
+        }
+
+        await DeckService.updateDeckOrder(userId, deckIds);
+        res.json({ success: true });
+    } catch (error: any) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 export default router;

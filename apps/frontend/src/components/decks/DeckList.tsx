@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from '../../i18n/useTranslation';
-import { getDecks, createDeck, deleteDeck, importDeck, updateDeck, toggleFavorite, type Deck } from '../../services/deckService';
+import { getDecks, createDeck, deleteDeck, importDeck, updateDeck, toggleFavorite, updateDeckOrder, type Deck } from '../../services/deckService';
 import GeneratorModal from '../ai/GeneratorModal';
 import Layout from '../layout/Layout';
 import { useNavigate } from 'react-router-dom';
@@ -647,6 +647,7 @@ const DeckList: React.FC = () => {
                                         openDeleteModal={openDeleteModal}
                                         setSelectedDeckId={setSelectedDeckId}
                                         setShowAiModal={setShowAiModal}
+                                        onDragEnd={() => updateDeckOrder(decks.map(d => d.id))}
                                     />
                                 ))}
                         </AnimatePresence>
@@ -1477,6 +1478,23 @@ const styles: { [key: string]: React.CSSProperties } = {
 };
 
 // Extracted DeckItem Component for isolated drag controls
+interface DeckItemProps {
+    deck: any;
+    activeFilterId: any;
+    showFavoritesOnly: any;
+    t: any;
+    navigate: any;
+    styles: any;
+    hoveredDeckId: any;
+    setHoveredDeckId: any;
+    handleToggleFavorite: any;
+    openEditModal: any;
+    openDeleteModal: any;
+    setSelectedDeckId: any;
+    setShowAiModal: any;
+    onDragEnd: () => void;
+}
+
 const DeckItem = ({
     deck,
     activeFilterId,
@@ -1490,22 +1508,9 @@ const DeckItem = ({
     openEditModal,
     openDeleteModal,
     setSelectedDeckId,
-    setShowAiModal
-}: {
-    deck: any,
-    activeFilterId: any,
-    showFavoritesOnly: any,
-    t: any,
-    navigate: any,
-    styles: any,
-    hoveredDeckId: any,
-    setHoveredDeckId: any,
-    handleToggleFavorite: any,
-    openEditModal: any,
-    openDeleteModal: any,
-    setSelectedDeckId: any,
-    setShowAiModal: any
-}) => {
+    setShowAiModal,
+    onDragEnd
+}: DeckItemProps) => {
     const dragControls = useDragControls();
 
     return (
@@ -1513,6 +1518,7 @@ const DeckItem = ({
             value={deck}
             dragListener={false}
             dragControls={dragControls}
+            onDragEnd={onDragEnd}
             layout // Standard layout animation (handles position & scale)
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
