@@ -612,9 +612,20 @@ const DeckList: React.FC = () => {
 
                     <Reorder.Group
                         axis="y"
+                        layoutScroll // Crucial for scrolling lists
                         values={decks}
                         onReorder={setDecks}
-                        style={{ ...styles.deckGrid, listStyle: 'none', padding: 0 }} // Merge grid styles
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: '16px',
+                            listStyle: 'none',
+                            padding: '0 0 80px 0', // Extra padding at bottom for FAB
+                            width: '100%',
+                            maxWidth: '600px', // constrain width for desktop to look like list
+                            margin: '0 auto' // center the list
+                        }}
                     >
                         <AnimatePresence mode="popLayout">
                             {decks
@@ -1513,7 +1524,7 @@ const DeckItem = ({
                 opacity: 1, // Solid, no transparency
             }}
             transition={{
-                layout: { type: 'spring', stiffness: 500, damping: 30 }, // Snappy reaction. No overlap.
+                layout: { type: 'spring', stiffness: 300, damping: 25 }, // Slightly softer spring
                 opacity: { duration: 0.2 }
             }}
             style={{
