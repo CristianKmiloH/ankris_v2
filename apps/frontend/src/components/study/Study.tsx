@@ -240,8 +240,8 @@ const Study: React.FC = () => {
                                             }}
                                             style={{
                                                 position: 'absolute',
-                                                top: '10px',
-                                                right: '10px', // Matches Flip Icon Left: 10px
+                                                top: '12px', // Visual adjustment
+                                                right: '14px', // Visual adjustment (Icon is wider than flip arrow)
                                                 cursor: 'pointer',
                                                 zIndex: 25,
                                                 color: cards[currentCardIndex].isFavorite ? '#ff4081' : 'var(--text-muted)',
@@ -256,6 +256,89 @@ const Study: React.FC = () => {
                                         <div style={{ width: '40px' }}></div> {/* Spacer for Flip Icon */}
                                         <span className="badge">{t('question')}</span>
                                         <div style={{ width: '40px' }}></div> {/* Spacer to balance */}
+                                    </div>
+
+                                    {/* RESTORED CONTENT */}
+                                    <div style={styles.cardContent} ref={frontContentRef}>
+                                        <div style={styles.scrollableInner}>
+                                            <h1 style={styles.questionText}>
+                                                {parse(cards[currentCardIndex].front, {
+                                                    replace: (domNode) => {
+                                                        if (domNode.type === 'text') {
+                                                            const text = domNode.data;
+                                                            const soundMatch = text.match(/\[sound:(.*?)\]/);
+                                                            let cleanText = text.replace(/\[sound:.*?\]/g, '');
+                                                            if (cleanText.trim() === 'd') cleanText = '';
+                                                            else cleanText = cleanText.replace(/\s+d\s*$/, '');
+
+                                                            if (soundMatch) {
+                                                                const filename = soundMatch[1];
+                                                                const finalSrc = (filename && (filename.startsWith('http') || filename.startsWith('blob:') || filename.startsWith('data:')))
+                                                                    ? filename
+                                                                    : `${MEDIA_BASE_URL}/${filename}`;
+
+                                                                const isVideo = /\.(mp4|mov|mkv|ogv)$/i.test(filename);
+
+                                                                if (isVideo) {
+                                                                    return (
+                                                                        <>
+                                                                            {cleanText}
+                                                                            <video
+                                                                                src={finalSrc}
+                                                                                className="card-media"
+                                                                                controls
+                                                                                style={{ display: 'block', width: '100%', margin: '15px 0' }}
+                                                                            />
+                                                                        </>
+                                                                    );
+                                                                } else {
+                                                                    return (
+                                                                        <>
+                                                                            {cleanText}
+                                                                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', margin: '20px 0', position: 'relative', zIndex: 10 }} onClick={(e) => e.stopPropagation()}>
+                                                                                <audio controls src={finalSrc} style={{ width: '100%' }} />
+                                                                            </div>
+                                                                        </>
+                                                                    );
+                                                                }
+                                                            }
+                                                            return cleanText;
+                                                        }
+                                                        if (domNode.type === 'tag') {
+                                                            if (domNode.name === 'img') {
+                                                                const src = domNode.attribs.src;
+                                                                if (src && !src.startsWith('http') && !src.startsWith('data:')) {
+                                                                    domNode.attribs.src = `${MEDIA_BASE_URL}/${src}`;
+                                                                    domNode.attribs.class = (domNode.attribs.class || '') + ' card-media';
+                                                                    delete domNode.attribs.style;
+                                                                }
+                                                            }
+                                                            if (domNode.name === 'audio') {
+                                                                const src = domNode.attribs.src;
+                                                                const finalSrc = (src && !src.startsWith('http') && !src.startsWith('data:'))
+                                                                    ? `${MEDIA_BASE_URL}/${src}`
+                                                                    : src;
+
+                                                                return (
+                                                                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', margin: '20px 0', position: 'relative', zIndex: 10 }} onClick={(e) => e.stopPropagation()}>
+                                                                        <audio controls src={finalSrc} style={{ width: '100%' }} />
+                                                                    </div>
+                                                                );
+                                                            }
+                                                            if (domNode.name === 'video') {
+                                                                const src = domNode.attribs.src;
+                                                                if (src && !src.startsWith('http') && !src.startsWith('data:')) {
+                                                                    domNode.attribs.src = `${MEDIA_BASE_URL}/${src}`;
+                                                                }
+                                                                domNode.attribs.class = (domNode.attribs.class || '') + ' card-media';
+                                                                domNode.attribs.controls = "true";
+                                                                domNode.attribs.style = "display: block; width: 100%; margin: 10px 0;";
+                                                            }
+                                                        }
+                                                    }
+                                                })}
+                                            </h1>
+                                        </div>
                                     </div>
 
                                     {/* Card Counter Removed from here */}
