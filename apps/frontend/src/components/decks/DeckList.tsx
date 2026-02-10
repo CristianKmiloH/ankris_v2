@@ -1688,8 +1688,7 @@ const DeckItem = ({
                     </svg>
                 </button>
             </div>
-        </div>
-        </motion.div >
+        </motion.div>
     );
 };
 
