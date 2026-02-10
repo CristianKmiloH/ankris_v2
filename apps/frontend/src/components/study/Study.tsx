@@ -228,117 +228,34 @@ const Study: React.FC = () => {
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                             </svg>
                                         </div>
+
+                                        {/* Favorite Heart - Moved inside Header for Symmetry */}
+                                        <div
+                                            className={`favorite-icon ${triggerHeart ? 'anim-heart-pop' : ''}`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setTriggerHeart(true);
+                                                setTimeout(() => setTriggerHeart(false), 700);
+                                                handleToggleFavorite();
+                                            }}
+                                            style={{
+                                                position: 'absolute',
+                                                top: '10px',
+                                                right: '10px', // Matches Flip Icon Left: 10px
+                                                cursor: 'pointer',
+                                                zIndex: 25,
+                                                color: cards[currentCardIndex].isFavorite ? '#ff4081' : 'var(--text-muted)',
+                                                transition: 'color 0.3s ease'
+                                            }}
+                                        >
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill={cards[currentCardIndex].isFavorite ? "currentColor" : "none"} stroke="currentColor" strokeWidth={cards[currentCardIndex].isFavorite ? "0" : "2.5"} strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                            </svg>
+                                        </div>
+
                                         <div style={{ width: '40px' }}></div> {/* Spacer for Flip Icon */}
                                         <span className="badge">{t('question')}</span>
                                         <div style={{ width: '40px' }}></div> {/* Spacer to balance */}
-                                    </div>
-                                    <div style={styles.cardContent} ref={frontContentRef}>
-                                        <div style={styles.scrollableInner}>
-                                            <h1 style={styles.questionText}>
-                                                {parse(cards[currentCardIndex].front, {
-                                                    replace: (domNode) => {
-                                                        if (domNode.type === 'text') {
-                                                            const text = domNode.data;
-                                                            const soundMatch = text.match(/\[sound:(.*?)\]/);
-                                                            let cleanText = text.replace(/\[sound:.*?\]/g, '');
-                                                            if (cleanText.trim() === 'd') cleanText = '';
-                                                            else cleanText = cleanText.replace(/\s+d\s*$/, '');
-
-                                                            if (soundMatch) {
-                                                                const filename = soundMatch[1];
-                                                                const finalSrc = (filename && (filename.startsWith('http') || filename.startsWith('blob:') || filename.startsWith('data:')))
-                                                                    ? filename
-                                                                    : `${MEDIA_BASE_URL}/${filename}`;
-
-                                                                const isVideo = /\.(mp4|mov|mkv|ogv)$/i.test(filename);
-
-                                                                if (isVideo) {
-                                                                    return (
-                                                                        <>
-                                                                            {cleanText}
-                                                                            <video
-                                                                                src={finalSrc}
-                                                                                className="card-media"
-                                                                                controls
-                                                                                style={{ display: 'block', width: '100%', margin: '15px 0' }}
-                                                                            />
-                                                                        </>
-                                                                    );
-                                                                } else {
-                                                                    return (
-                                                                        <>
-                                                                            {cleanText}
-                                                                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', margin: '20px 0', position: 'relative', zIndex: 10 }} onClick={(e) => e.stopPropagation()}>
-                                                                                <audio controls src={finalSrc} style={{ width: '100%' }} />
-                                                                            </div>
-                                                                        </>
-                                                                    );
-                                                                }
-                                                            }
-                                                            return cleanText;
-                                                        }
-                                                        if (domNode.type === 'tag') {
-                                                            if (domNode.name === 'img') {
-                                                                const src = domNode.attribs.src;
-                                                                if (src && !src.startsWith('http') && !src.startsWith('data:')) {
-                                                                    domNode.attribs.src = `${MEDIA_BASE_URL}/${src}`;
-                                                                    domNode.attribs.class = (domNode.attribs.class || '') + ' card-media';
-                                                                    delete domNode.attribs.style;
-                                                                }
-                                                            }
-                                                            if (domNode.name === 'audio') {
-                                                                const src = domNode.attribs.src;
-                                                                const finalSrc = (src && !src.startsWith('http') && !src.startsWith('data:'))
-                                                                    ? `${MEDIA_BASE_URL}/${src}`
-                                                                    : src;
-
-                                                                return (
-                                                                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', margin: '20px 0', position: 'relative', zIndex: 10 }} onClick={(e) => e.stopPropagation()}>
-                                                                        <audio controls src={finalSrc} style={{ width: '100%' }} />
-                                                                    </div>
-                                                                );
-                                                            }
-                                                            if (domNode.name === 'video') {
-                                                                const src = domNode.attribs.src;
-                                                                if (src && !src.startsWith('http') && !src.startsWith('data:')) {
-                                                                    domNode.attribs.src = `${MEDIA_BASE_URL}/${src}`;
-                                                                }
-                                                                domNode.attribs.class = (domNode.attribs.class || '') + ' card-media';
-                                                                domNode.attribs.controls = "true";
-                                                                domNode.attribs.style = "display: block; width: 100%; margin: 10px 0;";
-                                                            }
-                                                        }
-                                                    }
-                                                })}
-                                            </h1>
-                                        </div>
-                                    </div>
-
-
-
-                                    {/* Favorite Heart - Top Right (Left of Counter) */}
-                                    <div
-                                        className={`favorite-icon ${triggerHeart ? 'anim-heart-pop' : ''}`}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setTriggerHeart(true);
-                                            setTimeout(() => setTriggerHeart(false), 700); // 700ms to match animation
-                                            handleToggleFavorite();
-                                        }}
-                                        style={{
-                                            position: 'absolute',
-                                            top: '10px',
-                                            right: '10px', // Top Right corner
-                                            cursor: 'pointer',
-                                            zIndex: 25,
-                                            color: cards[currentCardIndex].isFavorite ? '#ff4081' : 'var(--text-muted)',
-                                            transition: 'color 0.3s ease'
-                                        }}
-                                    >
-                                        {/* Premium Puffy Heart SVG (24px) */}
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill={cards[currentCardIndex].isFavorite ? "currentColor" : "none"} stroke="currentColor" strokeWidth={cards[currentCardIndex].isFavorite ? "0" : "2.5"} strokeLinecap="round" strokeLinejoin="round">
-                                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                                        </svg>
                                     </div>
 
                                     {/* Card Counter Removed from here */}
