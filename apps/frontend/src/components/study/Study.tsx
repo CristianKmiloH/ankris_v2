@@ -191,19 +191,25 @@ const Study: React.FC = () => {
                 <LoadingScreen />
             ) : cards.length === 0 ? (
                 <div style={styles.emptyContainer}>
-                    <h2 style={styles.emptyTitle}>
-                        {t('allCaughtUp')} <span style={{ fontSize: '2.5rem' }}>🎉</span>
+                    <h2 style={{ ...styles.emptyTitle, justifyContent: 'center' }}>
+                        {t('allCaughtUp')}
                     </h2>
+                    <div style={{ fontSize: '4rem', margin: '10px 0', animation: 'pop 0.5s ease' }}>🎉</div>
                     <p style={styles.emptyText}>{t('noCardsDue')}</p>
-                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
-                        <button onClick={() => navigate('/')} className="btn-primary">
-                            {t('backToDecks')}
-                        </button>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%', alignItems: 'center', marginTop: '20px' }}>
                         <button
                             onClick={() => loadCards(deckId, 'all')}
-                            className="btn-secondary"
+                            className="btn-primary"
+                            style={{ width: '80%', maxWidth: '300px' }}
                         >
-                            Estudiar Todo de Nuevo
+                            {t('studyAgain') || "Estudiar Todo de Nuevo"}
+                        </button>
+                        <button
+                            onClick={() => navigate('/')}
+                            className="btn-secondary"
+                            style={{ width: '80%', maxWidth: '300px' }}
+                        >
+                            {t('backToDecks')}
                         </button>
                     </div>
                 </div>
