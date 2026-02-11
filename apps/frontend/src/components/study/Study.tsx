@@ -262,7 +262,7 @@ const Study: React.FC = () => {
                                     {/* RESTORED CONTENT */}
                                     <div style={styles.cardContent} ref={frontContentRef}>
                                         <div style={styles.scrollableInner}>
-                                            <h1 style={styles.questionText}>
+                                            <h1 style={styles.questionText} className="card-content-text">
                                                 {parse(cards[currentCardIndex].front, {
                                                     replace: (domNode) => {
                                                         if (domNode.type === 'text') {
@@ -354,7 +354,7 @@ const Study: React.FC = () => {
                                     </div>
                                     <div style={styles.cardContent} ref={backContentRef}>
                                         <div style={styles.scrollableInner}>
-                                            <div style={styles.answerText}>
+                                            <div style={styles.answerText} className="card-content-text">
                                                 {parse(cards[currentCardIndex].back, {
                                                     replace: (domNode) => {
                                                         if (domNode.type === 'text') {
