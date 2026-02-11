@@ -84,7 +84,7 @@ const Layout: React.FC<LayoutProps> = ({
 
 const styles = {
     container: {
-        height: '100vh',
+        height: '100dvh',
         display: 'flex',
         flexDirection: 'column' as const,
         backgroundColor: 'var(--bg-app)',
