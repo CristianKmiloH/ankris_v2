@@ -492,6 +492,48 @@ const Study: React.FC = () => {
 
                 </div>
             )}
+            {/* Inject Global Styles for Card Content Readability */}
+            <style>{`
+                @keyframes pop {
+                    0% { transform: scale(1); }
+                    50% { transform: scale(1.4); }
+                    100% { transform: scale(1); }
+                }
+                .btn-icon-study {
+                    background: rgba(255, 255, 255, 0.1);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 50%;
+                    color: white;
+                    width: 40px;
+                    height: 40px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+                .btn-icon-study:hover {
+                    background: rgba(255, 255, 255, 0.2);
+                    transform: scale(1.05);
+                }
+                
+                /* Enforce Contrast on Imported Card Content */
+                .card-content-text, .card-content-text * {
+                    color: var(--text-primary) !important;
+                    background-color: transparent !important;
+                }
+                .card-content-text img, .card-content-text video, .card-content-text audio {
+                    display: block;
+                    max-width: 100%;
+                    height: auto;
+                }
+                /* Ensure media doesn't inherit text color force */
+                .card-media {
+                   display: block;
+                   max-width: 100%;
+                   margin: 10px auto; 
+                }
+            `}</style>
         </Layout>
     );
 };
